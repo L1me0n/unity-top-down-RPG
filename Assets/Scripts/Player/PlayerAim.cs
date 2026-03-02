@@ -1,7 +1,7 @@
 using UnityEngine;
 
 
-public class PlayerAim2D : MonoBehaviour
+public class PlayerAim : MonoBehaviour, IAimProvider
 {
     [Header("References")]
     [SerializeField] private Transform aimPivot;
