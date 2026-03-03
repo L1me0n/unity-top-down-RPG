@@ -1578,6 +1578,9 @@ MonoBehaviour:
   transitionLockSeconds: 0.15
   logTransitions: 1
   cameraClampBehaviour: {fileID: 519420033}
+  useBoundedMap: 1
+  minCoord: {x: -2, y: -2}
+  maxCoord: {x: 2, y: 2}
 --- !u!4 &1254287710
 Transform:
   m_ObjectHideFlags: 0
@@ -1758,6 +1761,7 @@ GameObject:
   - component: {fileID: 1899699342}
   - component: {fileID: 1899699344}
   - component: {fileID: 1899699343}
+  - component: {fileID: 1899699345}
   m_Layer: 5
   m_Name: Text (TMP)
   m_TagString: Untagged
@@ -1884,6 +1888,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1899699341}
   m_CullTransparentMesh: 1
+--- !u!114 &1899699345
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1899699341}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6a70e936d1c98dd4ca5c4a29232af8e7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RoomDebugUI
+  roomManager: {fileID: 1254287709}
+  label: {fileID: 1899699343}
 --- !u!1 &1934506461
 GameObject:
   m_ObjectHideFlags: 0

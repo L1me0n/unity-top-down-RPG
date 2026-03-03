@@ -20,6 +20,14 @@ public class RoomManager : MonoBehaviour
     [Header("Camera Clamping")]
     [SerializeField] private CameraFollow cameraClampBehaviour;
 
+    [Header("Map Bounds")]
+    [SerializeField] private bool useBoundedMap = true;
+    [SerializeField] private Vector2Int minCoord = new Vector2Int(-2, -2);
+    [SerializeField] private Vector2Int maxCoord = new Vector2Int(2, 2);
+
+    private readonly System.Collections.Generic.Dictionary<Vector2Int, RoomState> states
+        = new System.Collections.Generic.Dictionary<Vector2Int, RoomState>();
+
     public Vector2Int CurrentCoord => currentCoord;
     public RoomInstance CurrentRoom => currentRoom;
 
@@ -45,6 +53,13 @@ public class RoomManager : MonoBehaviour
         if (roomPrefab == null || player == null) return;
 
         Vector2Int next = currentCoord + DirToDelta(viaDoorDirection);
+
+        if (!IsCoordAllowed(next))
+        {
+            if (logTransitions)
+                Debug.Log($"[RoomManager] Blocked transition to {next} (out of bounds).");
+            return;
+        }
 
         // When we go NORTH through a door, the next room is entered FROM SOUTH.
         RoomDirection enteredFromSideInNewRoom = Opposite(viaDoorDirection);
@@ -104,10 +119,15 @@ public class RoomManager : MonoBehaviour
         // Update coord
         currentCoord = coord;
 
+        var state = GetOrCreateState(coord);
+        state.visited = true;
+
         // Hook doors to this manager
         var doors = roomGo.GetComponentsInChildren<RoomDoor>(true);
         for (int i = 0; i < doors.Length; i++)
             doors[i].SetRoomManager(this);
+        
+        UpdateDoorAvailability(doors);
 
         // Place player at the correct spawn
         Vector3 spawnPos = currentRoom.GetSpawnPosition(enteredFrom);
@@ -137,5 +157,34 @@ public class RoomManager : MonoBehaviour
             case RoomDirection.West:  return RoomDirection.East;
         }
         return d;
+    }
+
+    private bool IsCoordAllowed(Vector2Int c)
+    {
+        if (!useBoundedMap) return true;
+        return c.x >= minCoord.x && c.x <= maxCoord.x && c.y >= minCoord.y && c.y <= maxCoord.y;
+    }
+
+    private RoomState GetOrCreateState(Vector2Int c)
+    {
+        if (!states.TryGetValue(c, out var s))
+        {
+            s = new RoomState(visited: false, cleared: false);
+            states.Add(c, s);
+        }
+        return s;
+    }
+
+    private void UpdateDoorAvailability(RoomDoor[] doors)
+    {
+        for (int i = 0; i < doors.Length; i++)
+        {
+            RoomDoor d = doors[i];
+            Vector2Int target = currentCoord + DirToDelta(d.Direction);
+            bool allowed = IsCoordAllowed(target);
+
+            // Disable the whole door object so trigger + visual both disappear.
+            d.gameObject.SetActive(allowed);
+        }
     }
 }
