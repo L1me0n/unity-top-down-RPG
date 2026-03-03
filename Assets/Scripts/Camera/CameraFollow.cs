@@ -68,4 +68,9 @@ public class CameraFollow : MonoBehaviour
 
         return camPos;
     }
+
+    public void SetRoomBounds(BoxCollider2D bounds)
+    {
+        roomBounds = bounds;
+    }
 }
