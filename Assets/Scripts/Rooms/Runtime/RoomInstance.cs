@@ -12,6 +12,16 @@ public class RoomInstance : MonoBehaviour
     [SerializeField] private Transform spawnFromSouth;
     [SerializeField] private Transform spawnFromWest;
 
+    [Header("Doors")]
+    public RoomDoor[] Doors { get; private set; }
+    public RoomDoorLockable[] DoorLocks { get; private set; }
+
+    private void Awake()
+    {
+        Doors = GetComponentsInChildren<RoomDoor>(true);
+        DoorLocks = GetComponentsInChildren<RoomDoorLockable>(true);
+    }
+
     public BoxCollider2D RoomBounds => roomBounds;
 
     public Vector3 GetSpawnPosition(RoomDirection? enteredFrom)

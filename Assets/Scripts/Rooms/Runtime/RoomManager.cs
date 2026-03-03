@@ -119,13 +119,21 @@ public class RoomManager : MonoBehaviour
         // Update coord
         currentCoord = coord;
 
-        var state = GetOrCreateState(coord);
-        state.visited = true;
+        
 
         // Hook doors to this manager
-        var doors = roomGo.GetComponentsInChildren<RoomDoor>(true);
+        var doors = currentRoom.Doors;
         for (int i = 0; i < doors.Length; i++)
             doors[i].SetRoomManager(this);
+
+        var state = GetOrCreateState(coord);
+        bool clearedAlready = state.cleared;
+
+        var combat = currentRoom.GetComponent<RoomCombatController>();
+        if (combat != null)
+        {
+            combat.OnRoomEntered(this, currentCoord, clearedAlready);
+        }  
         
         UpdateDoorAvailability(doors);
 
@@ -186,5 +194,11 @@ public class RoomManager : MonoBehaviour
             // Disable the whole door object so trigger + visual both disappear.
             d.gameObject.SetActive(allowed);
         }
+    }
+
+    public void MarkCurrentRoomCleared()
+    {
+        var state = GetOrCreateState(currentCoord);
+        state.cleared = true;
     }
 }

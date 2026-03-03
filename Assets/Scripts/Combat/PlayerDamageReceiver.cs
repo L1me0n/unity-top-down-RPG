@@ -29,6 +29,9 @@ public class PlayerDamageReceiver : MonoBehaviour
 
         stats.TakeDamage(amount);
 
+        var hpRegen = GetComponent<HPRegen>();
+        if (hpRegen != null) hpRegen.NotifyDamaged();
+
         if (stats.HP <= 0)
             OnDied?.Invoke();
     }
