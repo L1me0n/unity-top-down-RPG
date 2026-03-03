@@ -45,7 +45,7 @@ public class HUDController : MonoBehaviour
         {
             if (attackHPFill != null) attackHPFill.fillAmount = hp01;
             if (attackAPFill != null) attackAPFill.fillAmount = ap01;
-            if (attackDPText != null) attackDPText.text = $"DP {stats.DP}";
+            if (attackDPText != null) attackDPText.text = $"Damage: {stats.DP}";
         }
         else
         {
