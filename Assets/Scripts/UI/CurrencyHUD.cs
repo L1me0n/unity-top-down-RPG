@@ -4,6 +4,7 @@ using UnityEngine;
 public class CurrencyHUD : MonoBehaviour
 {
     [SerializeField] private RunCurrency currency;
+    [SerializeField] private LevelSystem levelSystem;
     [SerializeField] private TMP_Text soulsText;
     [SerializeField] private TMP_Text xpText;
 
@@ -18,20 +19,28 @@ public class CurrencyHUD : MonoBehaviour
 
     private void OnEnable()
     {
-        if (currency != null) currency.OnChanged += Refresh;
-        Refresh();
+        if (currency != null) currency.OnChanged += HandleSouls;
+        if (levelSystem != null) levelSystem.OnProgressChanged += HandleXP;
+        HandleXP(levelSystem.ProgressXP, levelSystem.XPToNext);
+        HandleSouls();
     }
 
     private void OnDisable()
     {
-        if (currency != null) currency.OnChanged -= Refresh;
+        if (currency != null) currency.OnChanged -= HandleSouls;
+        if (levelSystem != null) levelSystem.OnProgressChanged -= HandleXP;
     }
 
-    private void Refresh()
+    private void HandleSouls()
     {
         if (currency == null) return;
 
         if (soulsText != null) soulsText.text = $"Souls: {currency.Souls}";
-        if (xpText != null) xpText.text = $"XP: {currency.XP}";
+    }
+
+    private void HandleXP(int progressXP, int xpToNext)
+    {
+        if (levelSystem == null || currency == null) return;
+        if (xpText != null) xpText.text = $"XP: {progressXP} / {xpToNext}";
     }
 }
