@@ -25,6 +25,8 @@ public class RoomManager : MonoBehaviour
     [SerializeField] private Vector2Int minCoord = new Vector2Int(-2, -2);
     [SerializeField] private Vector2Int maxCoord = new Vector2Int(2, 2);
 
+    [SerializeField] private float currencyLossOnDeath = 0.25f;   // lose 25% of souls/xp on death
+
     private readonly System.Collections.Generic.Dictionary<Vector2Int, RoomState> states
         = new System.Collections.Generic.Dictionary<Vector2Int, RoomState>();
 
@@ -193,6 +195,42 @@ public class RoomManager : MonoBehaviour
 
             // Disable the whole door object so trigger + visual both disappear.
             d.gameObject.SetActive(allowed);
+        }
+    }
+
+    public void RespawnInCurrentRoom()
+    {
+        if (currentRoom == null || player == null) return;
+
+        // 1) restore stats
+        var stats = player.GetComponent<PlayerStats>();
+        if (stats != null)
+        {
+            stats.Heal(999999);
+            stats.GainAP(999999);
+        }
+
+        // 2) reset enemies to their original spawn points (NO new spawns)
+        var combat = currentRoom.GetComponent<RoomCombatController>();
+        if (combat != null)
+            combat.ResetAliveEnemiesToSpawnPoints();
+
+        // 3) take a portion of currency on death
+        var currency = player.GetComponent<RunCurrency>();
+        if (currency != null)
+        {
+            currency.TakeSouls(currencyLossOnDeath);
+            currency.TakeXP(currencyLossOnDeath);
+        }
+
+        // 4) teleport player to center spawn (enteredFrom null -> Spawn_Center)
+        player.position = currentRoom.GetSpawnPosition(null);
+
+        // 5) clear motion
+        if (playerRb != null)
+        {
+            playerRb.linearVelocity = Vector2.zero;
+            playerRb.angularVelocity = 0f;
         }
     }
 

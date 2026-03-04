@@ -14,7 +14,15 @@ public class RoomCombatController : MonoBehaviour
     [SerializeField] private int minEnemies = 2;
     [SerializeField] private int maxEnemies = 5;
 
-    private readonly List<GameObject> alive = new List<GameObject>();
+    [SerializeField] private bool resetEnemiesToSpawnsOnPlayerRespawn = true;
+
+    private struct SpawnedEnemy
+    {
+        public Transform spawn;
+        public GameObject enemy;
+    }
+
+    private List<SpawnedEnemy> alive = new List<SpawnedEnemy>();
 
     private RoomManager roomManager;
     private Vector2Int roomCoord;
@@ -90,14 +98,22 @@ public class RoomCombatController : MonoBehaviour
             var link = e.AddComponent<EnemyRoomLink>();
             link.Init(this);
 
-            alive.Add(e);
+            alive.Add(new SpawnedEnemy { spawn = sp, enemy = e });
         }
     }
 
     // Called by EnemyRoomLink when enemy dies/destroys
     public void NotifyEnemyDead(GameObject enemy)
     {
-        alive.Remove(enemy);
+        for (int i = alive.Count - 1; i >= 0; i--)
+    {
+        if (alive[i].enemy == enemy)
+        {
+            alive.RemoveAt(i);
+            break;
+        }
+    }
+
 
         if (alive.Count <= 0)
         {
@@ -149,6 +165,27 @@ public class RoomCombatController : MonoBehaviour
             var tmp = list[i];
             list[i] = list[j];
             list[j] = tmp;
+        }
+    }
+
+    public void ResetAliveEnemiesToSpawnPoints()
+    {
+        if (!resetEnemiesToSpawnsOnPlayerRespawn) return;
+
+        for (int i = 0; i < alive.Count; i++)
+        {
+            var entry = alive[i];
+            if (entry.enemy == null || entry.spawn == null) continue;
+
+            entry.enemy.transform.position = entry.spawn.position;
+
+            // reset physics so they don’t “slide” from old velocity
+            var rb = entry.enemy.GetComponent<Rigidbody2D>();
+            if (rb != null)
+            {
+                rb.linearVelocity = Vector2.zero;
+                rb.angularVelocity = 0f;
+            }
         }
     }
 }

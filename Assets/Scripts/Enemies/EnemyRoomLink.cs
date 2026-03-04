@@ -16,7 +16,6 @@ public class EnemyRoomLink : MonoBehaviour
     }
 
 
-    // Fallback: when enemy is destroyed, count it as dead
     private void OnDestroy()
     {
         if (room != null)
