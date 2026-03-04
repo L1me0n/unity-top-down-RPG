@@ -208,6 +208,10 @@ public class RoomManager : MonoBehaviour
         {
             stats.Heal(999999);
             stats.GainAP(999999);
+
+            stats.SetMaxHP(stats.MaxHP-1);
+            stats.SetMaxAP(stats.MaxAP-1);
+            stats.SetDP(stats.DP-1);
         }
 
         // 2) reset enemies to their original spawn points (NO new spawns)

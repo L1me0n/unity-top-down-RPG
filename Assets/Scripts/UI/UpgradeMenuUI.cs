@@ -132,7 +132,7 @@ public class UpgradeMenuUI : MonoBehaviour
         if (levelSystem == null || progression == null) return;
 
         if (unspentText != null)
-            unspentText.text = $"Unspent: {levelSystem.UnspentPoints}";
+            unspentText.text = $"Points: {levelSystem.UnspentPoints}";
 
         SetBranchRow(BranchType.Demon, demonText, demonButton);
         SetBranchRow(BranchType.Monster, monsterText, monsterButton);

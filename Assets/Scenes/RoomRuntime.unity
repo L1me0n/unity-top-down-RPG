@@ -979,7 +979,6 @@ MonoBehaviour:
   fallenGodButton: {fileID: 206729649}
   hellhoundText: {fileID: 1492934530}
   hellhoundButton: {fileID: 2063202915}
-  log: 1
 --- !u!1 &232275748
 GameObject:
   m_ObjectHideFlags: 0
@@ -3262,7 +3261,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: +2 HP
+  m_text: +1 HP
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -3454,7 +3453,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: +2 Damage
+  m_text: +1 Damage
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -4070,7 +4069,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: +2 AP
+  m_text: +1 AP
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -4879,7 +4878,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: +0.3s Disappear
+  m_text: +0.1s Disappear
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -5685,6 +5684,7 @@ GameObject:
   - component: {fileID: 2073994560}
   - component: {fileID: 2073994561}
   - component: {fileID: 2073994562}
+  - component: {fileID: 2073994563}
   m_Layer: 7
   m_Name: Player
   m_TagString: Player
@@ -6045,6 +6045,28 @@ MonoBehaviour:
   monster: 0
   fallenGod: 0
   hellhound: 0
+--- !u!114 &2073994563
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2073994544}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 889695ac865f47948ab006f199a1d4c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ProgressionApplier
+  branches: {fileID: 2073994562}
+  stats: {fileID: 2073994553}
+  demonDPPerPoint: 1
+  demonDisappearSecondsPerPoint: 0.1
+  monsterHPPerPoint: 4
+  monsterAPPerPoint: 4
+  fallenGodDPPerPoint: 0.3
+  fallenGodHPPerPoint: 1
+  fallenGodAPPerPoint: 1
+  log: 1
 --- !u!1 &2095445505
 GameObject:
   m_ObjectHideFlags: 0
@@ -6102,7 +6124,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: +1 Damage
+  m_text: +0.3 Damage
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
