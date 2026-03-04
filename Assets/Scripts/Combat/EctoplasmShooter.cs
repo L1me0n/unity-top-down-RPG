@@ -34,6 +34,8 @@ public class EctoplasmShooter : MonoBehaviour
 
     private void Update()
     {
+        if (UIInputBlocker.BlockGameplayInput)
+            return;
         if (combat.Mode != CombatMode.Attack) return;
         if (!combat.WantsFire) return;
 
