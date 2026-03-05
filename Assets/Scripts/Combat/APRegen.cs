@@ -10,8 +10,13 @@ public class APRegen : MonoBehaviour
     [SerializeField] private bool regenOnlyWhenAlive = true;
     [SerializeField] private PlayerDamageReceiver damageReceiver;
 
+    private int baseAPPerTick = 1;
+    private float baseTickSeconds = 2f;
+
     private PlayerStats stats;
     private float timer;
+
+    public int APPerTick => apPerTick;
 
     private void Awake()
     {
@@ -19,6 +24,20 @@ public class APRegen : MonoBehaviour
 
         if (damageReceiver == null)
             damageReceiver = GetComponent<PlayerDamageReceiver>();
+
+        ResetToBase();
+        
+    }
+
+    private void ResetToBase()
+    {
+        apPerTick = baseAPPerTick;
+        tickSeconds = baseTickSeconds;
+    }
+
+    public void SetActionRate(int newModifier)
+    {
+        apPerTick = Mathf.Max(1, newModifier);
     }
 
     private void Update()
