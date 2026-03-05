@@ -213,18 +213,21 @@ public class RoomManager : MonoBehaviour
         {
             stats.Heal(999999);
             stats.GainAP(999999);
-
-            stats.SetMaxHP(stats.MaxHP-1);
-            stats.SetMaxAP(stats.MaxAP-1);
-            stats.SetDP(stats.DP-1);
         }
 
-        // 2) reset enemies to their original spawn points (NO new spawns)
+        // 2) apply death penalty
+        var deathPenalty = player.GetComponent<DeathPenaltyTracker>();
+        if (deathPenalty != null)
+        {
+            deathPenalty.AddDeathPenalty(1, 1, 1);
+        }
+
+        // 3) reset enemies to their original spawn points (NO new spawns)
         var combat = currentRoom.GetComponent<RoomCombatController>();
         if (combat != null)
             combat.ResetAliveEnemiesToSpawnPoints();
 
-        // 3) take a portion of currency on death
+        // 4) take a portion of currency on death
         var currency = player.GetComponent<RunCurrency>();
         if (currency != null)
         {
@@ -232,10 +235,10 @@ public class RoomManager : MonoBehaviour
             currency.TakeXP(currencyLossOnDeath);
         }
 
-        // 4) teleport player to center spawn (enteredFrom null -> Spawn_Center)
+        // 5) teleport player to center spawn (enteredFrom null -> Spawn_Center)
         player.position = currentRoom.GetSpawnPosition(null);
 
-        // 5) clear motion
+        // 6) clear motion
         if (playerRb != null)
         {
             playerRb.linearVelocity = Vector2.zero;

@@ -141,4 +141,17 @@ public class BranchProgression : MonoBehaviour
         fallenGod = Mathf.Clamp(fallenGod, 0, maxPointsPerBranch);
         hellhound = Mathf.Clamp(hellhound, 0, maxPointsPerBranch);
     }
+
+    public void LoadState(int demonPts, int monsterPts, int fallenPts, int hellhoundPts)
+    {
+        demon = Mathf.Clamp(demonPts, 0, maxPointsPerBranch);
+        monster = Mathf.Clamp(monsterPts, 0, maxPointsPerBranch);
+        fallenGod = Mathf.Clamp(fallenPts, 0, maxPointsPerBranch);
+        hellhound = Mathf.Clamp(hellhoundPts, 0, maxPointsPerBranch);
+
+        OnBranchChanged?.Invoke(BranchType.Demon, demon);
+        OnBranchChanged?.Invoke(BranchType.Monster, monster);
+        OnBranchChanged?.Invoke(BranchType.FallenGod, fallenGod);
+        OnBranchChanged?.Invoke(BranchType.Hellhound, hellhound);
+    }
 }

@@ -6,6 +6,8 @@ public class ProgressionApplier : MonoBehaviour
     [SerializeField] private BranchProgression branches;
     [SerializeField] private PlayerStats stats;
     [SerializeField] private APRegen apRegen;
+    [SerializeField] private DeathPenaltyTracker penalty;
+    [SerializeField] private PlayerDamageReceiver damageReceiver;
 
     [Header("Tuning")]
     [SerializeField] private int demonDPPerPoint = 2;
@@ -29,12 +31,27 @@ public class ProgressionApplier : MonoBehaviour
 
         if (stats == null) stats = GetComponent<PlayerStats>();
         if (stats == null) stats = FindFirstObjectByType<PlayerStats>();
+
+        if (apRegen == null) apRegen = GetComponent<APRegen>();
+
+        if (penalty == null) penalty = GetComponent<DeathPenaltyTracker>();
+
+        if (damageReceiver == null) damageReceiver = GetComponent<PlayerDamageReceiver>();
+    }
+
+    private void Start()
+    {
+        // We delay apply until Start to ensure that any Start-based initialization in PlayerStats or APRegen happens first, so we don't accidentally overwrite changes from them.
+        ApplyAll();
     }
 
     private void OnEnable()
     {
         if (branches != null)
             branches.OnBranchChanged += HandleBranchChanged;
+
+        if (damageReceiver != null)
+            damageReceiver.OnDied += ApplyAll;
 
         ApplyAll(); // apply on start/load
     }
@@ -67,7 +84,15 @@ public class ProgressionApplier : MonoBehaviour
 
         float bonusDisappear = demon * demonDisappearSecondsPerPoint;
 
-        ApplyWithStoredBonuses(bonusHP, bonusAP, bonusDP, bonusActionRate, bonusDisappear);
+        int hpPenalty = penalty != null ? penalty.MaxHPLoss : 0;
+        int apPenalty = penalty != null ? penalty.MaxAPLoss : 0;
+        int dpPenalty = penalty != null ? penalty.DPLoss : 0;
+
+        int effectiveBonusHP = bonusHP - hpPenalty;
+        int effectiveBonusAP = bonusAP - apPenalty;
+        int effectiveBonusDP = bonusDP - dpPenalty;
+
+        ApplyWithStoredBonuses(effectiveBonusHP, effectiveBonusAP, effectiveBonusDP, bonusActionRate, bonusDisappear);
     }
 
     private int appliedBonusHP;

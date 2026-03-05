@@ -50,6 +50,20 @@ public class RunCurrency : MonoBehaviour
         return lost;
     }
 
+    public void SetSouls(int newSouls)
+    {
+        souls = Mathf.Max(0, newSouls);
+        OnSoulsChanged?.Invoke(souls);
+        OnChanged?.Invoke();
+    }
+
+    public void SetXP(int newXP)
+    {
+        xp = Mathf.Max(0, newXP);
+        OnXPChanged?.Invoke(xp);
+        OnChanged?.Invoke();
+    }
+
     public void ResetAll()
     {
         souls = 0;

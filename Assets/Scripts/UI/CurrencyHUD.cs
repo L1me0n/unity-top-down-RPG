@@ -19,6 +19,11 @@ public class CurrencyHUD : MonoBehaviour
         }
     }
 
+    private void Start()
+    {
+        HandleLvl(levelSystem.Level);
+    }
+
     private void OnEnable()
     {
         if (currency != null) currency.OnChanged += HandleSouls;
@@ -50,12 +55,12 @@ public class CurrencyHUD : MonoBehaviour
 
     private void HandleXP(int progressXP, int xpToNext)
     {
-        if (levelSystem == null || currency == null) return;
+        if (levelSystem == null) return;
         if (xpFill != null) xpFill.fillAmount = (float)progressXP / xpToNext;
     }
 
     private void HandleLvl(int newLevel)
     {
-        if (lvlText != null) lvlText.text = $"Lvl {Mathf.Max(1, newLevel)}";
+        if (lvlText != null) lvlText.text = $"Lvl {Mathf.Max(newLevel, 1)}";
     }
 }

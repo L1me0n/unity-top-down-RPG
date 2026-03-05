@@ -28,6 +28,8 @@ public class LevelSystem : MonoBehaviour
     public event Action<int> OnUnspentPointsChanged; // new unspent points
     public event Action<int, int> OnProgressChanged; // progressXP, xpToNext
 
+    private bool isLoaded = true;
+
     private void Awake()
     {
         if (currency == null)
@@ -39,8 +41,15 @@ public class LevelSystem : MonoBehaviour
         Level = Mathf.Max(1, startLevel);
         UnspentPoints = 0;
 
-        // Initialize thresholds and progress based on current XP.
         RecomputeFromTotalXP(currency != null ? currency.XP : 0);
+    }
+
+    private void Start()
+    {
+        // We delay apply until Start to ensure that any Start-based initialization in PlayerStats or APRegen happens first, so we don't accidentally overwrite changes from them.
+        RecomputeFromTotalXP(currency != null ? currency.XP : 0);
+
+        isLoaded = false; // any changes after this point are not part of initial load, so we can log them and fire events for them.
     }
 
     private void OnEnable()
@@ -88,6 +97,7 @@ public class LevelSystem : MonoBehaviour
             UnspentPoints++;
 
             XPToNext = GetXPToNext(Level);
+            if (isLoaded) continue; // don't log or fire events for level-ups during initial load, to avoid spam and potential issues with event order during load.
             leveledUp = true;
 
             if (logLevelUps)
@@ -132,5 +142,19 @@ public class LevelSystem : MonoBehaviour
         UnspentPoints--;
         OnUnspentPointsChanged?.Invoke(UnspentPoints);
         return true;
+    }
+
+    public void LoadState(int level, int unspentPoints)
+    {
+        Level = Mathf.Max(1, level);
+        UnspentPoints = Mathf.Max(0, unspentPoints);
+
+        isLoaded = true;
+
+        // Recompute progress from current currency XP (if currency exists)
+        if (currency != null)
+            RecomputeFromTotalXP(currency.XP);
+
+        OnProgressChanged?.Invoke(ProgressXP, XPToNext);
     }
 }
