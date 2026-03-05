@@ -37,6 +37,8 @@ public class RoomManager : MonoBehaviour
     private RoomInstance currentRoom;
     private bool isTransitioning;
 
+    public System.Action<RoomInstance> OnRoomEntered;
+
     private void Awake()
     {
         if (playerRb == null && player != null) playerRb = player.GetComponent<Rigidbody2D>();
@@ -94,6 +96,8 @@ public class RoomManager : MonoBehaviour
         if (playerCollider != null) playerCollider.enabled = true;
 
         isTransitioning = false;
+
+        OnRoomEntered?.Invoke(currentRoom);
     }
 
     private void LoadRoom(Vector2Int coord, RoomDirection? enteredFrom)
@@ -142,6 +146,7 @@ public class RoomManager : MonoBehaviour
         // Place player at the correct spawn
         Vector3 spawnPos = currentRoom.GetSpawnPosition(enteredFrom);
         player.position = spawnPos;
+
 
     }
 

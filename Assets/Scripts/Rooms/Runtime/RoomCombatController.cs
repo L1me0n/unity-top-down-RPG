@@ -16,6 +16,14 @@ public class RoomCombatController : MonoBehaviour
 
     [SerializeField] private bool resetEnemiesToSpawnsOnPlayerRespawn = true;
 
+    [Header("Hellhound Execute")]
+    private BranchProgression branches;
+    [SerializeField] private bool enableHellhoundExecute = true;
+    [SerializeField] private float executeChancePerPoint = 0.005f; // 0.5%
+
+    private bool logExecuteRoll = true;
+
+
     private struct SpawnedEnemy
     {
         public Transform spawn;
@@ -36,6 +44,7 @@ public class RoomCombatController : MonoBehaviour
             var t = transform.Find("EnemySpawnPoints");
             if (t != null) enemySpawnPointsRoot = t;
         }
+        if (branches == null) branches = FindFirstObjectByType<BranchProgression>();
     }
 
     // Called by RoomManager right after room is spawned
@@ -44,9 +53,18 @@ public class RoomCombatController : MonoBehaviour
         roomManager = manager;
         roomCoord = coord;
 
+        PruneNullEnemies();
+
         if (isClearedAlready)
         {
             SetDoorsLocked(false);
+            return;
+        }
+
+        // Hellhound instant-clear roll BEFORE spawning
+        if (TryHellhoundExecute())
+        {
+            HandleRoomCleared();
             return;
         }
 
@@ -58,6 +76,22 @@ public class RoomCombatController : MonoBehaviour
         {
             HandleRoomCleared();
         }
+    }
+
+    private bool TryHellhoundExecute()
+    {
+        if (!enableHellhoundExecute) return false;
+        if (branches == null) return false;
+
+        int points = branches.Hellhound;
+        if (points <= 0) return false;
+
+        float chance = Mathf.Clamp01(points * executeChancePerPoint);
+        float roll = Random.value;
+
+        if (logExecuteRoll) Debug.Log($"[Hellhound] roll {roll:0.000} vs chance {chance:0.000} (points={points})");
+
+        return roll < chance;
     }
 
     private void SpawnWaveV1()
@@ -114,6 +148,7 @@ public class RoomCombatController : MonoBehaviour
         }
     }
 
+        PruneNullEnemies();
 
         if (alive.Count <= 0)
         {
@@ -127,7 +162,7 @@ public class RoomCombatController : MonoBehaviour
 
         if (roomManager != null)
         {
-            roomManager.MarkCurrentRoomCleared(); // we’ll add this in RoomManager below
+            roomManager.MarkCurrentRoomCleared();
         }
     }
 
@@ -186,6 +221,15 @@ public class RoomCombatController : MonoBehaviour
                 rb.linearVelocity = Vector2.zero;
                 rb.angularVelocity = 0f;
             }
+        }
+    }
+
+    private void PruneNullEnemies()
+    {
+        for (int i = alive.Count - 1; i >= 0; i--)
+        {
+            if (alive[i].enemy == null)
+                alive.RemoveAt(i);
         }
     }
 }
