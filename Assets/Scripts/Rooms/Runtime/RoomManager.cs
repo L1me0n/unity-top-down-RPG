@@ -36,6 +36,7 @@ public class RoomManager : MonoBehaviour
     private Vector2Int currentCoord;
     private RoomInstance currentRoom;
     private bool isTransitioning;
+    public bool SkipInitialLoad { get; set; }
 
     public System.Action<RoomInstance> OnRoomEntered;
 
@@ -47,6 +48,7 @@ public class RoomManager : MonoBehaviour
 
     private void Start()
     {
+        if (SkipInitialLoad) return;
         // Start at (0,0)
         LoadRoom(Vector2Int.zero, enteredFrom: null);
     }
@@ -96,8 +98,6 @@ public class RoomManager : MonoBehaviour
         if (playerCollider != null) playerCollider.enabled = true;
 
         isTransitioning = false;
-
-        OnRoomEntered?.Invoke(currentRoom);
     }
 
     private void LoadRoom(Vector2Int coord, RoomDirection? enteredFrom)
@@ -133,12 +133,11 @@ public class RoomManager : MonoBehaviour
             doors[i].SetRoomManager(this);
 
         var state = GetOrCreateState(coord);
-        bool clearedAlready = state.cleared;
 
         var combat = currentRoom.GetComponent<RoomCombatController>();
         if (combat != null)
         {
-            combat.OnRoomEntered(this, currentCoord, clearedAlready);
+            combat.OnRoomEntered(this, currentCoord, state);
         }  
         
         UpdateDoorAvailability(doors);
@@ -147,7 +146,7 @@ public class RoomManager : MonoBehaviour
         Vector3 spawnPos = currentRoom.GetSpawnPosition(enteredFrom);
         player.position = spawnPos;
 
-
+        OnRoomEntered?.Invoke(currentRoom);
     }
 
     private Vector2Int DirToDelta(RoomDirection d)
@@ -219,7 +218,7 @@ public class RoomManager : MonoBehaviour
         var deathPenalty = player.GetComponent<DeathPenaltyTracker>();
         if (deathPenalty != null)
         {
-            deathPenalty.AddDeathPenalty(1, 1, 1);
+            deathPenalty.AddDeathPenalty(1, 1, 1, 1);
         }
 
         // 3) reset enemies to their original spawn points (NO new spawns)
@@ -250,5 +249,50 @@ public class RoomManager : MonoBehaviour
     {
         var state = GetOrCreateState(currentCoord);
         state.cleared = true;
+    }
+
+
+    public RoomStateSaveEntry[] ExportRoomStates()
+    {
+        var list = new System.Collections.Generic.List<RoomStateSaveEntry>();
+
+        foreach (var kv in states)
+        {
+            var c = kv.Key;
+            var s = kv.Value;
+
+            list.Add(new RoomStateSaveEntry
+            {
+                x = c.x,
+                y = c.y,
+                visited = s.visited,
+                cleared = s.cleared,
+                remainingEnemies = s.remainingEnemies
+            });
+        }
+
+        return list.ToArray();
+    }
+
+    public void ImportRoomStates(RoomStateSaveEntry[] entries, Vector2Int startCoord)
+    {
+        states.Clear();
+
+        if (entries != null)
+        {
+            for (int i = 0; i < entries.Length; i++)
+            {
+                var e = entries[i];
+                var coord = new Vector2Int(e.x, e.y);
+
+                var s = new RoomState(e.visited, e.cleared);
+                s.remainingEnemies = e.remainingEnemies;
+
+                states[coord] = s;
+            }
+        }
+
+        // Load player into saved room
+        LoadRoom(startCoord, enteredFrom: null);
     }
 }

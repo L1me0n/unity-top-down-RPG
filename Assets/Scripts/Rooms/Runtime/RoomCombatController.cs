@@ -34,6 +34,7 @@ public class RoomCombatController : MonoBehaviour
 
     private RoomManager roomManager;
     private Vector2Int roomCoord;
+    private RoomState state;
 
     public int AliveCount => alive.Count;
 
@@ -48,14 +49,18 @@ public class RoomCombatController : MonoBehaviour
     }
 
     // Called by RoomManager right after room is spawned
-    public void OnRoomEntered(RoomManager manager, Vector2Int coord, bool isClearedAlready)
+    public void OnRoomEntered(RoomManager manager, Vector2Int coord, RoomState roomState)
     {
         roomManager = manager;
         roomCoord = coord;
+        state = roomState;
 
         PruneNullEnemies();
 
-        if (isClearedAlready)
+        // Mark visited
+        if (state != null) state.visited = true;
+
+        if (state != null && state.cleared)
         {
             SetDoorsLocked(false);
             return;
@@ -64,6 +69,11 @@ public class RoomCombatController : MonoBehaviour
         // Hellhound instant-clear roll BEFORE spawning
         if (TryHellhoundExecute())
         {
+            if (state != null)
+            {
+                state.cleared = true;
+                state.remainingEnemies = 0;
+            }
             HandleRoomCleared();
             return;
         }
@@ -107,6 +117,8 @@ public class RoomCombatController : MonoBehaviour
             return;
         }
 
+        int count;
+
         Transform[] points = enemySpawnPointsRoot.GetComponentsInChildren<Transform>(true);
         // points[0] is root; skip it
         List<Transform> usable = new List<Transform>();
@@ -120,13 +132,22 @@ public class RoomCombatController : MonoBehaviour
 
         if (shuffleSpawns) Shuffle(usable);
 
-        int count = Random.Range(minEnemies, maxEnemies + 1);
+        if (state != null && state.remainingEnemies >= 0)
+        {
+            count = state.remainingEnemies;
+        }
+        else
+        {
+            // Otherwise roll a new count (first time in this room)
+            count = Random.Range(minEnemies, maxEnemies + 1);
+        }
+
         count = Mathf.Clamp(count, 1, usable.Count); // v1: no reuse
 
         for (int i = 0; i < count; i++)
         {
             Transform sp = usable[i];
-            GameObject e = Instantiate(hellpuppyPrefab, sp.position, Quaternion.identity);
+            GameObject e = Instantiate(hellpuppyPrefab, sp.position, Quaternion.identity, transform);
 
             // Link enemy death back to this room
             var link = e.AddComponent<EnemyRoomLink>();
@@ -134,6 +155,9 @@ public class RoomCombatController : MonoBehaviour
 
             alive.Add(new SpawnedEnemy { spawn = sp, enemy = e });
         }
+
+        if (state != null && state.remainingEnemies < 0)
+            state.remainingEnemies = alive.Count;
     }
 
     // Called by EnemyRoomLink when enemy dies/destroys
@@ -146,6 +170,8 @@ public class RoomCombatController : MonoBehaviour
             alive.RemoveAt(i);
             break;
         }
+        if (state != null)
+            state.remainingEnemies = Mathf.Max(0, alive.Count);
     }
 
         PruneNullEnemies();
@@ -159,6 +185,12 @@ public class RoomCombatController : MonoBehaviour
     private void HandleRoomCleared()
     {
         SetDoorsLocked(false);
+
+        if (state != null)
+        {
+            state.cleared = true;
+            state.remainingEnemies = 0;
+        }
 
         if (roomManager != null)
         {

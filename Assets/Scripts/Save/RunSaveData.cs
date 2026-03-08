@@ -20,5 +20,21 @@ public class RunSaveData
     // Penalties
     public int maxHPLoss;
     public int maxAPLoss;
+    public int actionRateLoss;
     public int dpLoss;
+
+    public int playerRoomX;
+    public int playerRoomY;
+
+    public RoomStateSaveEntry[] rooms;
+}
+
+[Serializable]
+public class RoomStateSaveEntry
+{
+    public int x;
+    public int y;
+    public bool visited;
+    public bool cleared;
+    public int remainingEnemies;
 }

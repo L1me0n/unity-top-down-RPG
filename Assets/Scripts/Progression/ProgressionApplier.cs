@@ -86,13 +86,16 @@ public class ProgressionApplier : MonoBehaviour
 
         int hpPenalty = penalty != null ? penalty.MaxHPLoss : 0;
         int apPenalty = penalty != null ? penalty.MaxAPLoss : 0;
+        int actionRatePenalty = penalty != null ? penalty.ActionRateLoss : 0;
         int dpPenalty = penalty != null ? penalty.DPLoss : 0;
 
         int effectiveBonusHP = bonusHP - hpPenalty;
         int effectiveBonusAP = bonusAP - apPenalty;
         int effectiveBonusDP = bonusDP - dpPenalty;
 
-        ApplyWithStoredBonuses(effectiveBonusHP, effectiveBonusAP, effectiveBonusDP, bonusActionRate, bonusDisappear);
+        int effectiveBonusActionRate = bonusActionRate - actionRatePenalty;
+
+        ApplyWithStoredBonuses(effectiveBonusHP, effectiveBonusAP, effectiveBonusDP, effectiveBonusActionRate, bonusDisappear);
     }
 
     private int appliedBonusHP;

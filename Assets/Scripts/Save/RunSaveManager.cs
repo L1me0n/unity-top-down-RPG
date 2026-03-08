@@ -8,6 +8,7 @@ public class RunSaveManager : MonoBehaviour
     [SerializeField] private LevelSystem levelSystem;
     [SerializeField] private BranchProgression branches;
     [SerializeField] private DeathPenaltyTracker penalties;
+    [SerializeField] private RoomManager roomManager;
 
     [Header("Options")]
     [SerializeField] private bool autoLoadOnStart = true;
@@ -21,6 +22,7 @@ public class RunSaveManager : MonoBehaviour
         if (levelSystem == null) levelSystem = FindFirstObjectByType<LevelSystem>();
         if (branches == null) branches = FindFirstObjectByType<BranchProgression>();
         if (penalties == null) penalties = FindFirstObjectByType<DeathPenaltyTracker>();
+        if (roomManager == null) roomManager = FindFirstObjectByType<RoomManager>();
     }
 
     private void Start()
@@ -49,13 +51,16 @@ public class RunSaveManager : MonoBehaviour
 
         if (levelSystem != null)
         {
-            levelSystem.OnLevelChanged += _ => Save();
-            levelSystem.OnUnspentPointsChanged += _ => Save();
-            levelSystem.OnProgressChanged += (_, __) => Save();
+            levelSystem.OnLevelChanged += OnAnyLevelChanged;
+            levelSystem.OnUnspentPointsChanged += OnAnyPointsChanged;
+            levelSystem.OnProgressChanged += OnAnyProgressChanged;
         }
 
         if (branches != null)
-            branches.OnBranchChanged += (_, __) => Save();
+            branches.OnBranchChanged += OnAnyBranchChanged;
+
+        if (roomManager != null)
+            roomManager.OnRoomEntered += OnRoomEntered;    
     }
 
     private void Unsubscribe()
@@ -65,13 +70,16 @@ public class RunSaveManager : MonoBehaviour
 
         if (levelSystem != null)
         {
-            levelSystem.OnLevelChanged -= _ => Save();
-            levelSystem.OnUnspentPointsChanged -= _ => Save();
-            levelSystem.OnProgressChanged -= (_, __) => Save();
+            levelSystem.OnLevelChanged -= OnAnyLevelChanged;
+            levelSystem.OnUnspentPointsChanged -= OnAnyPointsChanged;
+            levelSystem.OnProgressChanged -= OnAnyProgressChanged;
         }
 
         if (branches != null)
-            branches.OnBranchChanged -= (_, __) => Save();
+            branches.OnBranchChanged -= OnAnyBranchChanged;
+
+        if (roomManager != null)
+            roomManager.OnRoomEntered -= OnRoomEntered;
     }
 
     public void Save()
@@ -93,8 +101,14 @@ public class RunSaveManager : MonoBehaviour
 
             maxHPLoss = penalties != null ? penalties.MaxHPLoss : 0,
             maxAPLoss = penalties != null ? penalties.MaxAPLoss : 0,
+            actionRateLoss = penalties != null ? penalties.ActionRateLoss : 0,
             dpLoss = penalties != null ? penalties.DPLoss : 0,
         };
+
+        var roomStates = roomManager.ExportRoomStates();
+        data.playerRoomX = roomManager.CurrentCoord.x;
+        data.playerRoomY = roomManager.CurrentCoord.y;
+        data.rooms = roomStates;
 
         string json = JsonUtility.ToJson(data, true);
         File.WriteAllText(SavePath, json);
@@ -109,6 +123,9 @@ public class RunSaveManager : MonoBehaviour
         var data = JsonUtility.FromJson<RunSaveData>(json);
         if (data == null) return;
 
+        // Gate LevelSystem so SetXP doesn't cause "real" levelups
+        levelSystem.BeginLoad();
+
         // Currency
         currency.SetSouls(data.souls);
         currency.SetXP(data.xp);
@@ -122,8 +139,12 @@ public class RunSaveManager : MonoBehaviour
         // Penalties
         if (penalties != null)
         {
-            penalties.LoadState(data.maxHPLoss, data.maxAPLoss, data.dpLoss);
+            penalties.LoadState(data.maxHPLoss, data.maxAPLoss, data.actionRateLoss, data.dpLoss);
         }
+
+        roomManager.ImportRoomStates(data.rooms, new Vector2Int(data.playerRoomX, data.playerRoomY));
+
+        levelSystem.EndLoad();
 
          Debug.Log("[RunSaveManager] Loaded run save.");
     }
@@ -132,5 +153,22 @@ public class RunSaveManager : MonoBehaviour
     {
         if (File.Exists(SavePath))
             File.Delete(SavePath);
+    }
+
+    private void OnRoomEntered(RoomInstance _) => Save();
+    private void OnAnyLevelChanged(int _) => Save();
+    private void OnAnyPointsChanged(int _) => Save();
+    private void OnAnyProgressChanged(int _, int __) => Save();
+    private void OnAnyBranchChanged(BranchType _, int __) => Save();
+
+
+    private void OnApplicationQuit()
+    {
+        Save();
+    }
+
+    private void OnDisable()
+    {
+        Save();
     }
 }

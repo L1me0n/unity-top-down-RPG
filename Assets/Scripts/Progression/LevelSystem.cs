@@ -28,8 +28,6 @@ public class LevelSystem : MonoBehaviour
     public event Action<int> OnUnspentPointsChanged; // new unspent points
     public event Action<int, int> OnProgressChanged; // progressXP, xpToNext
 
-    private bool isLoaded = true;
-
     private void Awake()
     {
         if (currency == null)
@@ -41,15 +39,9 @@ public class LevelSystem : MonoBehaviour
         Level = Mathf.Max(1, startLevel);
         UnspentPoints = 0;
 
-        RecomputeFromTotalXP(currency != null ? currency.XP : 0);
-    }
-
-    private void Start()
-    {
-        // We delay apply until Start to ensure that any Start-based initialization in PlayerStats or APRegen happens first, so we don't accidentally overwrite changes from them.
-        RecomputeFromTotalXP(currency != null ? currency.XP : 0);
-
-        isLoaded = false; // any changes after this point are not part of initial load, so we can log them and fire events for them.
+        suppressEvents = true;
+        RecomputeFromTotalXP(currency != null ? currency.XP : 0, allowLevelUps: false);
+        suppressEvents = false;
     }
 
     private void OnEnable()
@@ -66,52 +58,58 @@ public class LevelSystem : MonoBehaviour
 
     private void HandleXPChanged(int newTotalXP)
     {
-        RecomputeFromTotalXP(newTotalXP);
+        RecomputeFromTotalXP(newTotalXP, allowLevelUps: !isLoading);
     }
 
     // Core logic
-    private void RecomputeFromTotalXP(int totalXP)
+    private bool suppressEvents;
+
+    private void RecomputeFromTotalXP(int totalXP, bool allowLevelUps)
     {
         totalXP = Mathf.Max(0, totalXP);
 
-        // 1) Ensure our Level is valid
         Level = Mathf.Max(1, Level);
 
-        // 2) Figure out how much XP is "already required" to reach our current level.
         int requiredToReachCurrentLevel = GetTotalXPRequiredToReachLevel(Level);
-
-        // If totalXP is lower than required, progress becomes 0. (No de-leveling.)
         int rawProgress = totalXP - requiredToReachCurrentLevel;
         ProgressXP = Mathf.Max(0, rawProgress);
 
-        // 3) Determine current XPToNext based on our Level
         XPToNext = GetXPToNext(Level);
 
-        // 4) If we have enough progress to level up, level up repeatedly.
-        // (This is for big XP gains that skip multiple levels.)
         bool leveledUp = false;
-        while (ProgressXP >= XPToNext)
+
+        if (allowLevelUps)
         {
-            ProgressXP -= XPToNext;
-            Level++;
-            UnspentPoints++;
+            while (ProgressXP >= XPToNext)
+            {
+                ProgressXP -= XPToNext;
+                Level++;
+                UnspentPoints++;
 
-            XPToNext = GetXPToNext(Level);
-            if (isLoaded) continue; // don't log or fire events for level-ups during initial load, to avoid spam and potential issues with event order during load.
-            leveledUp = true;
+                XPToNext = GetXPToNext(Level);
+                leveledUp = true;
 
-            if (logLevelUps)
-                Debug.Log($"[LevelSystem] Level up! -> Lv {Level}. Unspent points: {UnspentPoints}");
+                if (logLevelUps)
+                    Debug.Log($"[LevelSystem] Level up! -> Lv {Level}. Unspent points: {UnspentPoints}");
+            }
+        }
+        else
+        {
+            // Load-time: never level up automatically, just clamp progress into this level
+            // (so saved Level stays authoritative)
+            ProgressXP = Mathf.Min(ProgressXP, XPToNext - 1);
         }
 
-        // 5) Fire events for UI or other systems
-        if (leveledUp)
+        if (!suppressEvents)
         {
-            OnLevelChanged?.Invoke(Level);
-            OnUnspentPointsChanged?.Invoke(UnspentPoints);
-        }
+            if (leveledUp)
+            {
+                OnLevelChanged?.Invoke(Level);                // only real mid-session levelups
+                OnUnspentPointsChanged?.Invoke(UnspentPoints);
+            }
 
-        OnProgressChanged?.Invoke(ProgressXP, XPToNext);
+            OnProgressChanged?.Invoke(ProgressXP, XPToNext); // HUD always needs this
+        }
     }
 
     // XP needed for next level at the given current level.
@@ -149,12 +147,30 @@ public class LevelSystem : MonoBehaviour
         Level = Mathf.Max(1, level);
         UnspentPoints = Mathf.Max(0, unspentPoints);
 
-        isLoaded = true;
+        RecomputeFromTotalXP(currency != null ? currency.XP : 0, allowLevelUps: false);
 
-        // Recompute progress from current currency XP (if currency exists)
-        if (currency != null)
-            RecomputeFromTotalXP(currency.XP);
-
+        // Explicitly update HUD without triggering level-up popup
         OnProgressChanged?.Invoke(ProgressXP, XPToNext);
+        OnUnspentPointsChanged?.Invoke(UnspentPoints);
+        // DO NOT invoke OnLevelChanged here.
+    }
+
+    //loading gate to fix level up sequence on load
+    private bool isLoading;
+
+    public void BeginLoad()
+    {
+        isLoading = true;
+        suppressEvents = true;
+    }
+
+    public void EndLoad()
+    {
+        suppressEvents = false;
+        isLoading = false;
+
+        // push HUD refresh after load
+        OnProgressChanged?.Invoke(ProgressXP, XPToNext);
+        OnUnspentPointsChanged?.Invoke(UnspentPoints);
     }
 }

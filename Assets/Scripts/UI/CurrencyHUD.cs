@@ -1,6 +1,7 @@
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using System.Collections;
 
 public class CurrencyHUD : MonoBehaviour
 {
@@ -17,11 +18,22 @@ public class CurrencyHUD : MonoBehaviour
             var p = GameObject.FindGameObjectWithTag("Player");
             if (p != null) currency = p.GetComponent<RunCurrency>();
         }
+        if (levelSystem == null)
+        {
+            levelSystem = FindFirstObjectByType<LevelSystem>();
+        }
     }
 
-    private void Start()
+    private IEnumerator Start()
     {
-        HandleLvl(levelSystem.Level);
+        // Wait 1 frame so RunSaveManager.Load() (Start) finishes first
+        yield return null;
+
+        if (levelSystem != null)
+        {
+            HandleLvl(levelSystem.Level);
+            HandleXP(levelSystem.ProgressXP, levelSystem.XPToNext);
+        }
     }
 
     private void OnEnable()

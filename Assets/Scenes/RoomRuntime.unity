@@ -5027,6 +5027,7 @@ MonoBehaviour:
   levelSystem: {fileID: 1046029925}
   branches: {fileID: 2073994562}
   penalties: {fileID: 2073994565}
+  roomManager: {fileID: 1254287709}
   autoLoadOnStart: 1
   autoSaveOnChanges: 1
 --- !u!4 &1737582522
@@ -6601,6 +6602,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DeathPenaltyTracker
   maxHPLoss: 0
   maxAPLoss: 0
+  actionRateLoss: 0
   dpLoss: 0
 --- !u!1 &2095445505
 GameObject:
