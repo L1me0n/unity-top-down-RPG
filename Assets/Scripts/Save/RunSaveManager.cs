@@ -41,11 +41,8 @@ public class RunSaveManager : MonoBehaviour
 
     private void Subscribe()
     {
-        // Currency: your RunCurrency might have OnChanged, or OnSoulsChanged/OnXPChanged depending on your current version.
-        // If you have OnChanged, hook it. If not, hook both OnSoulsChanged & OnXPChanged.
         if (currency != null)
         {
-            // If your RunCurrency has: public System.Action OnChanged;
             currency.OnChanged += Save;
         }
 
@@ -112,7 +109,7 @@ public class RunSaveManager : MonoBehaviour
 
         string json = JsonUtility.ToJson(data, true);
         File.WriteAllText(SavePath, json);
-        // Debug.Log($"[RunSaveManager] Saved -> {SavePath}");
+        Debug.Log($"[RunSaveManager] Saved -> {SavePath}");
     }
 
     public void Load()
