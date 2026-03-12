@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 [System.Serializable]
 public class RoomState
 {
@@ -7,10 +9,18 @@ public class RoomState
     // -1 means "not initialized yet"
     public int remainingEnemies = -1;
 
+    public int combatLevel;
+    public int encounterSeed;
+    public bool encounterInitialized;
+    public List<RoomEnemyStateEntry> enemyStates = new List<RoomEnemyStateEntry>();
+
     public RoomState(bool visited, bool cleared, int remainingEnemies = -1)
     {
         this.visited = visited;
         this.cleared = cleared;
         this.remainingEnemies = remainingEnemies;
+        encounterInitialized = false;
+        combatLevel = 0;
+        encounterSeed = 0;
     }
 }

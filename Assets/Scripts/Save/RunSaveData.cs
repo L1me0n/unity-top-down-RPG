@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 [Serializable]
 public class RunSaveData
@@ -37,4 +38,18 @@ public class RoomStateSaveEntry
     public bool visited;
     public bool cleared;
     public int remainingEnemies;
+
+    public bool encounterInitialized;
+    public int combatLevel;
+    public int encounterSeed;
+
+    public List<RoomEnemyStateSaveEntry> enemyStates = new List<RoomEnemyStateSaveEntry>();
+}
+
+[Serializable]
+public class RoomEnemyStateSaveEntry
+{
+    public int enemyType;
+    public int spawnPointIndex;
+    public bool alive;
 }

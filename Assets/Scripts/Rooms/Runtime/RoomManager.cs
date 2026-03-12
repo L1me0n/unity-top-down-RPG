@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using System.Collections.Generic;
 
 public class RoomManager : MonoBehaviour
 {
@@ -254,21 +255,41 @@ public class RoomManager : MonoBehaviour
 
     public RoomStateSaveEntry[] ExportRoomStates()
     {
-        var list = new System.Collections.Generic.List<RoomStateSaveEntry>();
+        var list = new List<RoomStateSaveEntry>();
 
         foreach (var kv in states)
         {
             var c = kv.Key;
             var s = kv.Value;
 
-            list.Add(new RoomStateSaveEntry
+            RoomStateSaveEntry entry = new RoomStateSaveEntry();
+            entry.x = c.x;
+            entry.y = c.y;
+
+            entry.visited = s.visited;
+            entry.cleared = s.cleared;
+            entry.remainingEnemies = s.remainingEnemies;
+
+            entry.encounterInitialized = s.encounterInitialized;
+            entry.combatLevel = s.combatLevel;
+            entry.encounterSeed = s.encounterSeed;
+
+            if (s.enemyStates != null)
             {
-                x = c.x,
-                y = c.y,
-                visited = s.visited,
-                cleared = s.cleared,
-                remainingEnemies = s.remainingEnemies
-            });
+                for (int i = 0; i < s.enemyStates.Count; i++)
+                {
+                    RoomEnemyStateEntry enemyState = s.enemyStates[i];
+
+                    RoomEnemyStateSaveEntry enemyEntry = new RoomEnemyStateSaveEntry();
+                    enemyEntry.enemyType = (int)enemyState.enemyType;
+                    enemyEntry.spawnPointIndex = enemyState.spawnPointIndex;
+                    enemyEntry.alive = enemyState.alive;
+
+                    entry.enemyStates.Add(enemyEntry);
+                }
+            }
+
+            list.Add(entry);
         }
 
         return list.ToArray();
@@ -282,17 +303,37 @@ public class RoomManager : MonoBehaviour
         {
             for (int i = 0; i < entries.Length; i++)
             {
-                var e = entries[i];
-                var coord = new Vector2Int(e.x, e.y);
+                RoomStateSaveEntry e = entries[i];
+                Vector2Int coord = new Vector2Int(e.x, e.y);
 
-                var s = new RoomState(e.visited, e.cleared);
+                RoomState s = new RoomState(e.visited, e.cleared);
                 s.remainingEnemies = e.remainingEnemies;
+
+                s.encounterInitialized = e.encounterInitialized;
+                s.combatLevel = e.combatLevel;
+                s.encounterSeed = e.encounterSeed;
+
+                s.enemyStates = new List<RoomEnemyStateEntry>();
+
+                if (e.enemyStates != null)
+                {
+                    for (int j = 0; j < e.enemyStates.Count; j++)
+                    {
+                        RoomEnemyStateSaveEntry savedEnemy = e.enemyStates[j];
+
+                        RoomEnemyStateEntry restoredEnemy = new RoomEnemyStateEntry();
+                        restoredEnemy.enemyType = (EnemyType)savedEnemy.enemyType;
+                        restoredEnemy.spawnPointIndex = savedEnemy.spawnPointIndex;
+                        restoredEnemy.alive = savedEnemy.alive;
+
+                        s.enemyStates.Add(restoredEnemy);
+                    }
+                }
 
                 states[coord] = s;
             }
         }
 
-        // Load player into saved room
         LoadRoom(startCoord, enteredFrom: null);
     }
 }
