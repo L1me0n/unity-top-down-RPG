@@ -134,6 +134,11 @@ public class RoomManager : MonoBehaviour
             doors[i].SetRoomManager(this);
 
         var state = GetOrCreateState(coord);
+        if (logTransitions)
+        {
+            int ring = WorldDifficultyService.GetRing(coord);
+            Debug.Log($"[RoomManager] Loaded room {coord} | ring={ring} | combatLevel={state.combatLevel}");
+        }
 
         var combat = currentRoom.GetComponent<RoomCombatController>();
         if (combat != null)
@@ -185,8 +190,16 @@ public class RoomManager : MonoBehaviour
         if (!states.TryGetValue(c, out var s))
         {
             s = new RoomState(visited: false, cleared: false);
+            s.combatLevel = WorldDifficultyService.GetCombatLevel(c);
             states.Add(c, s);
+            if (logTransitions)
+                Debug.Log($"[RoomManager] Created state for {c}, combatLevel = {s.combatLevel}");
         }
+        else if (s.combatLevel <= 0)
+        {
+            s.combatLevel = WorldDifficultyService.GetCombatLevel(c);
+        }
+
         return s;
     }
 
