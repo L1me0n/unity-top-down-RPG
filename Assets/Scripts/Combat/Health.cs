@@ -10,6 +10,7 @@ public class Health : MonoBehaviour
 
     public System.Action<int, int> OnChanged; // (current, max)
     public System.Action OnDied;
+    public System.Action OnDamaged;
 
     private void Awake()
     {
@@ -32,9 +33,7 @@ public class Health : MonoBehaviour
 
         currentHP = Mathf.Max(0, currentHP - amount);
         OnChanged?.Invoke(currentHP, maxHP);
-
-        var dummy = GetComponent<DamageDummy>();
-        if (dummy != null) dummy.FlashHit();
+        OnDamaged?.Invoke();
 
         if (currentHP == 0)
             OnDied?.Invoke();

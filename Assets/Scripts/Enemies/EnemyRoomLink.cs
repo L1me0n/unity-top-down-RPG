@@ -3,36 +3,20 @@ using UnityEngine;
 public class EnemyRoomLink : MonoBehaviour
 {
     private RoomCombatController room;
-    private Health health;
-    private bool notifiedDeath = false;
 
     public void Init(RoomCombatController roomController)
     {
         room = roomController;
-        health = GetComponent<Health>();
-
-        if (health != null)
-        {
-            health.OnDied += HandleDied;
-        }
     }
 
-    private void HandleDied()
+    public void NotifyEnemyDied(GameObject enemy)
     {
-        if (notifiedDeath) return;
-        notifiedDeath = true;
-
         if (room != null)
-        {
-            room.NotifyEnemyDead(gameObject);
-        }
+            room.NotifyEnemyDead(enemy);
     }
-
-    private void OnDestroy()
+    
+    public RoomCombatController GetRoomController()
     {
-        if (health != null)
-        {
-            health.OnDied -= HandleDied;
-        }
+        return room;
     }
 }
