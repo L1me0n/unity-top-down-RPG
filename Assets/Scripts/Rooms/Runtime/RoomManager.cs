@@ -137,7 +137,7 @@ public class RoomManager : MonoBehaviour
         if (logTransitions)
         {
             int ring = WorldDifficultyService.GetRing(coord);
-            Debug.Log($"[RoomManager] Loaded room {coord} | ring={ring} | combatLevel={state.combatLevel}");
+            Debug.Log($"[RoomManager] Loaded room {coord} | ring={ring} | combatLevel={state.combatLevel} | encounterSeed={state.encounterSeed} | encounterInitialized={state.encounterInitialized}");
         }
 
         var combat = currentRoom.GetComponent<RoomCombatController>();
@@ -191,13 +191,31 @@ public class RoomManager : MonoBehaviour
         {
             s = new RoomState(visited: false, cleared: false);
             s.combatLevel = WorldDifficultyService.GetCombatLevel(c);
+            s.encounterSeed = EncounterGenerator.BuildEncounterSeed(c, s.combatLevel);
             states.Add(c, s);
             if (logTransitions)
-                Debug.Log($"[RoomManager] Created state for {c}, combatLevel = {s.combatLevel}");
+                Debug.Log($"[RoomManager] Created state for {c}, combatLevel = {s.combatLevel}, encounterSeed = {s.encounterSeed}");
         }
-        else if (s.combatLevel <= 0)
+        else
         {
-            s.combatLevel = WorldDifficultyService.GetCombatLevel(c);
+            // Backward compatibility: older states may not yet have combatLevel or encounterSeed.
+
+            if (s.combatLevel <= 0)
+            {
+                s.combatLevel = WorldDifficultyService.GetCombatLevel(c);
+
+                if (logTransitions)
+                    Debug.Log($"[RoomManager] Repaired missing combatLevel for {c} -> {s.combatLevel}");
+            }
+
+            
+            if (s.encounterSeed == 0)
+            {
+                s.encounterSeed = EncounterGenerator.BuildEncounterSeed(c, s.combatLevel);
+
+                if (logTransitions)
+                    Debug.Log($"[RoomManager] Repaired missing encounterSeed for {c} -> {s.encounterSeed}");
+            }
         }
 
         return s;
@@ -325,6 +343,12 @@ public class RoomManager : MonoBehaviour
                 s.encounterInitialized = e.encounterInitialized;
                 s.combatLevel = e.combatLevel;
                 s.encounterSeed = e.encounterSeed;
+
+                if (s.combatLevel <= 0)
+                    s.combatLevel = WorldDifficultyService.GetCombatLevel(coord);
+
+                if (s.encounterSeed == 0)
+                    s.encounterSeed = EncounterGenerator.BuildEncounterSeed(coord, s.combatLevel);
 
                 s.enemyStates = new List<RoomEnemyStateEntry>();
 

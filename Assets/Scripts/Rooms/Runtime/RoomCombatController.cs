@@ -8,11 +8,6 @@ public class RoomCombatController : MonoBehaviour
 
     [Header("Spawn Points")]
     [SerializeField] private Transform enemySpawnPointsRoot;
-    [SerializeField] private bool shuffleSpawns = true;
-
-    [Header("Spawn Count (v1)")]
-    [SerializeField] private int minEnemies = 2;
-    [SerializeField] private int maxEnemies = 5;
 
     [Header("Respawn")]
     [SerializeField] private bool resetEnemiesToSpawnsOnPlayerRespawn = true;
@@ -21,7 +16,10 @@ public class RoomCombatController : MonoBehaviour
     [SerializeField] private bool enableHellhoundExecute = true;
     [SerializeField] private float executeChancePerPoint = 0.005f;
 
+    [Header("Debug")]
     private bool logExecuteRoll = true;
+    private bool logEncounterFlow = true;
+
     private BranchProgression branches;
 
     private class SpawnedEnemyRuntime
@@ -69,12 +67,17 @@ public class RoomCombatController : MonoBehaviour
 
         if (state != null && state.cleared)
         {
+            if (logEncounterFlow)
+                Debug.Log($"[RoomCombatController] Room {roomCoord} already cleared. No enemies spawned.");
+
             SetDoorsLocked(false);
             return;
         }
 
         if (TryHellhoundExecute())
         {
+            if (logEncounterFlow)
+                Debug.Log($"[RoomCombatController] Hellhound execute triggered in room {roomCoord}.");
             ForceClearRoomInstant();
             return;
         }
@@ -84,9 +87,14 @@ public class RoomCombatController : MonoBehaviour
 
         if (alive.Count <= 0)
         {
+            if (logEncounterFlow)
+                Debug.Log($"[RoomCombatController] Room {roomCoord} has no alive enemies after spawn. Clearing room.");
             HandleRoomCleared();
             return;
         }
+
+        if (logEncounterFlow)
+            Debug.Log($"[RoomCombatController] Room {roomCoord} spawned {alive.Count} alive enemies.");
 
         SetDoorsLocked(true);
     }
@@ -124,31 +132,32 @@ public class RoomCombatController : MonoBehaviour
             state.remainingEnemies = 0;
             return;
         }
+        if (state.enemyStates == null)
+            state.enemyStates = new List<RoomEnemyStateEntry>();
+        else
+            state.enemyStates.Clear();
 
-        List<int> spawnIndices = new List<int>();
-        for (int i = 0; i < cachedSpawnPoints.Count; i++)
-            spawnIndices.Add(i);
+        List<RoomEnemyStateEntry> generatedEncounter = EncounterGenerator.Generate(
+            roomCoord,
+            state.combatLevel,
+            state.encounterSeed,
+            cachedSpawnPoints.Count
+        );
 
-        if (shuffleSpawns)
-            Shuffle(spawnIndices);
+        if (generatedEncounter != null)
+            state.enemyStates.AddRange(generatedEncounter);
 
-        int count = Random.Range(minEnemies, maxEnemies + 1);
-        count = Mathf.Clamp(count, 1, cachedSpawnPoints.Count);
-
-        state.enemyStates.Clear();
-
-        for (int i = 0; i < count; i++)
-        {
-            RoomEnemyStateEntry entry = new RoomEnemyStateEntry();
-            entry.enemyType = EnemyType.Hellpuppy;
-            entry.spawnPointIndex = spawnIndices[i];
-            entry.alive = true;
-
-            state.enemyStates.Add(entry);
-        }
-
-        state.remainingEnemies = state.enemyStates.Count;
+        state.remainingEnemies = CountAliveEntries();
         state.encounterInitialized = true;
+
+        if (logEncounterFlow)
+        {
+            Debug.Log(
+                $"[RoomCombatController] Initialized encounter for room {roomCoord} | " +
+                $"combatLevel={state.combatLevel} | encounterSeed={state.encounterSeed} | " +
+                $"entries={state.enemyStates.Count}"
+            );
+        }
     }
 
     private void SpawnAliveEnemiesFromState()
@@ -245,6 +254,7 @@ public class RoomCombatController : MonoBehaviour
 
             state.remainingEnemies = 0;
             state.cleared = true;
+            state.encounterInitialized = true;
         }
 
         for (int i = alive.Count - 1; i >= 0; i--)

@@ -1,9 +1,8 @@
 public enum EnemyType
 {
-    None = 0,
-    Hellpuppy = 1,
-    Vermin = 2,
-    Inferno = 3,
-    Warden = 4,
-    DevilsAdvocate = 5
+    Hellpuppy = 0,
+    Vermin = 1,
+    Inferno = 2,
+    Warden = 3,
+    DevilsAdvocate = 4
 }
