@@ -5,6 +5,7 @@ public class RoomCombatController : MonoBehaviour
 {
     [Header("Enemy Prefabs")]
     [SerializeField] private GameObject hellpuppyPrefab;
+    [SerializeField] private GameObject verminPrefab;
 
     [Header("Spawn Points")]
     [SerializeField] private Transform enemySpawnPointsRoot;
@@ -192,6 +193,14 @@ public class RoomCombatController : MonoBehaviour
             Transform spawnPoint = cachedSpawnPoints[spawnIndex];
             GameObject enemy = Instantiate(prefab, spawnPoint.position, Quaternion.identity, transform);
 
+            if (logEncounterFlow)
+            {
+                Debug.Log(
+                    $"[RoomCombatController] Spawned {entry.enemyType} " +
+                    $"at spawnIndex={spawnIndex} in room {roomCoord}"
+                );
+            }
+
             EnemyRoomLink link = enemy.GetComponent<EnemyRoomLink>();
             if (link == null)
                 link = enemy.AddComponent<EnemyRoomLink>();
@@ -215,10 +224,25 @@ public class RoomCombatController : MonoBehaviour
         switch (type)
         {
             case EnemyType.Hellpuppy:
+            if (hellpuppyPrefab == null)
+                {
+                    Debug.LogError($"[RoomCombatController] Hellpuppy prefab is not assigned.");
+                    return null;
+                }
                 return hellpuppyPrefab;
-        }
 
-        return null;
+            case EnemyType.Vermin:
+                if (verminPrefab == null)
+                {
+                    Debug.LogError($"[RoomCombatController] Vermin prefab is not assigned.");
+                    return null;
+                }
+                return verminPrefab;
+
+            default:
+                Debug.LogError($"[RoomCombatController] No prefab mapped for enemy type {type}.");
+                return null; 
+        }
     }
 
     private bool TryHellhoundExecute()

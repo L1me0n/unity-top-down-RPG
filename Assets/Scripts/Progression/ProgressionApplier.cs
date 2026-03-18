@@ -15,11 +15,9 @@ public class ProgressionApplier : MonoBehaviour
 
     [SerializeField] private int monsterHPPerPoint = 4;
     [SerializeField] private int monsterAPPerPoint = 4;
-    [SerializeField] private int monsterActionRatePerPoint = 1;
 
     [SerializeField] private int fallenGodDPPerPoint = 1;
-    [SerializeField] private int fallenGodHPPerPoint = 1;
-    [SerializeField] private int fallenGodAPPerPoint = 1;
+    [SerializeField] private int fallenGodActionRatePerPoint = 1;
 
     [Header("Debug")]
     [SerializeField] private bool log = false;
@@ -77,10 +75,10 @@ public class ProgressionApplier : MonoBehaviour
 
         // Compute totals
         int bonusDP = demon * demonDPPerPoint + fallen * fallenGodDPPerPoint;
-        int bonusHP = monster * monsterHPPerPoint + fallen * fallenGodHPPerPoint;
-        int bonusAP = monster * monsterAPPerPoint + fallen * fallenGodAPPerPoint;
+        int bonusHP = monster * monsterHPPerPoint;
+        int bonusAP = monster * monsterAPPerPoint;
 
-        int bonusActionRate = monster * monsterActionRatePerPoint;
+        int bonusActionRate = fallen * fallenGodActionRatePerPoint;
 
         float bonusDisappear = demon * demonDisappearSecondsPerPoint;
 
