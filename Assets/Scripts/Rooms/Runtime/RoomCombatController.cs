@@ -6,6 +6,7 @@ public class RoomCombatController : MonoBehaviour
     [Header("Enemy Prefabs")]
     [SerializeField] private GameObject hellpuppyPrefab;
     [SerializeField] private GameObject verminPrefab;
+    [SerializeField] private GameObject infernoPrefab;
 
     [Header("Spawn Points")]
     [SerializeField] private Transform enemySpawnPointsRoot;
@@ -18,8 +19,8 @@ public class RoomCombatController : MonoBehaviour
     [SerializeField] private float executeChancePerPoint = 0.005f;
 
     [Header("Debug")]
-    private bool logExecuteRoll = true;
-    private bool logEncounterFlow = true;
+    [SerializeField] private bool logExecuteRoll = true;
+    [SerializeField] private bool logEncounterFlow = true;
 
     private BranchProgression branches;
 
@@ -238,6 +239,14 @@ public class RoomCombatController : MonoBehaviour
                     return null;
                 }
                 return verminPrefab;
+            
+            case EnemyType.Inferno:
+                if (infernoPrefab == null)
+                {
+                    Debug.LogError($"[RoomCombatController] Inferno prefab is not assigned.");
+                    return null;
+                }
+                return infernoPrefab;
 
             default:
                 Debug.LogError($"[RoomCombatController] No prefab mapped for enemy type {type}.");
@@ -409,16 +418,5 @@ public class RoomCombatController : MonoBehaviour
     private void ClearRuntimeList()
     {
         alive.Clear();
-    }
-
-    private void Shuffle(List<int> list)
-    {
-        for (int i = 0; i < list.Count; i++)
-        {
-            int j = Random.Range(i, list.Count);
-            int tmp = list[i];
-            list[i] = list[j];
-            list[j] = tmp;
-        }
     }
 }

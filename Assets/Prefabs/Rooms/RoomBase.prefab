@@ -1291,10 +1291,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::RoomCombatController
   hellpuppyPrefab: {fileID: 1104501832481689242, guid: a39ea022069603e48b4e24632179b379, type: 3}
   verminPrefab: {fileID: 1104501832481689242, guid: d965e8bfc13bba64b8987525524d418b, type: 3}
+  infernoPrefab: {fileID: 1104501832481689242, guid: fafa8f628240fef4fa49cc69fb8c71b5, type: 3}
   enemySpawnPointsRoot: {fileID: 631738927235406058}
   resetEnemiesToSpawnsOnPlayerRespawn: 1
   enableHellhoundExecute: 1
   executeChancePerPoint: 0.005
+  logExecuteRoll: 1
+  logEncounterFlow: 1
 --- !u!1 &4197071344696378217
 GameObject:
   m_ObjectHideFlags: 0

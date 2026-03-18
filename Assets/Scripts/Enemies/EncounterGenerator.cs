@@ -28,7 +28,7 @@ public static class EncounterGenerator
                 i,
                 enemyCount
             );
-            
+
             result.Add(new RoomEnemyStateEntry(
                 enemyType,
                 shuffledSpawnIndices[i],
@@ -51,22 +51,49 @@ public static class EncounterGenerator
 
         if (combatLevel == 2)
         {
-            // Exactly one Vermin in level 2 rooms, placed deterministically.
             int verminSlot = PositiveMod(encounterSeed, enemyCount);
             return slotIndex == verminSlot ? EnemyType.Vermin : EnemyType.Hellpuppy;
         }
 
-        // Level 3+ for now:
-        // at least one Vermin, sometimes two, but still mostly Hellpuppies.
-        int firstVerminSlot = PositiveMod(encounterSeed, enemyCount);
-        int secondVerminSlot = PositiveMod(encounterSeed / 7 + 3, enemyCount);
+        if (combatLevel == 3)
+        {
+            int verminSlot = PositiveMod(encounterSeed, enemyCount);
+            int infernoSlot = PositiveMod(encounterSeed / 7 + 3, enemyCount);
 
-        bool allowSecondVermin = enemyCount >= 4 && (PositiveMod(encounterSeed, 2) == 0);
+            if (slotIndex == verminSlot)
+                return EnemyType.Vermin;
+
+            if (infernoSlot == verminSlot)
+                infernoSlot = (infernoSlot + 1) % enemyCount;
+
+            if (slotIndex == infernoSlot)
+                return EnemyType.Inferno;
+
+            return EnemyType.Hellpuppy;
+        }
+
+        // Level 4+:
+        // Always at least 1 Vermin and 1 Inferno.
+        // Remaining slots are mostly Hellpuppies, with occasional extra Vermin.
+        int firstVerminSlot = PositiveMod(encounterSeed, enemyCount);
+        int infernoSlotLevel4 = PositiveMod(encounterSeed / 7 + 3, enemyCount);
+
+        if (infernoSlotLevel4 == firstVerminSlot)
+            infernoSlotLevel4 = (infernoSlotLevel4 + 1) % enemyCount;
 
         if (slotIndex == firstVerminSlot)
             return EnemyType.Vermin;
 
-        if (allowSecondVermin && slotIndex == secondVerminSlot && secondVerminSlot != firstVerminSlot)
+        if (slotIndex == infernoSlotLevel4)
+            return EnemyType.Inferno;
+
+        bool allowSecondVermin = enemyCount >= 5 && (PositiveMod(encounterSeed, 2) == 0);
+        int secondVerminSlot = PositiveMod(encounterSeed / 11 + 5, enemyCount);
+
+        if (secondVerminSlot == firstVerminSlot || secondVerminSlot == infernoSlotLevel4)
+            secondVerminSlot = (secondVerminSlot + 1) % enemyCount;
+
+        if (allowSecondVermin && slotIndex == secondVerminSlot)
             return EnemyType.Vermin;
 
         return EnemyType.Hellpuppy;
@@ -115,7 +142,6 @@ public static class EncounterGenerator
         int result = value % mod;
         return result < 0 ? result + mod : result;
     }
-
 
     public static int BuildEncounterSeed(Vector2Int coord, int combatLevel)
     {
