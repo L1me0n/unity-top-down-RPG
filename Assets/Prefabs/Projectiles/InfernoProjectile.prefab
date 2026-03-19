@@ -169,7 +169,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 350950d7d52441749a007346443521a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InfernoProjectile
-  speed: 6
+  speed: 8
   lifetime: 2.5
   explosionPrefab: {fileID: -2277543243847522299, guid: b9111f9b605375741b885b570eb294df, type: 3}
   explosionDamage: 2

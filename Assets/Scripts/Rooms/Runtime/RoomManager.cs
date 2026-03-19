@@ -263,7 +263,6 @@ public class RoomManager : MonoBehaviour
         if (currency != null)
         {
             currency.TakeSouls(currencyLossOnDeath);
-            currency.TakeXP(currencyLossOnDeath);
         }
 
         // 5) teleport player to center spawn (enteredFrom null -> Spawn_Center)

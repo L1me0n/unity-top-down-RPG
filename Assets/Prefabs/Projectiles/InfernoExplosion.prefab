@@ -12,7 +12,6 @@ GameObject:
   - component: {fileID: 8927078125915866035}
   - component: {fileID: 2289762389465868581}
   - component: {fileID: 1583521766268282943}
-  - component: {fileID: -9034279882281200604}
   - component: {fileID: -2277543243847522299}
   - component: {fileID: 6543172794554209291}
   m_Layer: 10
@@ -32,7 +31,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1.8999999, y: 1.8999999, z: 3.7999997}
+  m_LocalScale: {x: 1.77, y: 1.77, z: 3.54}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 0}
@@ -131,7 +130,7 @@ CircleCollider2D:
   m_CompositeOperation: 0
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
-  m_Radius: 1.5
+  m_Radius: 0.5
 --- !u!50 &1583521766268282943
 Rigidbody2D:
   serializedVersion: 5
@@ -159,25 +158,6 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
---- !u!114 &-9034279882281200604
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7443866007808290738}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 350950d7d52441749a007346443521a6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::InfernoProjectile
-  speed: 6
-  lifetime: 2.5
-  explosionPrefab: {fileID: 0}
-  explosionDamage: 2
-  explosionRadius: 1.5
-  explosionDuration: 0.2
-  logHits: 0
 --- !u!114 &-2277543243847522299
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -191,7 +171,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InfernoExplosion
   damage: 2
-  radius: 1.5
+  radius: 0.5
   duration: 0.2
   hitMask:
     serializedVersion: 2

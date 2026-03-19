@@ -450,11 +450,11 @@ MonoBehaviour:
   attackRange: 8.5
   firePoint: {fileID: 6235932185943418755}
   projectilePrefab: {fileID: -9034279882281200604, guid: dcaa470dfb79f144f9534c5295f7a9cb, type: 3}
-  projectileSpeed: 4
+  projectileSpeed: 6
   projectileLifetime: 2.5
   explosionDamage: 4
   explosionRadius: 1.5
-  explosionDuration: 2
+  explosionDuration: 0.35
   useFirePointToAim: 1
 --- !u!1 &3190567157092475297
 GameObject:

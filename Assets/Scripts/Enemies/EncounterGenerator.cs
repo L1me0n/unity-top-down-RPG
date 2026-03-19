@@ -3,6 +3,18 @@ using UnityEngine;
 
 public static class EncounterGenerator
 {
+    private struct EncounterTemplate
+    {
+        public string Id;
+        public EnemyType[] Enemies;
+
+        public EncounterTemplate(string id, EnemyType[] enemies)
+        {
+            Id = id;
+            Enemies = enemies;
+        }
+    }
+
     public static List<RoomEnemyStateEntry> Generate(
         Vector2Int roomCoord,
         int combatLevel,
@@ -14,23 +26,16 @@ public static class EncounterGenerator
         if (spawnPointCount <= 0)
             return result;
 
-        int enemyCount = GetEnemyCountForCombatLevel(combatLevel);
-        enemyCount = Mathf.Clamp(enemyCount, 1, spawnPointCount);
+        EncounterTemplate[] templates = GetTemplatesForCombatLevel(combatLevel);
+        EncounterTemplate chosenTemplate = PickTemplate(templates, encounterSeed);
 
+        int enemyCount = Mathf.Clamp(chosenTemplate.Enemies.Length, 1, spawnPointCount);
         List<int> shuffledSpawnIndices = BuildShuffledIndices(spawnPointCount, encounterSeed);
 
         for (int i = 0; i < enemyCount; i++)
         {
-            EnemyType enemyType = GetEnemyTypeForSlot(
-                roomCoord,
-                combatLevel,
-                encounterSeed,
-                i,
-                enemyCount
-            );
-
             result.Add(new RoomEnemyStateEntry(
-                enemyType,
+                chosenTemplate.Enemies[i],
                 shuffledSpawnIndices[i],
                 true
             ));
@@ -39,7 +44,7 @@ public static class EncounterGenerator
         return result;
     }
 
-    private static EnemyType GetEnemyTypeForSlot(
+    /* private static EnemyType GetEnemyTypeForSlot(
         Vector2Int roomCoord,
         int combatLevel,
         int encounterSeed,
@@ -98,8 +103,152 @@ public static class EncounterGenerator
 
         return EnemyType.Hellpuppy;
     }
+        */
 
-    private static int GetEnemyCountForCombatLevel(int combatLevel)
+    private static EncounterTemplate[] GetTemplatesForCombatLevel(int combatLevel)
+    {
+        switch (combatLevel)
+        {
+            case 1:
+                return new EncounterTemplate[]
+                {
+                    new EncounterTemplate("L1_A", new EnemyType[]
+                    {
+                        EnemyType.Hellpuppy,
+                        EnemyType.Hellpuppy
+                    }),
+                    new EncounterTemplate("L1_B", new EnemyType[]
+                    {
+                        EnemyType.Hellpuppy,
+                        EnemyType.Hellpuppy,
+                        EnemyType.Hellpuppy
+                    }),
+                    new EncounterTemplate("L1_C", new EnemyType[]
+                    {
+                        EnemyType.Hellpuppy,
+                        EnemyType.Hellpuppy,
+                        EnemyType.Hellpuppy
+                    }),
+                    new EncounterTemplate("L1_D", new EnemyType[]
+                    {
+                        EnemyType.Hellpuppy,
+                        EnemyType.Hellpuppy,
+                        EnemyType.Hellpuppy,
+                        EnemyType.Hellpuppy
+                    })
+                };
+
+            case 2:
+                return new EncounterTemplate[]
+                {
+                    new EncounterTemplate("L2_A", new EnemyType[]
+                    {
+                        EnemyType.Hellpuppy,
+                        EnemyType.Hellpuppy,
+                        EnemyType.Vermin
+                    }),
+                    new EncounterTemplate("L2_B", new EnemyType[]
+                    {
+                        EnemyType.Hellpuppy,
+                        EnemyType.Hellpuppy,
+                        EnemyType.Vermin
+                    }),
+                    new EncounterTemplate("L2_C", new EnemyType[]
+                    {
+                        EnemyType.Hellpuppy,
+                        EnemyType.Vermin,
+                        EnemyType.Vermin
+                    }),
+                    new EncounterTemplate("L2_D", new EnemyType[]
+                    {
+                        EnemyType.Hellpuppy,
+                        EnemyType.Hellpuppy,
+                        EnemyType.Hellpuppy,
+                        EnemyType.Vermin
+                    }),
+                    new EncounterTemplate("L2_E", new EnemyType[]
+                    {
+                        EnemyType.Hellpuppy,
+                        EnemyType.Hellpuppy,
+                        EnemyType.Vermin,
+                        EnemyType.Vermin
+                    })
+                };
+
+            case 3:
+                return new EncounterTemplate[]
+                {
+                    new EncounterTemplate("L3_A", new EnemyType[]
+                    {
+                        EnemyType.Hellpuppy,
+                        EnemyType.Hellpuppy,
+                        EnemyType.Inferno
+                    }),
+                    new EncounterTemplate("L3_B", new EnemyType[]
+                    {
+                        EnemyType.Hellpuppy,
+                        EnemyType.Vermin,
+                        EnemyType.Inferno
+                    }),
+                    new EncounterTemplate("L3_C", new EnemyType[]
+                    {
+                        EnemyType.Vermin,
+                        EnemyType.Vermin,
+                        EnemyType.Inferno
+                    }),
+                    new EncounterTemplate("L3_D", new EnemyType[]
+                    {
+                        EnemyType.Hellpuppy,
+                        EnemyType.Hellpuppy,
+                        EnemyType.Vermin,
+                        EnemyType.Inferno
+                    }),
+                    new EncounterTemplate("L3_E", new EnemyType[]
+                    {
+                        EnemyType.Hellpuppy,
+                        EnemyType.Hellpuppy,
+                        EnemyType.Inferno
+                    }),
+                    new EncounterTemplate("L3_F", new EnemyType[]
+                    {
+                        EnemyType.Hellpuppy,
+                        EnemyType.Hellpuppy,
+                        EnemyType.Hellpuppy,
+                        EnemyType.Hellpuppy,
+                        EnemyType.Vermin
+                    })
+                };
+
+            default:
+                return new EncounterTemplate[]
+                {
+                    new EncounterTemplate("Fallback", new EnemyType[]
+                    {
+                        EnemyType.Hellpuppy,
+                        EnemyType.Hellpuppy
+                    })
+                };
+        }
+    }
+
+    private static EncounterTemplate PickTemplate(
+        EncounterTemplate[] templates,
+        int encounterSeed)
+    {
+        if (templates == null || templates.Length == 0)
+        {
+            return new EncounterTemplate("Fallback", new EnemyType[]
+            {
+                EnemyType.Hellpuppy,
+                EnemyType.Hellpuppy
+            });
+        }
+
+        int index = PositiveMod(encounterSeed, templates.Length);
+        return templates[index];
+    }
+
+    /* private static int GetEnemyCountForCombatLevel(int combatLevel)
     {
         switch (combatLevel)
         {
@@ -114,6 +263,7 @@ public static class EncounterGenerator
             default: return 2;
         }
     }
+    */
 
     private static List<int> BuildShuffledIndices(int count, int seed)
     {
