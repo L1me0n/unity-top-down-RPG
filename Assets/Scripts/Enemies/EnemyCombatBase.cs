@@ -5,7 +5,7 @@ public abstract class EnemyCombatBase : MonoBehaviour
     [Header("Shared Combat")]
     [SerializeField] protected float attackCooldown = 1f;
     [SerializeField] protected float attackRange = 5f;
-    [SerializeField] protected Transform firePoint;
+    [SerializeField] protected Transform firePoint=null;
 
     protected EnemyBrainBase brain;
     protected Health health;

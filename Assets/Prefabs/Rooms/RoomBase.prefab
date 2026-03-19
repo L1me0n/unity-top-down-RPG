@@ -226,7 +226,7 @@ Transform:
   m_GameObject: {fileID: 1067943222278004209}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 11.26, y: 7.22, z: 0}
+  m_LocalPosition: {x: 13.45, y: 8.82, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1292,6 +1292,7 @@ MonoBehaviour:
   hellpuppyPrefab: {fileID: 1104501832481689242, guid: a39ea022069603e48b4e24632179b379, type: 3}
   verminPrefab: {fileID: 1104501832481689242, guid: d965e8bfc13bba64b8987525524d418b, type: 3}
   infernoPrefab: {fileID: 1104501832481689242, guid: fafa8f628240fef4fa49cc69fb8c71b5, type: 3}
+  wardenPrefab: {fileID: 1104501832481689242, guid: 94504852cdb4e844b8561fe0c0b42790, type: 3}
   enemySpawnPointsRoot: {fileID: 631738927235406058}
   resetEnemiesToSpawnsOnPlayerRespawn: 1
   enableHellhoundExecute: 1
@@ -1782,7 +1783,7 @@ Transform:
   m_GameObject: {fileID: 8526251326632616383}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -4.29, y: -5.33, z: 0}
+  m_LocalPosition: {x: -7.55, y: -13.43, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1813,7 +1814,7 @@ Transform:
   m_GameObject: {fileID: 8631147450441801148}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -4.21, y: 3.69, z: 0}
+  m_LocalPosition: {x: -10.08, y: 7.3, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

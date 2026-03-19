@@ -7,6 +7,7 @@ public class RoomCombatController : MonoBehaviour
     [SerializeField] private GameObject hellpuppyPrefab;
     [SerializeField] private GameObject verminPrefab;
     [SerializeField] private GameObject infernoPrefab;
+    [SerializeField] private GameObject wardenPrefab;
 
     [Header("Spawn Points")]
     [SerializeField] private Transform enemySpawnPointsRoot;
@@ -247,6 +248,14 @@ public class RoomCombatController : MonoBehaviour
                     return null;
                 }
                 return infernoPrefab;
+            
+            case EnemyType.Warden:
+                if (wardenPrefab == null)
+                {
+                    Debug.LogError($"[RoomCombatController] Warden prefab is not assigned.");
+                    return null;
+                }
+                return wardenPrefab;
 
             default:
                 Debug.LogError($"[RoomCombatController] No prefab mapped for enemy type {type}.");

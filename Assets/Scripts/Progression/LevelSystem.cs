@@ -37,7 +37,7 @@ public class LevelSystem : MonoBehaviour
             currency = FindFirstObjectByType<RunCurrency>();
 
         Level = Mathf.Max(1, startLevel);
-        UnspentPoints = 0;
+        UnspentPoints = 1;
 
         suppressEvents = true;
         RecomputeFromTotalXP(currency != null ? currency.XP : 0, allowLevelUps: false);

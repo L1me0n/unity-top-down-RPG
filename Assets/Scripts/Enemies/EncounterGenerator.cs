@@ -44,67 +44,6 @@ public static class EncounterGenerator
         return result;
     }
 
-    /* private static EnemyType GetEnemyTypeForSlot(
-        Vector2Int roomCoord,
-        int combatLevel,
-        int encounterSeed,
-        int slotIndex,
-        int enemyCount)
-    {
-        if (combatLevel <= 1)
-            return EnemyType.Hellpuppy;
-
-        if (combatLevel == 2)
-        {
-            int verminSlot = PositiveMod(encounterSeed, enemyCount);
-            return slotIndex == verminSlot ? EnemyType.Vermin : EnemyType.Hellpuppy;
-        }
-
-        if (combatLevel == 3)
-        {
-            int verminSlot = PositiveMod(encounterSeed, enemyCount);
-            int infernoSlot = PositiveMod(encounterSeed / 7 + 3, enemyCount);
-
-            if (slotIndex == verminSlot)
-                return EnemyType.Vermin;
-
-            if (infernoSlot == verminSlot)
-                infernoSlot = (infernoSlot + 1) % enemyCount;
-
-            if (slotIndex == infernoSlot)
-                return EnemyType.Inferno;
-
-            return EnemyType.Hellpuppy;
-        }
-
-        // Level 4+:
-        // Always at least 1 Vermin and 1 Inferno.
-        // Remaining slots are mostly Hellpuppies, with occasional extra Vermin.
-        int firstVerminSlot = PositiveMod(encounterSeed, enemyCount);
-        int infernoSlotLevel4 = PositiveMod(encounterSeed / 7 + 3, enemyCount);
-
-        if (infernoSlotLevel4 == firstVerminSlot)
-            infernoSlotLevel4 = (infernoSlotLevel4 + 1) % enemyCount;
-
-        if (slotIndex == firstVerminSlot)
-            return EnemyType.Vermin;
-
-        if (slotIndex == infernoSlotLevel4)
-            return EnemyType.Inferno;
-
-        bool allowSecondVermin = enemyCount >= 5 && (PositiveMod(encounterSeed, 2) == 0);
-        int secondVerminSlot = PositiveMod(encounterSeed / 11 + 5, enemyCount);
-
-        if (secondVerminSlot == firstVerminSlot || secondVerminSlot == infernoSlotLevel4)
-            secondVerminSlot = (secondVerminSlot + 1) % enemyCount;
-
-        if (allowSecondVermin && slotIndex == secondVerminSlot)
-            return EnemyType.Vermin;
-
-        return EnemyType.Hellpuppy;
-    }
-        */
-
     private static EncounterTemplate[] GetTemplatesForCombatLevel(int combatLevel)
     {
         switch (combatLevel)
@@ -219,6 +158,49 @@ public static class EncounterGenerator
                     })
                 };
 
+            case 4:
+                return new EncounterTemplate[]
+                {
+                    new EncounterTemplate("L4_A", new EnemyType[]
+                    {
+                        EnemyType.Warden,
+                        EnemyType.Hellpuppy,
+                        EnemyType.Hellpuppy,
+                        EnemyType.Hellpuppy
+                    }),
+                    new EncounterTemplate("L4_B", new EnemyType[]
+                    {
+                        EnemyType.Warden,
+                        EnemyType.Hellpuppy,
+                        EnemyType.Hellpuppy,
+                        EnemyType.Hellpuppy,
+                        EnemyType.Hellpuppy
+                    }),
+                    new EncounterTemplate("L4_C", new EnemyType[]
+                    {
+                        EnemyType.Vermin,
+                        EnemyType.Vermin,
+                        EnemyType.Warden
+                    }),
+                    new EncounterTemplate("L4_D", new EnemyType[]
+                    {
+                        EnemyType.Inferno,
+                        EnemyType.Inferno,
+                        EnemyType.Inferno
+                    })
+                };   
+
+            case 5:
+                return new EncounterTemplate[]
+                {
+                    new EncounterTemplate("L5_A", new EnemyType[]
+                    {
+                        EnemyType.Warden,
+                        EnemyType.Warden,
+                        EnemyType.Hellpuppy
+                    })
+                };       
+
             default:
                 return new EncounterTemplate[]
                 {
@@ -247,23 +229,6 @@ public static class EncounterGenerator
         int index = PositiveMod(encounterSeed, templates.Length);
         return templates[index];
     }
-
-    /* private static int GetEnemyCountForCombatLevel(int combatLevel)
-    {
-        switch (combatLevel)
-        {
-            case 1: return 2;
-            case 2: return 3;
-            case 3: return 4;
-            case 4: return 4;
-            case 5: return 5;
-            case 6: return 6;
-            case 7: return 6;
-            case 8: return 6;
-            default: return 2;
-        }
-    }
-    */
 
     private static List<int> BuildShuffledIndices(int count, int seed)
     {
