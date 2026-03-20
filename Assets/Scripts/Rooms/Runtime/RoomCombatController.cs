@@ -8,6 +8,7 @@ public class RoomCombatController : MonoBehaviour
     [SerializeField] private GameObject verminPrefab;
     [SerializeField] private GameObject infernoPrefab;
     [SerializeField] private GameObject wardenPrefab;
+    [SerializeField] private GameObject devilsAdvocatePrefab;
 
     [Header("Spawn Points")]
     [SerializeField] private Transform enemySpawnPointsRoot;
@@ -257,6 +258,14 @@ public class RoomCombatController : MonoBehaviour
                 }
                 return wardenPrefab;
 
+            case EnemyType.DevilsAdvocate:
+                if (devilsAdvocatePrefab == null)
+                {
+                    Debug.LogError($"[RoomCombatController] Devil's Advocate prefab is not assigned.");
+                    return null;
+                }
+                return devilsAdvocatePrefab;    
+
             default:
                 Debug.LogError($"[RoomCombatController] No prefab mapped for enemy type {type}.");
                 return null; 
@@ -307,6 +316,38 @@ public class RoomCombatController : MonoBehaviour
 
         alive.Clear();
         HandleRoomCleared();
+    }
+
+    public GameObject SpawnRuntimeSummonedEnemy(EnemyType type, Vector3 position)
+    {
+        GameObject prefab = GetPrefabForEnemyType(type);
+        if (prefab == null)
+        {
+            Debug.LogWarning($"[RoomCombatController] Cannot spawn runtime summoned enemy for type {type}.");
+            return null;
+        }
+
+        GameObject enemy = Instantiate(prefab, position, Quaternion.identity, transform);
+
+        EnemyRoomLink link = enemy.GetComponent<EnemyRoomLink>();
+        if (link == null)
+            link = enemy.AddComponent<EnemyRoomLink>();
+
+        link.Init(this);
+
+        SpawnedEnemyRuntime runtime = new SpawnedEnemyRuntime();
+        runtime.spawnPoint = null;
+        runtime.enemyObject = enemy;
+        runtime.stateEntry = null; // runtime-only summon, not persistent
+
+        alive.Add(runtime);
+
+        if (logEncounterFlow)
+        {
+            Debug.Log($"[RoomCombatController] Spawned RUNTIME summon {type} at {position} in room {roomCoord}");
+        }
+
+        return enemy;
     }
 
     public void NotifyEnemyDead(GameObject enemy)

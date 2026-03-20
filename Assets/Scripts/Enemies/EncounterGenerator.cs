@@ -199,7 +199,16 @@ public static class EncounterGenerator
                         EnemyType.Warden,
                         EnemyType.Hellpuppy
                     })
-                };       
+                };
+
+                case 6:
+                return new EncounterTemplate[]
+                {
+                    new EncounterTemplate("L6_A", new EnemyType[]
+                    {
+                        EnemyType.DevilsAdvocate
+                    })
+                };           
 
             default:
                 return new EncounterTemplate[]

@@ -1250,7 +1250,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1.5, y: 1.5, z: 1.5}
+  m_LocalScale: {x: 1.7, y: 1.7, z: 1.7}
   m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 6148111415975804567}
@@ -1293,6 +1293,7 @@ MonoBehaviour:
   verminPrefab: {fileID: 1104501832481689242, guid: d965e8bfc13bba64b8987525524d418b, type: 3}
   infernoPrefab: {fileID: 1104501832481689242, guid: fafa8f628240fef4fa49cc69fb8c71b5, type: 3}
   wardenPrefab: {fileID: 1104501832481689242, guid: 94504852cdb4e844b8561fe0c0b42790, type: 3}
+  devilsAdvocatePrefab: {fileID: 1104501832481689242, guid: cb4d3087e7a3ed14aa8fb3b1809fa3c1, type: 3}
   enemySpawnPointsRoot: {fileID: 631738927235406058}
   resetEnemiesToSpawnsOnPlayerRespawn: 1
   enableHellhoundExecute: 1

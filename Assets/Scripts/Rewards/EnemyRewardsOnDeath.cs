@@ -25,30 +25,38 @@ public class EnemyRewardsOnDeath : MonoBehaviour
 
     private void OnEnable()
     {
-        health.OnDied += HandleDeath;
+        if (health != null)
+            health.OnDied += HandleDeath;
     }
 
     private void OnDisable()
     {
-        health.OnDied -= HandleDeath;
+        if (health != null)
+            health.OnDied -= HandleDeath;
     }
 
     private void HandleDeath()
-    {
-        TryPay();
-    }
-
-    private void TryPay()
     {
         if (paid) return;
         paid = true;
 
         if (currency == null) return;
 
-        int souls = Random.Range(soulsRange.x, soulsRange.y + 1);
-        int xp = Random.Range(xpRange.x, xpRange.y + 1);
+        SummonedByDevilsAdvocate summonMarker = GetComponent<SummonedByDevilsAdvocate>();
 
-        currency.AddSouls(souls);
-        currency.AddXP(xp);
+        bool suppressSouls = summonMarker != null && summonMarker.SuppressSoulsReward;
+        bool suppressXp = summonMarker != null && summonMarker.SuppressXpReward;
+
+        if (!suppressSouls)
+        {
+            int souls = Random.Range(soulsRange.x, soulsRange.y + 1);
+            currency.AddSouls(souls);
+        }
+
+        if (!suppressXp)
+        {
+            int xp = Random.Range(xpRange.x, xpRange.y + 1);
+            currency.AddXP(xp);
+        }
     }
 }
