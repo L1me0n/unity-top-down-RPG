@@ -39,6 +39,8 @@ public class RoomStateSaveEntry
     public bool cleared;
     public int remainingEnemies;
 
+    public int roomType;
+
     public bool encounterInitialized;
     public int combatLevel;
     public int encounterSeed;

@@ -137,7 +137,11 @@ public class RoomManager : MonoBehaviour
         if (logTransitions)
         {
             int ring = WorldDifficultyService.GetRing(coord);
-            Debug.Log($"[RoomManager] Loaded room {coord} | ring={ring} | combatLevel={state.combatLevel} | encounterSeed={state.encounterSeed} | encounterInitialized={state.encounterInitialized}");
+            Debug.Log(
+                $"[RoomManager] Loaded room {coord} | roomType={state.roomType} | ring={ring} | " +
+                $"combatLevel={state.combatLevel} | encounterSeed={state.encounterSeed} | " +
+                $"encounterInitialized={state.encounterInitialized} | visited={state.visited} | cleared={state.cleared}"
+            );
         }
 
         var combat = currentRoom.GetComponent<RoomCombatController>();
@@ -185,20 +189,52 @@ public class RoomManager : MonoBehaviour
         return c.x >= minCoord.x && c.x <= maxCoord.x && c.y >= minCoord.y && c.y <= maxCoord.y;
     }
 
+    private RoomType DetermineRoomTypeForNewState(Vector2Int coord)
+    {
+        // Start room is always a campfire.
+        if (coord == Vector2Int.zero)
+            return RoomType.Campfire;
+
+        int ring = WorldDifficultyService.GetRing(coord);
+
+        // Keep early inner rooms as combat for now.
+        if (ring < 2)
+            return RoomType.Combat;
+
+        // Deterministic coordinate hash.
+        int hash = Mathf.Abs((coord.x * 73856093) ^ (coord.y * 19349663));
+
+        // Sparse campfire placement rule for now.
+        if (hash % 8 == 0)
+            return RoomType.Campfire;
+
+        return RoomType.Combat;
+    }
+
     private RoomState GetOrCreateState(Vector2Int c)
     {
         if (!states.TryGetValue(c, out var s))
         {
-            s = new RoomState(visited: false, cleared: false);
+            RoomType roomType = DetermineRoomTypeForNewState(c);
+
+            s = new RoomState(visited: false, cleared: false, remainingEnemies: -1, roomType: roomType);
             s.combatLevel = WorldDifficultyService.GetCombatLevel(c);
             s.encounterSeed = EncounterGenerator.BuildEncounterSeed(c, s.combatLevel);
             states.Add(c, s);
             if (logTransitions)
-                Debug.Log($"[RoomManager] Created state for {c}, combatLevel = {s.combatLevel}, encounterSeed = {s.encounterSeed}");
+                Debug.Log($"[RoomManager] Created state for {c}, roomType = {s.roomType}, combatLevel = {s.combatLevel}, encounterSeed = {s.encounterSeed}");
         }
         else
         {
             // Backward compatibility: older states may not yet have combatLevel or encounterSeed.
+
+            if (!System.Enum.IsDefined(typeof(RoomType), s.roomType))
+            {
+                s.roomType = DetermineRoomTypeForNewState(c);
+
+                if (logTransitions)
+                    Debug.Log($"[RoomManager] Repaired missing/invalid roomType for {c} -> {s.roomType}");
+            }
 
             if (s.combatLevel <= 0)
             {
@@ -299,6 +335,7 @@ public class RoomManager : MonoBehaviour
             entry.visited = s.visited;
             entry.cleared = s.cleared;
             entry.remainingEnemies = s.remainingEnemies;
+            entry.roomType = (int)s.roomType;
 
             entry.encounterInitialized = s.encounterInitialized;
             entry.combatLevel = s.combatLevel;
@@ -336,8 +373,17 @@ public class RoomManager : MonoBehaviour
                 RoomStateSaveEntry e = entries[i];
                 Vector2Int coord = new Vector2Int(e.x, e.y);
 
-                RoomState s = new RoomState(e.visited, e.cleared);
-                s.remainingEnemies = e.remainingEnemies;
+                RoomType restoredRoomType = System.Enum.IsDefined(typeof(RoomType), e.roomType)
+                    ? (RoomType)e.roomType
+                    : RoomType.Combat;
+
+                RoomState s = new RoomState(
+                    e.visited,
+                    e.cleared,
+                    e.remainingEnemies,
+                    restoredRoomType
+                );
+
 
                 s.encounterInitialized = e.encounterInitialized;
                 s.combatLevel = e.combatLevel;
