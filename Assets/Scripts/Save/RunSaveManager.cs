@@ -57,7 +57,10 @@ public class RunSaveManager : MonoBehaviour
             branches.OnBranchChanged += OnAnyBranchChanged;
 
         if (roomManager != null)
-            roomManager.OnRoomEntered += OnRoomEntered;    
+        {
+            roomManager.OnRoomEntered += OnRoomEntered;
+            roomManager.OnCampfireEntered += OnCampfireEntered;
+        }
     }
 
     private void Unsubscribe()
@@ -76,7 +79,10 @@ public class RunSaveManager : MonoBehaviour
             branches.OnBranchChanged -= OnAnyBranchChanged;
 
         if (roomManager != null)
+        {
             roomManager.OnRoomEntered -= OnRoomEntered;
+            roomManager.OnCampfireEntered -= OnCampfireEntered;
+        }
     }
 
     public void Save()
@@ -100,6 +106,10 @@ public class RunSaveManager : MonoBehaviour
             maxAPLoss = penalties != null ? penalties.MaxAPLoss : 0,
             actionRateLoss = penalties != null ? penalties.ActionRateLoss : 0,
             dpLoss = penalties != null ? penalties.DPLoss : 0,
+
+            hasActivatedCampfireCheckpoint = roomManager != null && roomManager.HasActivatedCampfireCheckpoint,
+            checkpointRoomX = roomManager != null ? roomManager.LastActivatedCampfireCoord.x : 0,
+            checkpointRoomY = roomManager != null ? roomManager.LastActivatedCampfireCoord.y : 0,
         };
 
         var roomStates = roomManager.ExportRoomStates();
@@ -139,7 +149,16 @@ public class RunSaveManager : MonoBehaviour
             penalties.LoadState(data.maxHPLoss, data.maxAPLoss, data.actionRateLoss, data.dpLoss);
         }
 
-        roomManager.ImportRoomStates(data.rooms, new Vector2Int(data.playerRoomX, data.playerRoomY));
+        if (roomManager != null) 
+        {
+            roomManager.ImportRoomStates(data.rooms, new Vector2Int(data.playerRoomX, data.playerRoomY));
+
+            roomManager.LoadCheckpointState(
+                data.hasActivatedCampfireCheckpoint,
+                new Vector2Int(data.checkpointRoomX, data.checkpointRoomY)
+            );
+
+        }
 
         levelSystem.EndLoad();
 
@@ -153,6 +172,7 @@ public class RunSaveManager : MonoBehaviour
     }
 
     private void OnRoomEntered(RoomInstance _) => Save();
+    private void OnCampfireEntered(Vector2Int _, RoomState __) => Save();
     private void OnAnyLevelChanged(int _) => Save();
     private void OnAnyPointsChanged(int _) => Save();
     private void OnAnyProgressChanged(int _, int __) => Save();

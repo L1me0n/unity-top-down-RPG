@@ -40,6 +40,12 @@ public class RoomManager : MonoBehaviour
     private bool isTransitioning;
     public bool SkipInitialLoad { get; set; }
 
+    private Vector2Int lastActivatedCampfireCoord;
+    private bool hasActivatedCampfireCheckpoint;
+
+    public bool HasActivatedCampfireCheckpoint => hasActivatedCampfireCheckpoint;
+    public Vector2Int LastActivatedCampfireCoord => lastActivatedCampfireCoord;
+
     public System.Action<RoomInstance> OnRoomEntered;
     public System.Action<Vector2Int, RoomState> OnCampfireEntered;
 
@@ -141,7 +147,32 @@ public class RoomManager : MonoBehaviour
         if (logTransitions)
             Debug.Log($"[RoomManager] Entered campfire room at {coord}.");
 
+        bool alreadyActiveCheckpoint =
+            hasActivatedCampfireCheckpoint &&
+            lastActivatedCampfireCoord == coord;
+
+        if (!alreadyActiveCheckpoint)
+        {
+            SetActivatedCampfireCheckpoint(coord);
+        }
+        else if (logTransitions)
+        {
+            Debug.Log($"[RoomManager] Campfire at {coord} is already the active checkpoint.");
+        }
+
         OnCampfireEntered?.Invoke(coord, state);
+    }
+
+    public void SetActivatedCampfireCheckpoint(Vector2Int coord)
+    {
+        if (hasActivatedCampfireCheckpoint && lastActivatedCampfireCoord == coord)
+            return;
+
+        lastActivatedCampfireCoord = coord;
+        hasActivatedCampfireCheckpoint = true;
+
+        if (logTransitions)
+            Debug.Log($"[RoomManager] Active campfire checkpoint set to {coord}.");
     }
 
     private void LoadRoom(Vector2Int coord, RoomDirection? enteredFrom)
@@ -371,6 +402,14 @@ public class RoomManager : MonoBehaviour
         state.cleared = true;
     }
 
+    public void LoadCheckpointState(bool hasCheckpoint, Vector2Int checkpointCoord)
+    {
+        hasActivatedCampfireCheckpoint = hasCheckpoint;
+        lastActivatedCampfireCoord = checkpointCoord;
+
+        if (logTransitions && hasCheckpoint)
+            Debug.Log($"[RoomManager] Loaded active campfire checkpoint at {checkpointCoord}.");
+    }
 
     public RoomStateSaveEntry[] ExportRoomStates()
     {

@@ -27,6 +27,10 @@ public class RunSaveData
     public int playerRoomX;
     public int playerRoomY;
 
+    public bool hasActivatedCampfireCheckpoint;
+    public int checkpointRoomX;
+    public int checkpointRoomY;
+
     public RoomStateSaveEntry[] rooms;
 }
 
