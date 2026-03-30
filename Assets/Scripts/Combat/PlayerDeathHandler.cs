@@ -9,8 +9,18 @@ public class PlayerDeathHandler : MonoBehaviour
 
     private void Awake()
     {
-        receiver = GetComponent<PlayerDamageReceiver>();
-        receiver.OnDied += roomManager.RespawnInCurrentRoom;
+        if (roomManager == null)
+            roomManager = FindFirstObjectByType<RoomManager>();
 
+        receiver = GetComponent<PlayerDamageReceiver>();
+
+        if (receiver != null && roomManager != null)
+            receiver.OnDied += roomManager.RespawnAtCheckpoint;
+    }
+
+    private void OnDestroy()
+    {
+        if (receiver != null && roomManager != null)
+            receiver.OnDied -= roomManager.RespawnAtCheckpoint;
     }
 }

@@ -366,34 +366,92 @@ public class RoomManager : MonoBehaviour
             stats.GainAP(999999);
         }
 
-        // 2) apply death penalty
-        var deathPenalty = player.GetComponent<DeathPenaltyTracker>();
-        if (deathPenalty != null)
-        {
-            deathPenalty.AddDeathPenalty(1, 1, 1, 1);
-        }
-
-        // 3) reset enemies to their original spawn points (NO new spawns)
-        var combat = currentRoom.GetComponent<RoomCombatController>();
-        if (combat != null)
-            combat.ResetAliveEnemiesToSpawnPoints();
-
-        // 4) take a portion of currency on death
+        // 2) take a portion of currency on death
         var currency = player.GetComponent<RunCurrency>();
         if (currency != null)
         {
             currency.TakeSouls(currencyLossOnDeath);
         }
 
-        // 5) teleport player to center spawn (enteredFrom null -> Spawn_Center)
+        // 3) teleport player to center spawn (enteredFrom null -> Spawn_Center)
         player.position = currentRoom.GetSpawnPosition(null);
 
-        // 6) clear motion
+        // 4) clear motion
         if (playerRb != null)
         {
             playerRb.linearVelocity = Vector2.zero;
             playerRb.angularVelocity = 0f;
         }
+
+        if (playerCollider != null && !playerCollider.enabled)
+        {
+            playerCollider.enabled = true;
+        }
+
+        if (logTransitions)
+            Debug.Log("[RoomManager] RespawnInCurrentRoom() used as legacy fallback. No local enemy reset was performed.");
+    }
+
+    public void RespawnAtCheckpoint()
+    {
+        if (player == null)
+            return;
+
+        if (isTransitioning)
+        {
+            if (logTransitions)
+                Debug.Log("[RoomManager] Ignored checkpoint respawn request because a transition is already in progress.");
+            return;
+        }
+
+        Vector2Int checkpointCoord = hasActivatedCampfireCheckpoint
+            ? lastActivatedCampfireCoord
+            : Vector2Int.zero;
+
+        if (logTransitions)
+        {
+            if (hasActivatedCampfireCheckpoint)
+                Debug.Log($"[RoomManager] Respawning player at active checkpoint {checkpointCoord}.");
+            else
+                Debug.Log($"[RoomManager] No active checkpoint found. Falling back to start room {checkpointCoord}.");
+        }
+
+        var currency = player.GetComponent<RunCurrency>();
+        if (currency != null)
+        {
+            currency.TakeSouls(currencyLossOnDeath);
+            if (logTransitions)
+                Debug.Log($"[RoomManager] Applied death soul loss at checkpoint respawn ({currencyLossOnDeath * 100f}% souls).");
+        }
+
+        var deathPenalty = player.GetComponent<DeathPenaltyTracker>();
+        if (deathPenalty != null)
+        {
+            deathPenalty.AddDeathPenalty(1, 1, 1, 1);
+
+            if (logTransitions)
+                Debug.Log("[RoomManager] Applied death stat penalty at checkpoint respawn.");
+        }
+
+        if (playerRb != null)
+        {
+            playerRb.linearVelocity = Vector2.zero;
+            playerRb.angularVelocity = 0f;
+        }
+
+        if (playerCollider != null && !playerCollider.enabled)
+            playerCollider.enabled = true;
+
+        LoadRoom(checkpointCoord, enteredFrom: null);
+
+        if (playerRb != null)
+        {
+            playerRb.linearVelocity = Vector2.zero;
+            playerRb.angularVelocity = 0f;
+        }
+
+        if (playerCollider != null && !playerCollider.enabled)
+            playerCollider.enabled = true;
     }
 
     public void MarkCurrentRoomCleared()
