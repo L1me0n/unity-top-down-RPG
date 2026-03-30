@@ -58,4 +58,9 @@ public class APRegen : MonoBehaviour
             stats.GainAP(apPerTick);
         }
     }
+
+    public void ResetRegenState()
+    {
+        timer = 0f;
+    }
 }

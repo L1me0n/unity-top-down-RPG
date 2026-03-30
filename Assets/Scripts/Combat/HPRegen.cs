@@ -53,4 +53,10 @@ public class HPRegen: MonoBehaviour
         healRemainder -= whole;
         stats.Heal(whole);
     }
+
+    public void ResetRegenState()
+    {
+        lastDamageTime = 0f;
+        healRemainder = 0f;
+    }
 }
