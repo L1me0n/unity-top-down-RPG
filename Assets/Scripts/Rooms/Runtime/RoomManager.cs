@@ -5,7 +5,8 @@ using System.Collections.Generic;
 public class RoomManager : MonoBehaviour
 {
     [Header("Prefabs")]
-    [SerializeField] private GameObject roomPrefab; // RoomBase
+    [SerializeField] private GameObject combatRoomPrefab;
+    [SerializeField] private GameObject campfireRoomPrefab;
 
     [Header("References")]
     [SerializeField] private Transform player;
@@ -40,6 +41,7 @@ public class RoomManager : MonoBehaviour
     public bool SkipInitialLoad { get; set; }
 
     public System.Action<RoomInstance> OnRoomEntered;
+    public System.Action<Vector2Int, RoomState> OnCampfireEntered;
 
     private void Awake()
     {
@@ -57,7 +59,13 @@ public class RoomManager : MonoBehaviour
     public void RequestTransition(RoomDirection viaDoorDirection)
     {
         if (isTransitioning) return;
-        if (roomPrefab == null || player == null) return;
+        if (player == null) return;
+
+        if (combatRoomPrefab == null)
+        {
+            Debug.LogError("[RoomManager] Combat room prefab is not assigned.");
+            return;
+        }
 
         Vector2Int next = currentCoord + DirToDelta(viaDoorDirection);
 
@@ -101,6 +109,41 @@ public class RoomManager : MonoBehaviour
         isTransitioning = false;
     }
 
+    private GameObject GetPrefabForRoomType(RoomType roomType)
+    {
+        switch (roomType)
+        {
+            case RoomType.Campfire:
+                if (campfireRoomPrefab != null)
+                    return campfireRoomPrefab;
+
+                Debug.LogWarning("[RoomManager] Campfire room prefab is missing. Falling back to combat room prefab.");
+                return combatRoomPrefab;
+
+            case RoomType.Combat:
+            default:
+                if (combatRoomPrefab != null)
+                    return combatRoomPrefab;
+
+                Debug.LogError("[RoomManager] Combat room prefab is not assigned.");
+                return null;
+        }
+    }
+
+    private void HandleCampfireRoomEntered(Vector2Int coord, RoomState state)
+    {
+        if (state == null)
+            return;
+
+        if (state.roomType != RoomType.Campfire)
+            return;
+
+        if (logTransitions)
+            Debug.Log($"[RoomManager] Entered campfire room at {coord}.");
+
+        OnCampfireEntered?.Invoke(coord, state);
+    }
+
     private void LoadRoom(Vector2Int coord, RoomDirection? enteredFrom)
     {
         // Destroy old
@@ -110,8 +153,17 @@ public class RoomManager : MonoBehaviour
             currentRoom = null;
         }
 
+        var state = GetOrCreateState(coord);
+
+        GameObject prefabToSpawn = GetPrefabForRoomType(state.roomType);
+        if (prefabToSpawn == null)
+        {
+            Debug.LogError($"[RoomManager] No valid prefab found for room type {state.roomType} at {coord}.");
+            return;
+        }
+
         // Spawn new
-        GameObject roomGo = Instantiate(roomPrefab);
+        GameObject roomGo = Instantiate(prefabToSpawn);
         roomGo.name = $"Room_{coord.x}_{coord.y}";
 
         currentRoom = roomGo.GetComponent<RoomInstance>();
@@ -133,7 +185,6 @@ public class RoomManager : MonoBehaviour
         for (int i = 0; i < doors.Length; i++)
             doors[i].SetRoomManager(this);
 
-        var state = GetOrCreateState(coord);
         if (logTransitions)
         {
             int ring = WorldDifficultyService.GetRing(coord);
@@ -155,6 +206,8 @@ public class RoomManager : MonoBehaviour
         // Place player at the correct spawn
         Vector3 spawnPos = currentRoom.GetSpawnPosition(enteredFrom);
         player.position = spawnPos;
+
+        HandleCampfireRoomEntered(coord, state);
 
         OnRoomEntered?.Invoke(currentRoom);
     }

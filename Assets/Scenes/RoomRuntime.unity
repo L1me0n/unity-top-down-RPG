@@ -3710,7 +3710,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3ad1dd3687897334d9bda6420625585d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RoomManager
-  roomPrefab: {fileID: 4052264067139323334, guid: 334c3c875c4dee94fb71a10303bdfd3a, type: 3}
+  combatRoomPrefab: {fileID: 4052264067139323334, guid: 334c3c875c4dee94fb71a10303bdfd3a, type: 3}
+  campfireRoomPrefab: {fileID: 4052264067139323334, guid: 2b5d35d080c4f2d4e8055dacde89174d, type: 3}
   player: {fileID: 2073994548}
   playerRb: {fileID: 2073994546}
   playerCollider: {fileID: 0}
@@ -3776,7 +3777,7 @@ AudioSource:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1281352412}
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}

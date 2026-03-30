@@ -69,6 +69,12 @@ public class RoomCombatController : MonoBehaviour
         if (state != null)
             state.visited = true;
 
+        if (state != null && state.roomType != RoomType.Combat)
+        {
+            HandleNonCombatRoomEnter();
+            return;
+        }
+
         if (state != null && state.cleared)
         {
             if (logEncounterFlow)
@@ -101,6 +107,14 @@ public class RoomCombatController : MonoBehaviour
             Debug.Log($"[RoomCombatController] Room {roomCoord} spawned {alive.Count} alive enemies.");
 
         SetDoorsLocked(true);
+    }
+
+    private void HandleNonCombatRoomEnter()
+    {
+        if (logEncounterFlow)
+            Debug.Log($"[RoomCombatController] Room {roomCoord} is {state.roomType}. Skipping combat flow.");
+
+        SetDoorsLocked(false);
     }
 
     private void CacheSpawnPoints()
