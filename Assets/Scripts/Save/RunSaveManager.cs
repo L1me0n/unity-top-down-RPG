@@ -87,7 +87,7 @@ public class RunSaveManager : MonoBehaviour
 
     public void Save()
     {
-        if (currency == null || levelSystem == null || branches == null) return;
+        if (currency == null || levelSystem == null || branches == null || roomManager == null) return;
 
         var data = new RunSaveData
         {
@@ -107,9 +107,12 @@ public class RunSaveManager : MonoBehaviour
             actionRateLoss = penalties != null ? penalties.ActionRateLoss : 0,
             dpLoss = penalties != null ? penalties.DPLoss : 0,
 
-            hasActivatedCampfireCheckpoint = roomManager != null && roomManager.HasActivatedCampfireCheckpoint,
-            checkpointRoomX = roomManager != null ? roomManager.LastActivatedCampfireCoord.x : 0,
-            checkpointRoomY = roomManager != null ? roomManager.LastActivatedCampfireCoord.y : 0,
+            hasActivatedCampfireCheckpoint = roomManager.HasActivatedCampfireCheckpoint,
+            checkpointRoomX = roomManager.LastActivatedCampfireCoord.x,
+            checkpointRoomY = roomManager.LastActivatedCampfireCoord.y,
+
+            // 7.5A
+            runStepCount = roomManager.CurrentRunStep
         };
 
         var roomStates = roomManager.ExportRoomStates();
@@ -149,20 +152,20 @@ public class RunSaveManager : MonoBehaviour
             penalties.LoadState(data.maxHPLoss, data.maxAPLoss, data.actionRateLoss, data.dpLoss);
         }
 
-        if (roomManager != null) 
+        if (roomManager != null)
         {
+            // 7.5: restore the world progress clock before loading the room.
+            roomManager.LoadRunStepState(data.runStepCount);
+
             roomManager.ImportRoomStates(data.rooms, new Vector2Int(data.playerRoomX, data.playerRoomY));
 
             roomManager.LoadCheckpointState(
                 data.hasActivatedCampfireCheckpoint,
                 new Vector2Int(data.checkpointRoomX, data.checkpointRoomY)
             );
-
         }
 
         levelSystem.EndLoad();
-
-         //Debug.Log("[RunSaveManager] Loaded run save.");
     }
 
     public void DeleteSave()
@@ -177,7 +180,6 @@ public class RunSaveManager : MonoBehaviour
     private void OnAnyPointsChanged(int _) => Save();
     private void OnAnyProgressChanged(int _, int __) => Save();
     private void OnAnyBranchChanged(BranchType _, int __) => Save();
-
 
     private void OnApplicationQuit()
     {

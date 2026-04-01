@@ -27,10 +27,13 @@ public class RoomManager : MonoBehaviour
     [SerializeField] private Vector2Int minCoord = new Vector2Int(-2, -2);
     [SerializeField] private Vector2Int maxCoord = new Vector2Int(2, 2);
 
-    [SerializeField] private float currencyLossOnDeath = 0.25f;   // lose 25% of souls/xp on death
+    [SerializeField] private float currencyLossOnDeath = 0.25f;   // lose 25% of souls on death
 
-    private readonly System.Collections.Generic.Dictionary<Vector2Int, RoomState> states
-        = new System.Collections.Generic.Dictionary<Vector2Int, RoomState>();
+    [Header("Repopulation")]
+    [SerializeField] private int repopulationDelaySteps = 50;
+
+    private readonly Dictionary<Vector2Int, RoomState> states
+        = new Dictionary<Vector2Int, RoomState>();
 
     public Vector2Int CurrentCoord => currentCoord;
     public RoomInstance CurrentRoom => currentRoom;
@@ -42,6 +45,11 @@ public class RoomManager : MonoBehaviour
 
     private Vector2Int lastActivatedCampfireCoord;
     private bool hasActivatedCampfireCheckpoint;
+
+    // 7.5: world-progress clock for repopulation timing.
+    // This counts only normal room-to-room travel, not load/respawn.
+    private int runStepCount;
+    public int CurrentRunStep => runStepCount;
 
     public bool HasActivatedCampfireCheckpoint => hasActivatedCampfireCheckpoint;
     public Vector2Int LastActivatedCampfireCoord => lastActivatedCampfireCoord;
@@ -58,8 +66,9 @@ public class RoomManager : MonoBehaviour
     private void Start()
     {
         if (SkipInitialLoad) return;
-        // Start at (0,0)
-        LoadRoom(Vector2Int.zero, enteredFrom: null);
+
+        // Initial spawn into the start room should not advance world step.
+        LoadRoom(Vector2Int.zero, enteredFrom: null, countAsRunStep: false);
     }
 
     public void RequestTransition(RoomDirection viaDoorDirection)
@@ -82,7 +91,6 @@ public class RoomManager : MonoBehaviour
             return;
         }
 
-        // When we go NORTH through a door, the next room is entered FROM SOUTH.
         RoomDirection enteredFromSideInNewRoom = Opposite(viaDoorDirection);
 
         if (logTransitions)
@@ -95,19 +103,17 @@ public class RoomManager : MonoBehaviour
     {
         isTransitioning = true;
 
-        // Stop motion so we don't “skate” into the next trigger.
         if (playerRb != null)
         {
             playerRb.linearVelocity = Vector2.zero;
             playerRb.angularVelocity = 0f;
         }
 
-        // Disable collider briefly to avoid instant retrigger.
         if (playerCollider != null) playerCollider.enabled = false;
 
-        LoadRoom(nextCoord, enteredFrom);
+        // Normal door travel should advance world step.
+        LoadRoom(nextCoord, enteredFrom, countAsRunStep: true);
 
-        // Wait a tiny bit to clear overlaps, then re-enable.
         yield return new WaitForSeconds(transitionLockSeconds);
 
         if (playerCollider != null) playerCollider.enabled = true;
@@ -175,9 +181,29 @@ public class RoomManager : MonoBehaviour
             Debug.Log($"[RoomManager] Active campfire checkpoint set to {coord}.");
     }
 
-    private void LoadRoom(Vector2Int coord, RoomDirection? enteredFrom)
+    private void AdvanceRunStep()
     {
-        // Destroy old
+        runStepCount++;
+
+        if (logTransitions)
+            Debug.Log($"[RoomManager] Run step advanced -> {runStepCount}");
+    }
+
+    public void LoadRunStepState(int savedRunStep)
+    {
+        runStepCount = Mathf.Max(0, savedRunStep);
+
+        if (logTransitions)
+            Debug.Log($"[RoomManager] Loaded run step count -> {runStepCount}");
+    }
+
+    private void LoadRoom(Vector2Int coord, RoomDirection? enteredFrom, bool countAsRunStep)
+    {
+        if (countAsRunStep)
+        {
+            AdvanceRunStep();
+        }
+
         if (currentRoom != null)
         {
             Destroy(currentRoom.gameObject);
@@ -186,6 +212,14 @@ public class RoomManager : MonoBehaviour
 
         var state = GetOrCreateState(coord);
 
+        // 7.5:
+        // If this is an old cleared combat room, wake it back up before combat flow runs.
+        TryRepopulateRoomState(coord, state);
+
+        // Stamp room visit history using the current run step.
+        state.visited = true;
+        state.lastVisitedStep = runStepCount;
+
         GameObject prefabToSpawn = GetPrefabForRoomType(state.roomType);
         if (prefabToSpawn == null)
         {
@@ -193,7 +227,6 @@ public class RoomManager : MonoBehaviour
             return;
         }
 
-        // Spawn new
         GameObject roomGo = Instantiate(prefabToSpawn);
         roomGo.name = $"Room_{coord.x}_{coord.y}";
 
@@ -206,12 +239,8 @@ public class RoomManager : MonoBehaviour
 
         cameraClampBehaviour.SetRoomBounds(currentRoom.RoomBounds);
 
-        // Update coord
         currentCoord = coord;
 
-        
-
-        // Hook doors to this manager
         var doors = currentRoom.Doors;
         for (int i = 0; i < doors.Length; i++)
             doors[i].SetRoomManager(this);
@@ -219,10 +248,16 @@ public class RoomManager : MonoBehaviour
         if (logTransitions)
         {
             int ring = WorldDifficultyService.GetRing(coord);
+            int roomAgeSinceClear = GetRoomAgeSinceClear(state);
+            bool eligibleToRepopulate = CanRoomRepopulateNow(state);
+
             Debug.Log(
                 $"[RoomManager] Loaded room {coord} | roomType={state.roomType} | ring={ring} | " +
                 $"combatLevel={state.combatLevel} | encounterSeed={state.encounterSeed} | " +
-                $"encounterInitialized={state.encounterInitialized} | visited={state.visited} | cleared={state.cleared}"
+                $"encounterInitialized={state.encounterInitialized} | visited={state.visited} | cleared={state.cleared} | " +
+                $"runStep={runStepCount} | lastVisitedStep={state.lastVisitedStep} | lastClearedStep={state.lastClearedStep} | " +
+                $"repopBlockedUntil={state.repopulationBlockedUntilStep} | timesRepopulated={state.timesRepopulated} | " +
+                $"roomAgeSinceClear={roomAgeSinceClear} | canRepopulateNow={eligibleToRepopulate}"
             );
         }
 
@@ -230,11 +265,10 @@ public class RoomManager : MonoBehaviour
         if (combat != null)
         {
             combat.OnRoomEntered(this, currentCoord, state);
-        }  
-        
+        }
+
         UpdateDoorAvailability(doors);
 
-        // Place player at the correct spawn
         Vector3 spawnPos = currentRoom.GetSpawnPosition(enteredFrom);
         player.position = spawnPos;
 
@@ -248,9 +282,9 @@ public class RoomManager : MonoBehaviour
         switch (d)
         {
             case RoomDirection.North: return new Vector2Int(0, 1);
-            case RoomDirection.East:  return new Vector2Int(1, 0);
+            case RoomDirection.East: return new Vector2Int(1, 0);
             case RoomDirection.South: return new Vector2Int(0, -1);
-            case RoomDirection.West:  return new Vector2Int(-1, 0);
+            case RoomDirection.West: return new Vector2Int(-1, 0);
         }
         return Vector2Int.zero;
     }
@@ -260,9 +294,9 @@ public class RoomManager : MonoBehaviour
         switch (d)
         {
             case RoomDirection.North: return RoomDirection.South;
-            case RoomDirection.East:  return RoomDirection.West;
+            case RoomDirection.East: return RoomDirection.West;
             case RoomDirection.South: return RoomDirection.North;
-            case RoomDirection.West:  return RoomDirection.East;
+            case RoomDirection.West: return RoomDirection.East;
         }
         return d;
     }
@@ -275,20 +309,16 @@ public class RoomManager : MonoBehaviour
 
     private RoomType DetermineRoomTypeForNewState(Vector2Int coord)
     {
-        // Start room is always a campfire.
         if (coord == Vector2Int.zero)
             return RoomType.Campfire;
 
         int ring = WorldDifficultyService.GetRing(coord);
 
-        // Keep early inner rooms as combat for now.
         if (ring < 2)
             return RoomType.Combat;
 
-        // Deterministic coordinate hash.
         int hash = Mathf.Abs((coord.x * 73856093) ^ (coord.y * 19349663));
 
-        // Sparse campfire placement rule for now.
         if (hash % 8 == 0)
             return RoomType.Campfire;
 
@@ -301,17 +331,26 @@ public class RoomManager : MonoBehaviour
         {
             RoomType roomType = DetermineRoomTypeForNewState(c);
 
-            s = new RoomState(visited: false, cleared: false, remainingEnemies: -1, roomType: roomType);
+            s = new RoomState(
+                visited: false,
+                cleared: false,
+                remainingEnemies: -1,
+                roomType: roomType,
+                lastVisitedStep: -1,
+                lastClearedStep: -1,
+                repopulationBlockedUntilStep: 0,
+                timesRepopulated: 0
+            );
+
             s.combatLevel = WorldDifficultyService.GetCombatLevel(c);
             s.encounterSeed = EncounterGenerator.BuildEncounterSeed(c, s.combatLevel);
             states.Add(c, s);
+
             if (logTransitions)
                 Debug.Log($"[RoomManager] Created state for {c}, roomType = {s.roomType}, combatLevel = {s.combatLevel}, encounterSeed = {s.encounterSeed}");
         }
         else
         {
-            // Backward compatibility: older states may not yet have combatLevel or encounterSeed.
-
             if (!System.Enum.IsDefined(typeof(RoomType), s.roomType))
             {
                 s.roomType = DetermineRoomTypeForNewState(c);
@@ -328,7 +367,6 @@ public class RoomManager : MonoBehaviour
                     Debug.Log($"[RoomManager] Repaired missing combatLevel for {c} -> {s.combatLevel}");
             }
 
-            
             if (s.encounterSeed == 0)
             {
                 s.encounterSeed = EncounterGenerator.BuildEncounterSeed(c, s.combatLevel);
@@ -336,6 +374,11 @@ public class RoomManager : MonoBehaviour
                 if (logTransitions)
                     Debug.Log($"[RoomManager] Repaired missing encounterSeed for {c} -> {s.encounterSeed}");
             }
+
+            if (s.lastVisitedStep < -1) s.lastVisitedStep = -1;
+            if (s.lastClearedStep < -1) s.lastClearedStep = -1;
+            if (s.repopulationBlockedUntilStep < 0) s.repopulationBlockedUntilStep = 0;
+            if (s.timesRepopulated < 0) s.timesRepopulated = 0;
         }
 
         return s;
@@ -348,8 +391,6 @@ public class RoomManager : MonoBehaviour
             RoomDoor d = doors[i];
             Vector2Int target = currentCoord + DirToDelta(d.Direction);
             bool allowed = IsCoordAllowed(target);
-
-            // Disable the whole door object so trigger + visual both disappear.
             d.gameObject.SetActive(allowed);
         }
     }
@@ -358,7 +399,6 @@ public class RoomManager : MonoBehaviour
     {
         if (currentRoom == null || player == null) return;
 
-        // 1) restore stats
         var stats = player.GetComponent<PlayerStats>();
         if (stats != null)
         {
@@ -366,17 +406,14 @@ public class RoomManager : MonoBehaviour
             stats.GainAP(999999);
         }
 
-        // 2) take a portion of currency on death
         var currency = player.GetComponent<RunCurrency>();
         if (currency != null)
         {
             currency.TakeSouls(currencyLossOnDeath);
         }
 
-        // 3) teleport player to center spawn (enteredFrom null -> Spawn_Center)
         player.position = currentRoom.GetSpawnPosition(null);
 
-        // 4) clear motion
         if (playerRb != null)
         {
             playerRb.linearVelocity = Vector2.zero;
@@ -442,7 +479,8 @@ public class RoomManager : MonoBehaviour
         if (playerCollider != null && !playerCollider.enabled)
             playerCollider.enabled = true;
 
-        LoadRoom(checkpointCoord, enteredFrom: null);
+        // Respawn / checkpoint return should not advance world step.
+        LoadRoom(checkpointCoord, enteredFrom: null, countAsRunStep: false);
 
         if (playerRb != null)
         {
@@ -457,7 +495,14 @@ public class RoomManager : MonoBehaviour
     public void MarkCurrentRoomCleared()
     {
         var state = GetOrCreateState(currentCoord);
+
         state.cleared = true;
+
+        // stamp the clear history at the current run step.
+        state.lastClearedStep = runStepCount;
+
+        if (logTransitions)
+            Debug.Log($"[RoomManager] Marked room {currentCoord} cleared at run step {runStepCount}.");
     }
 
     public void LoadCheckpointState(bool hasCheckpoint, Vector2Int checkpointCoord)
@@ -485,11 +530,17 @@ public class RoomManager : MonoBehaviour
             entry.visited = s.visited;
             entry.cleared = s.cleared;
             entry.remainingEnemies = s.remainingEnemies;
+
             entry.roomType = (int)s.roomType;
 
             entry.encounterInitialized = s.encounterInitialized;
             entry.combatLevel = s.combatLevel;
             entry.encounterSeed = s.encounterSeed;
+
+            entry.lastVisitedStep = s.lastVisitedStep;
+            entry.lastClearedStep = s.lastClearedStep;
+            entry.repopulationBlockedUntilStep = s.repopulationBlockedUntilStep;
+            entry.timesRepopulated = s.timesRepopulated;
 
             if (s.enemyStates != null)
             {
@@ -531,9 +582,12 @@ public class RoomManager : MonoBehaviour
                     e.visited,
                     e.cleared,
                     e.remainingEnemies,
-                    restoredRoomType
+                    restoredRoomType,
+                    e.lastVisitedStep,
+                    e.lastClearedStep,
+                    e.repopulationBlockedUntilStep,
+                    e.timesRepopulated
                 );
-
 
                 s.encounterInitialized = e.encounterInitialized;
                 s.combatLevel = e.combatLevel;
@@ -544,6 +598,11 @@ public class RoomManager : MonoBehaviour
 
                 if (s.encounterSeed == 0)
                     s.encounterSeed = EncounterGenerator.BuildEncounterSeed(coord, s.combatLevel);
+
+                if (s.lastVisitedStep < -1) s.lastVisitedStep = -1;
+                if (s.lastClearedStep < -1) s.lastClearedStep = -1;
+                if (s.repopulationBlockedUntilStep < 0) s.repopulationBlockedUntilStep = 0;
+                if (s.timesRepopulated < 0) s.timesRepopulated = 0;
 
                 s.enemyStates = new List<RoomEnemyStateEntry>();
 
@@ -566,6 +625,78 @@ public class RoomManager : MonoBehaviour
             }
         }
 
-        LoadRoom(startCoord, enteredFrom: null);
+        // Loading a save should restore the room, not advance time.
+        LoadRoom(startCoord, enteredFrom: null, countAsRunStep: false);
+    }
+
+    // -----------------------------
+    // 7.5: repopulation helpers
+    // -----------------------------
+
+    public int GetRoomAgeSinceClear(RoomState state)
+    {
+        if (state == null)
+            return -1;
+
+        if (!state.cleared)
+            return -1;
+
+        if (state.lastClearedStep < 0)
+            return -1;
+
+        return runStepCount - state.lastClearedStep;
+    }
+
+    public bool CanRoomRepopulateNow(RoomState state)
+    {
+        if (state == null)
+            return false;
+
+        if (state.roomType != RoomType.Combat)
+            return false;
+
+        if (!state.cleared)
+            return false;
+
+        if (state.lastClearedStep < 0)
+            return false;
+
+        int roomAgeSinceClear = GetRoomAgeSinceClear(state);
+        if (roomAgeSinceClear < 0)
+            return false;
+
+        return roomAgeSinceClear >= repopulationDelaySteps;
+    }
+
+    private bool TryRepopulateRoomState(Vector2Int coord, RoomState state)
+    {
+        if (!CanRoomRepopulateNow(state))
+            return false;
+
+        int oldLastClearedStep = state.lastClearedStep;
+        int roomAgeSinceClear = GetRoomAgeSinceClear(state);
+
+        // Wake the room back up.
+        state.cleared = false;
+        state.remainingEnemies = -1;
+        state.encounterInitialized = false;
+
+        if (state.enemyStates == null)
+            state.enemyStates = new List<RoomEnemyStateEntry>();
+        else
+            state.enemyStates.Clear();
+
+        state.timesRepopulated++;
+
+        if (logTransitions)
+        {
+            Debug.Log(
+                $"[RoomManager] Repopulated room {coord} | " +
+                $"oldLastClearedStep={oldLastClearedStep} | roomAgeSinceClear={roomAgeSinceClear} | " +
+                $"timesRepopulated={state.timesRepopulated}"
+            );
+        }
+
+        return true;
     }
 }

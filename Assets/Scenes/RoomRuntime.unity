@@ -3722,6 +3722,7 @@ MonoBehaviour:
   minCoord: {x: -8, y: -8}
   maxCoord: {x: 8, y: 8}
   currencyLossOnDeath: 0.25
+  repopulationDelaySteps: 50
 --- !u!4 &1254287710
 Transform:
   m_ObjectHideFlags: 0
@@ -5497,6 +5498,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CampfireRecoveryHandler
   roomManager: {fileID: 1254287709}
   playerStats: {fileID: 2073994553}
+  apRegen: {fileID: 0}
+  hpRegen: {fileID: 0}
   logCampfireRecovery: 1
 --- !u!1 &1737582520
 GameObject:

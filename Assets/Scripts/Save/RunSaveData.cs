@@ -31,6 +31,9 @@ public class RunSaveData
     public int checkpointRoomX;
     public int checkpointRoomY;
 
+    // 7.5: deterministic progress clock for future repopulation logic.
+    public int runStepCount;
+
     public RoomStateSaveEntry[] rooms;
 }
 
@@ -48,6 +51,12 @@ public class RoomStateSaveEntry
     public bool encounterInitialized;
     public int combatLevel;
     public int encounterSeed;
+
+    // 7.5: repopulation memory fields
+    public int lastVisitedStep;
+    public int lastClearedStep;
+    public int repopulationBlockedUntilStep;
+    public int timesRepopulated;
 
     public List<RoomEnemyStateSaveEntry> enemyStates = new List<RoomEnemyStateSaveEntry>();
 }
