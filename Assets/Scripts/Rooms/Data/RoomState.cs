@@ -27,6 +27,14 @@ public class RoomState
     // Tracks how many times this room has been repopulated in the future system
     public int timesRepopulated;
 
+    // Hostages
+    public bool hasHostageGhosts;
+    public int hostageGhostCount;
+    public bool hostageGhostsRescued;
+
+    // Campfire storage
+    public int storedHostageGhostCount;
+
     public RoomState(
         bool visited,
         bool cleared,
@@ -35,7 +43,11 @@ public class RoomState
         int lastVisitedStep = -1,
         int lastClearedStep = -1,
         int repopulationBlockedUntilStep = 0,
-        int timesRepopulated = 0)
+        int timesRepopulated = 0,
+        bool hasHostageGhosts = false,
+        int hostageGhostCount = 0,
+        bool hostageGhostsRescued = false,
+        int storedHostageGhostCount = 0)
     {
         this.visited = visited;
         this.cleared = cleared;
@@ -46,6 +58,11 @@ public class RoomState
         this.lastClearedStep = lastClearedStep;
         this.repopulationBlockedUntilStep = repopulationBlockedUntilStep;
         this.timesRepopulated = timesRepopulated;
+
+        this.hasHostageGhosts = hasHostageGhosts;
+        this.hostageGhostCount = hostageGhostCount;
+        this.hostageGhostsRescued = hostageGhostsRescued;
+        this.storedHostageGhostCount = storedHostageGhostCount;
 
         encounterInitialized = false;
         combatLevel = 0;

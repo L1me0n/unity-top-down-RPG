@@ -58,6 +58,14 @@ public class RoomStateSaveEntry
     public int repopulationBlockedUntilStep;
     public int timesRepopulated;
 
+     // Hostages
+    public bool hasHostageGhosts;
+    public int hostageGhostCount;
+    public bool hostageGhostsRescued;
+
+    // Campfire storage
+    public int storedHostageGhostCount;
+
     public List<RoomEnemyStateSaveEntry> enemyStates = new List<RoomEnemyStateSaveEntry>();
 }
 

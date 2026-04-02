@@ -271,7 +271,9 @@ public class RoomManager : MonoBehaviour
                 $"encounterInitialized={state.encounterInitialized} | visited={state.visited} | cleared={state.cleared} | " +
                 $"runStep={runStepCount} | lastVisitedStep={state.lastVisitedStep} | lastClearedStep={state.lastClearedStep} | " +
                 $"repopBlockedUntil={state.repopulationBlockedUntilStep} | timesRepopulated={state.timesRepopulated} | " +
-                $"roomAgeSinceClear={roomAgeSinceClear} | canRepopulateNow={eligibleToRepopulate}"
+                $"roomAgeSinceClear={roomAgeSinceClear} | canRepopulateNow={eligibleToRepopulate} | " +
+                $"hasHostageGhosts={state.hasHostageGhosts} | hostageGhostCount={state.hostageGhostCount} | " +
+                $"hostageGhostsRescued={state.hostageGhostsRescued} | storedHostageGhostCount={state.storedHostageGhostCount}"
             );
         }
 
@@ -343,6 +345,32 @@ public class RoomManager : MonoBehaviour
         return RoomType.Combat;
     }
 
+    private bool ShouldAssignHostagesToNewRoom(Vector2Int coord, RoomType roomType)
+    {
+        if (roomType != RoomType.Combat)
+            return false;
+
+        if (coord == Vector2Int.zero)
+            return false;
+
+        int ring = WorldDifficultyService.GetRing(coord);
+        if (ring < 2)
+            return false;
+
+        int hash = Mathf.Abs((coord.x * 83492791) ^ (coord.y * 297121507));
+
+        // First-pass rarity: about 1 in 5 eligible combat rooms.
+        return hash % 5 == 0;
+    }
+
+    private int GetInitialHostageGhostCount(Vector2Int coord)
+    {
+        int hash = Mathf.Abs((coord.x * 19349663) ^ (coord.y * 83492791));
+
+        // Deterministic count in range 1..3
+        return 1 + (hash % 3);
+    }
+
     private RoomState GetOrCreateState(Vector2Int c)
     {
         if (!states.TryGetValue(c, out var s))
@@ -362,10 +390,24 @@ public class RoomManager : MonoBehaviour
 
             s.combatLevel = WorldDifficultyService.GetCombatLevel(c);
             s.encounterSeed = EncounterGenerator.BuildEncounterSeed(c, s.combatLevel);
+
+            if (ShouldAssignHostagesToNewRoom(c, roomType))
+            {
+                s.hasHostageGhosts = true;
+                s.hostageGhostCount = GetInitialHostageGhostCount(c);
+                s.hostageGhostsRescued = false;
+            }
+
             states.Add(c, s);
 
             if (logTransitions)
-                Debug.Log($"[RoomManager] Created state for {c}, roomType = {s.roomType}, combatLevel = {s.combatLevel}, encounterSeed = {s.encounterSeed}");
+            {
+                Debug.Log(
+                    $"[RoomManager] Created state for {c}, roomType = {s.roomType}, " +
+                    $"combatLevel = {s.combatLevel}, encounterSeed = {s.encounterSeed}, " +
+                    $"hasHostageGhosts = {s.hasHostageGhosts}, hostageGhostCount = {s.hostageGhostCount}"
+                );
+            }
         }
         else
         {
@@ -393,10 +435,37 @@ public class RoomManager : MonoBehaviour
                     Debug.Log($"[RoomManager] Repaired missing encounterSeed for {c} -> {s.encounterSeed}");
             }
 
+            if (s.roomType != RoomType.Combat)
+            {
+                s.hasHostageGhosts = false;
+                s.hostageGhostCount = 0;
+                s.hostageGhostsRescued = false;
+            }
+
+            if (s.roomType != RoomType.Campfire)
+            {
+                s.storedHostageGhostCount = 0;
+            }
+
+            if (!s.hasHostageGhosts)
+            {
+                s.hostageGhostCount = 0;
+                s.hostageGhostsRescued = false;
+            }
+
+            if (s.hasHostageGhosts && s.hostageGhostCount <= 0)
+            {
+                s.hasHostageGhosts = false;
+                s.hostageGhostCount = 0;
+                s.hostageGhostsRescued = false;
+            }
+
             if (s.lastVisitedStep < -1) s.lastVisitedStep = -1;
             if (s.lastClearedStep < -1) s.lastClearedStep = -1;
             if (s.repopulationBlockedUntilStep < 0) s.repopulationBlockedUntilStep = 0;
             if (s.timesRepopulated < 0) s.timesRepopulated = 0;
+            if (s.hostageGhostCount < 0) s.hostageGhostCount = 0;
+            if (s.storedHostageGhostCount < 0) s.storedHostageGhostCount = 0;
         }
 
         return s;
@@ -564,6 +633,11 @@ public class RoomManager : MonoBehaviour
             entry.repopulationBlockedUntilStep = s.repopulationBlockedUntilStep;
             entry.timesRepopulated = s.timesRepopulated;
 
+            entry.hasHostageGhosts = s.hasHostageGhosts;
+            entry.hostageGhostCount = s.hostageGhostCount;
+            entry.hostageGhostsRescued = s.hostageGhostsRescued;
+            entry.storedHostageGhostCount = s.storedHostageGhostCount;
+
             if (s.enemyStates != null)
             {
                 for (int i = 0; i < s.enemyStates.Count; i++)
@@ -608,7 +682,11 @@ public class RoomManager : MonoBehaviour
                     e.lastVisitedStep,
                     e.lastClearedStep,
                     e.repopulationBlockedUntilStep,
-                    e.timesRepopulated
+                    e.timesRepopulated,
+                    e.hasHostageGhosts,
+                    e.hostageGhostCount,
+                    e.hostageGhostsRescued,
+                    e.storedHostageGhostCount
                 );
 
                 s.encounterInitialized = e.encounterInitialized;
