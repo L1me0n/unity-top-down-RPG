@@ -12,6 +12,7 @@ public class HostageGhostRoomVisuals : MonoBehaviour
 
     [Header("Placement")]
     [SerializeField] private float ghostSpawnRadius = 0.35f;
+    [SerializeField] private Vector2 containmentOffset = new Vector2(0f, 2.5f);
 
     private readonly List<HostageGhostVisual> activeGhosts = new List<HostageGhostVisual>();
 
@@ -76,7 +77,9 @@ public class HostageGhostRoomVisuals : MonoBehaviour
 
         visualsRoot = new GameObject("HostageVisualsRoot").transform;
         visualsRoot.SetParent(room.transform, false);
-        visualsRoot.position = room.GetSpawnPosition(null);
+        
+        Vector3 basePos = room.GetSpawnPosition(null);
+        visualsRoot.position = basePos + new Vector3(containmentOffset.x, containmentOffset.y, 0f);
 
         if (containmentBoxPrefab != null)
         {

@@ -1717,6 +1717,7 @@ GameObject:
   m_Component:
   - component: {fileID: 397211897}
   - component: {fileID: 397211898}
+  - component: {fileID: 397211899}
   m_Layer: 0
   m_Name: HostageSystem
   m_TagString: Untagged
@@ -1755,6 +1756,23 @@ MonoBehaviour:
   hostageGhostPrefab: {fileID: 530441733712768633, guid: c165b68ad44ef1348b118afcc69d3c1d, type: 3}
   containmentBoxPrefab: {fileID: 1334349504574956713, guid: ade5c641179de844cbd3ac0fff859ac2, type: 3}
   ghostSpawnRadius: 2
+  containmentOffset: {x: 0, y: 2.5}
+--- !u!114 &397211899
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 397211896}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4f5f65364136875429292906b0328680, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CampfireGhostPopulationVisuals
+  roomManager: {fileID: 1254287709}
+  hostageGhostPrefab: {fileID: 530441733712768633, guid: c165b68ad44ef1348b118afcc69d3c1d, type: 3}
+  campfireGhostOffset: {x: 0, y: -2}
+  spawnRadius: 5
 --- !u!1 &421618015
 GameObject:
   m_ObjectHideFlags: 0

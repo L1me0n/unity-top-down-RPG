@@ -622,6 +622,8 @@ public class RoomManager : MonoBehaviour
 
         state.hostageGhostsRescued = true;
 
+        TransferRescuedHostagesToCheckpoint(coord, state);
+
         if (logTransitions)
         {
             Debug.Log(
@@ -632,6 +634,44 @@ public class RoomManager : MonoBehaviour
 
         OnHostagesRescued?.Invoke(coord, state);
         return true;
+    }
+
+    private void TransferRescuedHostagesToCheckpoint(Vector2Int sourceRoomCoord, RoomState rescuedRoomState)
+    {
+        if (rescuedRoomState == null)
+            return;
+
+        int count = rescuedRoomState.hostageGhostCount;
+        if (count <= 0)
+            return;
+
+        Vector2Int destinationCoord = hasActivatedCampfireCheckpoint
+            ? lastActivatedCampfireCoord
+            : Vector2Int.zero;
+
+        RoomState destinationState = GetOrCreateState(destinationCoord);
+
+        if (destinationState.roomType != RoomType.Campfire)
+        {
+            Debug.LogWarning(
+                $"[RoomManager] Checkpoint destination {destinationCoord} is not Campfire. Falling back to start room."
+            );
+
+            destinationCoord = Vector2Int.zero;
+            destinationState = GetOrCreateState(destinationCoord);
+        }
+
+        destinationState.storedHostageGhostCount += count;
+
+        if (logTransitions)
+        {
+            Debug.Log(
+                $"[RoomManager] Transferred rescued hostages | " +
+                $"sourceRoom={sourceRoomCoord} | ghostCount={count} | " +
+                $"destinationCampfire={destinationCoord} | " +
+                $"newStoredCount={destinationState.storedHostageGhostCount}"
+            );
+        }
     }
 
     public void LoadCheckpointState(bool hasCheckpoint, Vector2Int checkpointCoord)
