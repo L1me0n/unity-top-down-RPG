@@ -416,7 +416,10 @@ public class RoomCombatController : MonoBehaviour
         }
 
         if (roomManager != null)
+        {
             roomManager.MarkCurrentRoomCleared();
+            roomManager.TryRescueHostagesInRoom(roomCoord);
+        }
     }
 
     private void SetDoorsLocked(bool locked)

@@ -63,6 +63,7 @@ public class RoomManager : MonoBehaviour
     
     // 7.6: checkpoint activation event (for campfire feedback popups).
     public System.Action<Vector2Int> OnCheckpointActivated;
+    public System.Action<Vector2Int, RoomState> OnHostagesRescued;
 
     private void Awake()
     {
@@ -594,6 +595,43 @@ public class RoomManager : MonoBehaviour
 
         if (logTransitions)
             Debug.Log($"[RoomManager] Marked room {currentCoord} cleared at run step {runStepCount}.");
+    }
+
+    public bool TryGetRoomState(Vector2Int coord, out RoomState state)
+    {
+        return states.TryGetValue(coord, out state);
+    }
+
+    public bool TryRescueHostagesInRoom(Vector2Int coord)
+    {
+        RoomState state = GetOrCreateState(coord);
+        if (state == null)
+            return false;
+
+        if (state.roomType != RoomType.Combat)
+            return false;
+
+        if (!state.hasHostageGhosts)
+            return false;
+
+        if (state.hostageGhostsRescued)
+            return false;
+
+        if (state.hostageGhostCount <= 0)
+            return false;
+
+        state.hostageGhostsRescued = true;
+
+        if (logTransitions)
+        {
+            Debug.Log(
+                $"[RoomManager] Hostages rescued in room {coord} | " +
+                $"hostageGhostCount={state.hostageGhostCount}"
+            );
+        }
+
+        OnHostagesRescued?.Invoke(coord, state);
+        return true;
     }
 
     public void LoadCheckpointState(bool hasCheckpoint, Vector2Int checkpointCoord)
