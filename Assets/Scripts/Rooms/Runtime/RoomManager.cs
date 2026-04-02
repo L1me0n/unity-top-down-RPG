@@ -54,8 +54,15 @@ public class RoomManager : MonoBehaviour
     public bool HasActivatedCampfireCheckpoint => hasActivatedCampfireCheckpoint;
     public Vector2Int LastActivatedCampfireCoord => lastActivatedCampfireCoord;
 
+    // 7.6 helper: true only during the checkpoint-room load triggered by death respawn.
+    // Campfire systems can read this to suppress celebratory feedback like restore popups.
+    public bool SuppressNextCampfireRecoveryFeedback { get; private set; }
+
     public System.Action<RoomInstance> OnRoomEntered;
     public System.Action<Vector2Int, RoomState> OnCampfireEntered;
+    
+    // 7.6: checkpoint activation event (for campfire feedback popups).
+    public System.Action<Vector2Int> OnCheckpointActivated;
 
     private void Awake()
     {
@@ -142,7 +149,7 @@ public class RoomManager : MonoBehaviour
         }
     }
 
-    private void HandleCampfireRoomEntered(Vector2Int coord, RoomState state)
+    private void HandleCampfireRoomEntered(Vector2Int coord, RoomState state, bool allowCheckpointFeedback)
     {
         if (state == null)
             return;
@@ -159,7 +166,7 @@ public class RoomManager : MonoBehaviour
 
         if (!alreadyActiveCheckpoint)
         {
-            SetActivatedCampfireCheckpoint(coord);
+            SetActivatedCampfireCheckpoint(coord, emitFeedbackEvent: allowCheckpointFeedback);
         }
         else if (logTransitions)
         {
@@ -169,7 +176,7 @@ public class RoomManager : MonoBehaviour
         OnCampfireEntered?.Invoke(coord, state);
     }
 
-    public void SetActivatedCampfireCheckpoint(Vector2Int coord)
+    public void SetActivatedCampfireCheckpoint(Vector2Int coord, bool emitFeedbackEvent = true)
     {
         if (hasActivatedCampfireCheckpoint && lastActivatedCampfireCoord == coord)
             return;
@@ -178,7 +185,14 @@ public class RoomManager : MonoBehaviour
         hasActivatedCampfireCheckpoint = true;
 
         if (logTransitions)
-            Debug.Log($"[RoomManager] Active campfire checkpoint set to {coord}.");
+        {
+            Debug.Log(
+                $"[RoomManager] Active campfire checkpoint set to {coord} " +
+                $"(emitFeedbackEvent={emitFeedbackEvent}).");
+        }
+
+        if (emitFeedbackEvent)
+            OnCheckpointActivated?.Invoke(coord);
     }
 
     private void AdvanceRunStep()
@@ -272,7 +286,11 @@ public class RoomManager : MonoBehaviour
         Vector3 spawnPos = currentRoom.GetSpawnPosition(enteredFrom);
         player.position = spawnPos;
 
-        HandleCampfireRoomEntered(coord, state);
+        // 7.6 
+        HandleCampfireRoomEntered(coord, state, allowCheckpointFeedback: countAsRunStep);
+
+        // 7.6: one-shot flag, only meant for the current room-load cycle.
+        SuppressNextCampfireRecoveryFeedback = false;
 
         OnRoomEntered?.Invoke(currentRoom);
     }
@@ -478,6 +496,10 @@ public class RoomManager : MonoBehaviour
 
         if (playerCollider != null && !playerCollider.enabled)
             playerCollider.enabled = true;
+
+        // 7.6: checkpoint respawn should still restore the player,
+        // but we suppress the "restored" popup because this is a death-return flow.
+        SuppressNextCampfireRecoveryFeedback = true;
 
         // Respawn / checkpoint return should not advance world step.
         LoadRoom(checkpointCoord, enteredFrom: null, countAsRunStep: false);

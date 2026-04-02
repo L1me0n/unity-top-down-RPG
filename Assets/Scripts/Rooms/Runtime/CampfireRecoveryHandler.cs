@@ -1,4 +1,5 @@
 using UnityEngine;
+using System;
 
 public class CampfireRecoveryHandler : MonoBehaviour
 {
@@ -10,6 +11,24 @@ public class CampfireRecoveryHandler : MonoBehaviour
 
     [Header("Debug")]
     [SerializeField] private bool logCampfireRecovery = true;
+
+    public struct CampfireRecoveryResult
+    {
+        public Vector2Int coord;
+        public int restoredHP;
+        public int restoredAP;
+
+        public CampfireRecoveryResult(Vector2Int coord, int restoredHP, int restoredAP)
+        {
+            this.coord = coord;
+            this.restoredHP = restoredHP;
+            this.restoredAP = restoredAP;
+        }
+
+        public bool RestoredAnything => restoredHP > 0 || restoredAP > 0;
+    }
+
+    public event Action<CampfireRecoveryResult> OnCampfireRecovered;
 
     private void Awake()
     {
@@ -48,18 +67,14 @@ public class CampfireRecoveryHandler : MonoBehaviour
         if (logCampfireRecovery)
             Debug.Log($"[CampfireRecoveryHandler] Campfire recovery hook triggered at {coord}.");
 
-        
         int missingHP = playerStats.MaxHP - playerStats.HP;
-        if (missingHP > 0)
-        {
-            playerStats.Heal(missingHP);
-        }
-
         int missingAP = playerStats.MaxAP - playerStats.AP;
+
+        if (missingHP > 0)
+            playerStats.Heal(missingHP);
+
         if (missingAP > 0)
-        {
             playerStats.GainAP(missingAP);
-        }
 
         if (hpRegen != null)
             hpRegen.ResetRegenState();
@@ -68,9 +83,33 @@ public class CampfireRecoveryHandler : MonoBehaviour
             apRegen.ResetRegenState();
 
         if (logCampfireRecovery)
+        {
             Debug.Log(
-                
                 $"[CampfireRecoveryHandler] Restored HP/AP at campfire {coord}." +
                 $" HP is now {playerStats.HP}/{playerStats.MaxHP}, AP is now {playerStats.AP}/{playerStats.MaxAP}.");
+        }
+
+        CampfireRecoveryResult result = new CampfireRecoveryResult(coord, missingHP, missingAP);
+
+        bool suppressPopupBecauseOfCheckpointRespawn =
+            roomManager != null && roomManager.SuppressNextCampfireRecoveryFeedback;
+
+        if (result.RestoredAnything && !suppressPopupBecauseOfCheckpointRespawn)
+        {
+            OnCampfireRecovered?.Invoke(result);
+        }
+        else if (result.RestoredAnything && suppressPopupBecauseOfCheckpointRespawn)
+        {
+            if (logCampfireRecovery)
+            {
+                Debug.Log(
+                    $"[CampfireRecoveryHandler] Recovery popup suppressed at {coord} " +
+                    $"because this campfire entry came from checkpoint respawn.");
+            }
+        }
+        else if (logCampfireRecovery)
+        {
+            Debug.Log($"[CampfireRecoveryHandler] No recovery popup needed at {coord} because HP/AP were already full.");
+        }
     }
 }
