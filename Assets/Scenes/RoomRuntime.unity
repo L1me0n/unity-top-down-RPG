@@ -1849,6 +1849,9 @@ MonoBehaviour:
   containmentBoxPrefab: {fileID: 1334349504574956713, guid: ade5c641179de844cbd3ac0fff859ac2, type: 3}
   ghostSpawnRadius: 2
   containmentOffset: {x: 0, y: 2.5}
+  dialogueDatabase: {fileID: 11400000, guid: d6cc584614868dc44856b729d15f9c01, type: 2}
+  rescueDialogueChance: 0.5
+  rescueBubbleLifetime: 2.5
 --- !u!114 &397211899
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2777,7 +2780,7 @@ MonoBehaviour:
   m_Intensity: 1
   m_LightVolumeIntensity: 1
   m_LightVolumeEnabled: 0
-  m_ApplyToSortingLayers: 000000002b2283ca
+  m_ApplyToSortingLayers: 000000002b2283ca55faeddb
   m_LightCookieSprite: {fileID: 0}
   m_DeprecatedPointLightCookieSprite: {fileID: 0}
   m_LightOrder: 0
@@ -4821,6 +4824,60 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1305452555}
   m_CullTransparentMesh: 1
+--- !u!1 &1335165858
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1335165859}
+  - component: {fileID: 1335165860}
+  m_Layer: 0
+  m_Name: GhostDialogueDirector
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1335165859
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1335165858}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1420016970}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1335165860
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1335165858}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 829eabd0e4ff5b3408b118b413f1822f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CampfireGhostDialogueDirector
+  roomManager: {fileID: 1254287709}
+  campfireGhostVisuals: {fileID: 397211899}
+  dialogueDatabase: {fileID: 11400000, guid: d6cc584614868dc44856b729d15f9c01, type: 2}
+  minDelayBetweenChecks: 8
+  maxDelayBetweenChecks: 10
+  idleDialogueChance: 0.7
+  bubbleLifetime: 3.5
+  questionAnswerChance: 0.5
+  minAnswerDelay: 3
+  maxAnswerDelay: 4
 --- !u!1 &1349598243
 GameObject:
   m_ObjectHideFlags: 0
@@ -5024,6 +5081,7 @@ Transform:
   - {fileID: 1281352413}
   - {fileID: 1725626961}
   - {fileID: 397211897}
+  - {fileID: 1335165859}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1445529805
@@ -5312,7 +5370,7 @@ GameObject:
   - component: {fileID: 1534452825}
   - component: {fileID: 1534452824}
   m_Layer: 5
-  m_Name: Body
+  m_Name: GhostIcon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5339,7 +5397,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -29.65, y: 30.03}
+  m_AnchoredPosition: {x: -36.75, y: 30.03}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1534452824

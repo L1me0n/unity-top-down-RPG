@@ -11,15 +11,20 @@ public class HostageGhostVisual : MonoBehaviour
     [SerializeField] private float reachDistance = 0.08f;
     [SerializeField] private float escapeTimeoutPadding = 1f;
 
+    private GhostDialogueSpeaker dialogueSpeaker;
+
     private Vector3 baseLocalPosition;
     private bool escaping;
     private Vector3 escapeTarget;
     private float escapeTimer;
     private float maxEscapeLifetime;
 
+    public GhostDialogueSpeaker DialogueSpeaker => dialogueSpeaker;
+
     private void Awake()
     {
         baseLocalPosition = transform.localPosition;
+        dialogueSpeaker = GetComponent<GhostDialogueSpeaker>();
     }
 
     private void Update()

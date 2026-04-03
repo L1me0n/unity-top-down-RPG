@@ -14,6 +14,11 @@ public class HostageGhostRoomVisuals : MonoBehaviour
     [SerializeField] private float ghostSpawnRadius = 0.35f;
     [SerializeField] private Vector2 containmentOffset = new Vector2(0f, 2.5f);
 
+    [Header("Dialogue")]
+    [SerializeField] private GhostDialogueDatabase dialogueDatabase;
+    [SerializeField, Range(0f, 1f)] private float rescueDialogueChance = 0.4f;
+    [SerializeField] private float rescueBubbleLifetime = 2.5f;
+
     private readonly List<HostageGhostVisual> activeGhosts = new List<HostageGhostVisual>();
 
     private GameObject activeContainmentBox;
@@ -119,6 +124,8 @@ public class HostageGhostRoomVisuals : MonoBehaviour
             activeContainmentBox = null;
         }
 
+        TryPlayRescueDialogue();
+
         Vector3 exitTarget = ChooseEscapeTarget(roomManager.CurrentRoom);
 
         for (int i = activeGhosts.Count - 1; i >= 0; i--)
@@ -161,6 +168,54 @@ public class HostageGhostRoomVisuals : MonoBehaviour
         }
 
         return room.GetSpawnPosition(null);
+    }
+
+    private void TryPlayRescueDialogue()
+    {
+        if (dialogueDatabase == null)
+            return;
+
+        if (activeGhosts.Count == 0)
+            return;
+
+        if (Random.value > rescueDialogueChance)
+            return;
+
+        List<HostageGhostVisual> validGhosts = new List<HostageGhostVisual>();
+
+        for (int i = 0; i < activeGhosts.Count; i++)
+        {
+            HostageGhostVisual ghost = activeGhosts[i];
+            if (ghost == null)
+                continue;
+
+            if (ghost.DialogueSpeaker == null)
+                continue;
+
+            if (!ghost.DialogueSpeaker.CanSpeak)
+                continue;
+
+            validGhosts.Add(ghost);
+        }
+
+        if (validGhosts.Count == 0)
+            return;
+
+        string line = dialogueDatabase.GetRandomRescueLine();
+        if (string.IsNullOrWhiteSpace(line))
+            return;
+
+        int pick = Random.Range(0, validGhosts.Count);
+        HostageGhostVisual chosenGhost = validGhosts[pick];
+
+        bool spoke = chosenGhost.DialogueSpeaker.Speak(line, rescueBubbleLifetime);
+
+        if (spoke && roomManager != null)
+        {
+            Debug.Log(
+                $"[HostageGhostRoomVisuals] Rescue dialogue triggered in room {activeRoomCoord}: \"{line}\""
+            );
+        }
     }
 
     private void ClearCurrentVisuals()

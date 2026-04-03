@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 7438158669436094647}
   - component: {fileID: 8722162976262323837}
   - component: {fileID: 7081506662352514328}
+  - component: {fileID: -2243401724675955369}
   m_Layer: 0
   m_Name: HostageGhost
   m_TagString: Untagged
@@ -36,6 +37,7 @@ Transform:
   - {fileID: 2196832458418649569}
   - {fileID: 7927535405478791656}
   - {fileID: 3366735825748204450}
+  - {fileID: 6116460761942831854}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &8722162976262323837
@@ -113,7 +115,23 @@ MonoBehaviour:
   idleBobSpeed: 2
   escapeSpeed: 2.5
   reachDistance: 0.08
-  maxLifetimeAfterEscape: 3
+  escapeTimeoutPadding: 1
+--- !u!114 &-2243401724675955369
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 530441733712768633}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 41fa844479639064d85a83b12066af17, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GhostDialogueSpeaker
+  bubblePrefab: {fileID: 3558210530815485636, guid: 95187886ac5523844be93450d322ff55, type: 3}
+  bubbleAnchor: {fileID: 6116460761942831854}
+  defaultBubbleLifetime: 2.5
+  speakCooldown: 2
 --- !u!1 &5064956993084713540
 GameObject:
   m_ObjectHideFlags: 0
@@ -478,6 +496,37 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!1 &8606824630575820581
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6116460761942831854}
+  m_Layer: 0
+  m_Name: BubbleAnchor
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6116460761942831854
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8606824630575820581}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.034, y: 0.232, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 7438158669436094647}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &8904011373628696158
 GameObject:
   m_ObjectHideFlags: 0

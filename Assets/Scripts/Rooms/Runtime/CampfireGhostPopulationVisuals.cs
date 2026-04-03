@@ -18,6 +18,8 @@ public class CampfireGhostPopulationVisuals : MonoBehaviour
     private Transform visualsRoot;
     private Vector2Int activeRoomCoord;
 
+    public IReadOnlyList<HostageGhostVisual> ActiveGhosts => activeGhosts;
+
     private void Awake()
     {
         if (roomManager == null)
