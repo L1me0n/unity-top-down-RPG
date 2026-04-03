@@ -32,6 +32,9 @@ public class RoomManager : MonoBehaviour
     [Header("Repopulation")]
     [SerializeField] private int repopulationDelaySteps = 50;
 
+    [Header("Hostage Campfire Capacity")]
+    [SerializeField] private int maxStoredHostageGhostsPerCampfire = 10;
+
     private readonly Dictionary<Vector2Int, RoomState> states
         = new Dictionary<Vector2Int, RoomState>();
 
@@ -358,6 +361,25 @@ public class RoomManager : MonoBehaviour
         if (ring < 2)
             return false;
 
+        if (hasActivatedCampfireCheckpoint)
+        {
+            Vector2Int activeCampfireCoord = GetCurrentHostageDestinationCampfireCoord();
+
+            if (IsCampfireAtHostageCapacity(activeCampfireCoord))
+            {
+                if (logTransitions)
+                {
+                    Debug.Log(
+                        $"[RoomManager] Suppressed hostage assignment for new room {coord} " +
+                        $"because active checkpoint campfire {activeCampfireCoord} is full " +
+                        $"({GetStoredHostageGhostCount(activeCampfireCoord)}/{GetCampfireHostageCapacity()})."
+                    );
+                }
+
+                return false;
+            }
+        }
+
         int hash = Mathf.Abs((coord.x * 83492791) ^ (coord.y * 297121507));
 
         // First-pass rarity: about 1 in 5 eligible combat rooms.
@@ -641,14 +663,11 @@ public class RoomManager : MonoBehaviour
         if (rescuedRoomState == null)
             return;
 
-        int count = rescuedRoomState.hostageGhostCount;
-        if (count <= 0)
+        int requestedCount = rescuedRoomState.hostageGhostCount;
+        if (requestedCount <= 0)
             return;
 
-        Vector2Int destinationCoord = hasActivatedCampfireCheckpoint
-            ? lastActivatedCampfireCoord
-            : Vector2Int.zero;
-
+        Vector2Int destinationCoord = GetCurrentHostageDestinationCampfireCoord();
         RoomState destinationState = GetOrCreateState(destinationCoord);
 
         if (destinationState.roomType != RoomType.Campfire)
@@ -661,15 +680,26 @@ public class RoomManager : MonoBehaviour
             destinationState = GetOrCreateState(destinationCoord);
         }
 
-        destinationState.storedHostageGhostCount += count;
+        int remainingSpace = GetRemainingCampfireHostageSpace(destinationCoord);
+        int acceptedCount = Mathf.Min(requestedCount, remainingSpace);
+        int rejectedCount = requestedCount - acceptedCount;
+
+        if (acceptedCount > 0)
+        {
+            destinationState.storedHostageGhostCount += acceptedCount;
+
+            int capacity = GetCampfireHostageCapacity();
+            if (destinationState.storedHostageGhostCount > capacity)
+                destinationState.storedHostageGhostCount = capacity;
+        }
 
         if (logTransitions)
         {
             Debug.Log(
                 $"[RoomManager] Transferred rescued hostages | " +
-                $"sourceRoom={sourceRoomCoord} | ghostCount={count} | " +
-                $"destinationCampfire={destinationCoord} | " +
-                $"newStoredCount={destinationState.storedHostageGhostCount}"
+                $"sourceRoom={sourceRoomCoord} | requested={requestedCount} | accepted={acceptedCount} | rejected={rejectedCount} | " +
+                $"destinationCampfire={destinationCoord} | storedNow={destinationState.storedHostageGhostCount} | " +
+                $"remainingSpaceNow={GetRemainingCampfireHostageSpace(destinationCoord)} | capacity={GetCampfireHostageCapacity()}"
             );
         }
     }
@@ -876,5 +906,63 @@ public class RoomManager : MonoBehaviour
         }
 
         return true;
+    }
+
+    // -----------------------------
+    // H6: hostage campfire capacity helpers
+    // -----------------------------
+
+    public int GetCampfireHostageCapacity()
+    {
+        return Mathf.Max(0, maxStoredHostageGhostsPerCampfire);
+    }
+
+    public int GetRemainingCampfireHostageSpace(Vector2Int campfireCoord)
+    {
+        RoomState state = GetOrCreateState(campfireCoord);
+        if (state == null)
+            return 0;
+
+        if (state.roomType != RoomType.Campfire)
+            return 0;
+
+        int capacity = GetCampfireHostageCapacity();
+        int stored = Mathf.Max(0, state.storedHostageGhostCount);
+
+        return Mathf.Max(0, capacity - stored);
+    }
+
+    public bool IsCampfireAtHostageCapacity(Vector2Int campfireCoord)
+    {
+        RoomState state = GetOrCreateState(campfireCoord);
+        if (state == null)
+            return true;
+
+        if (state.roomType != RoomType.Campfire)
+            return true;
+
+        int capacity = GetCampfireHostageCapacity();
+        int stored = Mathf.Max(0, state.storedHostageGhostCount);
+
+        return stored >= capacity;
+    }
+
+    public Vector2Int GetCurrentHostageDestinationCampfireCoord()
+    {
+        return hasActivatedCampfireCheckpoint
+            ? lastActivatedCampfireCoord
+            : Vector2Int.zero;
+    }
+
+    public int GetStoredHostageGhostCount(Vector2Int campfireCoord)
+    {
+        RoomState state = GetOrCreateState(campfireCoord);
+        if (state == null)
+            return 0;
+
+        if (state.roomType != RoomType.Campfire)
+            return 0;
+
+        return Mathf.Max(0, state.storedHostageGhostCount);
     }
 }
