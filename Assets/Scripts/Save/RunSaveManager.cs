@@ -157,6 +157,10 @@ public class RunSaveManager : MonoBehaviour
             // 7.5: restore the world progress clock before loading the room.
             roomManager.LoadRunStepState(data.runStepCount);
 
+            // Loading directly into a campfire/checkpoint room should restore silently,
+            // without showing the normal recovery popup.
+            roomManager.SuppressNextCampfireRecoveryPopup();
+
             roomManager.ImportRoomStates(data.rooms, new Vector2Int(data.playerRoomX, data.playerRoomY));
 
             roomManager.LoadCheckpointState(

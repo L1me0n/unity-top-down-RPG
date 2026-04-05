@@ -91,14 +91,14 @@ public class CampfireRecoveryHandler : MonoBehaviour
 
         CampfireRecoveryResult result = new CampfireRecoveryResult(coord, missingHP, missingAP);
 
-        bool suppressPopupBecauseOfCheckpointRespawn =
-            roomManager != null && roomManager.SuppressNextCampfireRecoveryFeedback;
+        bool suppressRecoveryFeedback =
+            roomManager != null && roomManager.ConsumeCampfireRecoveryFeedbackSuppression();
 
-        if (result.RestoredAnything && !suppressPopupBecauseOfCheckpointRespawn)
+        if (result.RestoredAnything && !suppressRecoveryFeedback)
         {
             OnCampfireRecovered?.Invoke(result);
         }
-        else if (result.RestoredAnything && suppressPopupBecauseOfCheckpointRespawn)
+        else if (result.RestoredAnything && suppressRecoveryFeedback)
         {
             if (logCampfireRecovery)
             {

@@ -270,8 +270,9 @@ public class RoomManager : MonoBehaviour
             bool eligibleToRepopulate = CanRoomRepopulateNow(state);
 
             Debug.Log(
-                $"[RoomManager] Loaded room {coord} | roomType={state.roomType} | ring={ring} | " +
-                $"combatLevel={state.combatLevel} | encounterSeed={state.encounterSeed} | " +
+                $"[RoomManager] Loaded room {coord} | roomType={state.roomType} | " +
+                $"challengeType={state.challengeType} | challengeCompleted={state.challengeCompleted} | " +
+                $"ring={ring} | combatLevel={state.combatLevel} | encounterSeed={state.encounterSeed} | " +
                 $"encounterInitialized={state.encounterInitialized} | visited={state.visited} | cleared={state.cleared} | " +
                 $"runStep={runStepCount} | lastVisitedStep={state.lastVisitedStep} | lastClearedStep={state.lastClearedStep} | " +
                 $"repopBlockedUntil={state.repopulationBlockedUntilStep} | timesRepopulated={state.timesRepopulated} | " +
@@ -338,13 +339,23 @@ public class RoomManager : MonoBehaviour
 
         int ring = WorldDifficultyService.GetRing(coord);
 
+        //Campfire rooms
         if (ring < 2)
             return RoomType.Combat;
 
-        int hash = Mathf.Abs((coord.x * 73856093) ^ (coord.y * 19349663));
+        int campfireHash = Mathf.Abs((coord.x * 73856093) ^ (coord.y * 19349663));
 
-        if (hash % 8 == 0)
+        if (campfireHash % 8 == 0)
             return RoomType.Campfire;
+
+        // Challenge rooms        
+        if (ring < 3)
+            return RoomType.Combat;
+        
+        int challengeHash = Mathf.Abs((coord.x * 83492791) ^ (coord.y * 297121507));
+
+        if (challengeHash % 6 == 0)
+            return RoomType.Challenge;
 
         return RoomType.Combat;
     }
@@ -411,6 +422,17 @@ public class RoomManager : MonoBehaviour
                 timesRepopulated: 0
             );
 
+            if (roomType == RoomType.Challenge)
+            {
+                s.challengeType = DetermineChallengeTypeForNewState(c);
+                s.challengeCompleted = false;
+            }
+            else
+            {
+                s.challengeType = ChallengeType.None;
+                s.challengeCompleted = false;
+            }
+
             s.combatLevel = WorldDifficultyService.GetCombatLevel(c);
             s.encounterSeed = EncounterGenerator.BuildEncounterSeed(c, s.combatLevel);
 
@@ -427,6 +449,7 @@ public class RoomManager : MonoBehaviour
             {
                 Debug.Log(
                     $"[RoomManager] Created state for {c}, roomType = {s.roomType}, " +
+                    $"challengeType = {s.challengeType}, challengeCompleted = {s.challengeCompleted}, " +
                     $"combatLevel = {s.combatLevel}, encounterSeed = {s.encounterSeed}, " +
                     $"hasHostageGhosts = {s.hasHostageGhosts}, hostageGhostCount = {s.hostageGhostCount}"
                 );
@@ -468,6 +491,24 @@ public class RoomManager : MonoBehaviour
             if (s.roomType != RoomType.Campfire)
             {
                 s.storedHostageGhostCount = 0;
+            }
+
+            if (s.roomType == RoomType.Challenge)
+            {
+                if (!System.Enum.IsDefined(typeof(ChallengeType), s.challengeType) || s.challengeType == ChallengeType.None)
+                {
+                    s.challengeType = DetermineChallengeTypeForNewState(c);
+                    s.challengeCompleted = false;
+
+                    if (logTransitions)
+                        Debug.Log($"[RoomManager] Repaired missing/invalid challengeType for {c} -> {s.challengeType}");
+                }
+            }
+
+            if (s.roomType != RoomType.Challenge)
+            {
+                s.challengeType = ChallengeType.None;
+                s.challengeCompleted = false;
             }
 
             if (!s.hasHostageGhosts)
@@ -732,6 +773,10 @@ public class RoomManager : MonoBehaviour
 
             entry.roomType = (int)s.roomType;
 
+            // Challenge rooms
+            entry.challengeType = (int)s.challengeType;
+            entry.challengeCompleted = s.challengeCompleted;
+
             entry.encounterInitialized = s.encounterInitialized;
             entry.combatLevel = s.combatLevel;
             entry.encounterSeed = s.encounterSeed;
@@ -781,6 +826,10 @@ public class RoomManager : MonoBehaviour
                 RoomType restoredRoomType = System.Enum.IsDefined(typeof(RoomType), e.roomType)
                     ? (RoomType)e.roomType
                     : RoomType.Combat;
+                
+                ChallengeType restoredChallengeType = System.Enum.IsDefined(typeof(ChallengeType), e.challengeType)
+                    ? (ChallengeType)e.challengeType
+                    : ChallengeType.None;
 
                 RoomState s = new RoomState(
                     e.visited,
@@ -794,7 +843,9 @@ public class RoomManager : MonoBehaviour
                     e.hasHostageGhosts,
                     e.hostageGhostCount,
                     e.hostageGhostsRescued,
-                    e.storedHostageGhostCount
+                    e.storedHostageGhostCount,
+                    restoredChallengeType,
+                    e.challengeCompleted
                 );
 
                 s.encounterInitialized = e.encounterInitialized;
@@ -964,5 +1015,33 @@ public class RoomManager : MonoBehaviour
             return 0;
 
         return Mathf.Max(0, state.storedHostageGhostCount);
+    }
+
+    public bool ConsumeCampfireRecoveryFeedbackSuppression()
+    {
+        bool wasSuppressed = SuppressNextCampfireRecoveryFeedback;
+        SuppressNextCampfireRecoveryFeedback = false;
+        return wasSuppressed;
+    }
+
+    public void SuppressNextCampfireRecoveryPopup()
+    {
+        SuppressNextCampfireRecoveryFeedback = true;
+    }
+
+    // -----------------------------
+    // 8.0: challenge room helpers
+    // -----------------------------
+
+    private ChallengeType DetermineChallengeTypeForNewState(Vector2Int coord)
+    {
+        int hash = Mathf.Abs((coord.x * 73856093) ^ (coord.y * 19349663) ^ 83492791);
+
+        int roll = hash % 10;
+
+        if (roll <= 3) return ChallengeType.Betting;   // 0,1,2,3 = 40%
+        if (roll <= 6) return ChallengeType.Gluttony;  // 4,5,6 = 30%
+        if (roll <= 8) return ChallengeType.Sloth;     // 7,8 = 20%
+        return ChallengeType.Lie;                      // 9 = 10%
     }
 }

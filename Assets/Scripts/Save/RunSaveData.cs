@@ -48,6 +48,10 @@ public class RoomStateSaveEntry
 
     public int roomType;
 
+    // Challenge rooms
+    public int challengeType;
+    public bool challengeCompleted;
+
     public bool encounterInitialized;
     public int combatLevel;
     public int encounterSeed;

@@ -35,6 +35,10 @@ public class RoomState
     // Campfire storage
     public int storedHostageGhostCount;
 
+    //Challenge rooms
+    public ChallengeType challengeType;
+    public bool challengeCompleted; 
+
     public RoomState(
         bool visited,
         bool cleared,
@@ -47,7 +51,9 @@ public class RoomState
         bool hasHostageGhosts = false,
         int hostageGhostCount = 0,
         bool hostageGhostsRescued = false,
-        int storedHostageGhostCount = 0)
+        int storedHostageGhostCount = 0,
+        ChallengeType challengeType = ChallengeType.None,
+        bool challengeCompleted = false)
     {
         this.visited = visited;
         this.cleared = cleared;
@@ -67,5 +73,8 @@ public class RoomState
         encounterInitialized = false;
         combatLevel = 0;
         encounterSeed = 0;
+
+        this.challengeType = challengeType;
+        this.challengeCompleted = challengeCompleted;
     }
 }
