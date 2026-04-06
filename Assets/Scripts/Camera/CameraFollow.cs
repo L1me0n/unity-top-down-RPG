@@ -6,13 +6,24 @@ public class CameraFollow : MonoBehaviour
     [SerializeField] private Transform target;
 
     [Header("Smoothing")]
-    [SerializeField] private float smoothTime = 0.12f; // lower = snappier
+    [SerializeField] private float smoothTime = 0.12f;
 
     [Header("Clamp To Room")]
     [SerializeField] private BoxCollider2D roomBounds;
 
+    [Header("Zoom")]
+    [SerializeField] private float zoomSmoothTime = 0.12f;
+
     private Camera cam;
-    private Vector3 velocity; // used by SmoothDamp
+    private Vector3 velocity;
+    private float zoomVelocity;
+
+    private float defaultOrthoSize;
+    private bool hasTemporaryZoom;
+    private float temporaryOrthoSize;
+
+    private bool hasTemporaryFocusTarget;
+    private Transform temporaryFocusTarget;
 
     private void Awake()
     {
@@ -20,28 +31,37 @@ public class CameraFollow : MonoBehaviour
         if (cam == null)
         {
             Debug.LogError("[CameraFollow] Script must be on a Camera.", this);
+            return;
         }
+
         if (!cam.orthographic)
-        {
             Debug.LogWarning("[CameraFollow] Camera is not orthographic.", this);
-        }
+
+        defaultOrthoSize = cam.orthographicSize;
     }
 
     private void LateUpdate()
     {
-        if (target == null || cam == null) return;
+        if (cam == null)
+            return;
 
-        // 1) Desired camera position
-        Vector3 desired = new Vector3(target.position.x, target.position.y, transform.position.z);
+        Transform activeTarget = hasTemporaryFocusTarget ? temporaryFocusTarget : target;
+        if (activeTarget == null)
+            return;
 
-        // 2) Smooth move toward desired
+        float desiredSize = hasTemporaryZoom ? temporaryOrthoSize : defaultOrthoSize;
+        cam.orthographicSize = Mathf.SmoothDamp(
+            cam.orthographicSize,
+            desiredSize,
+            ref zoomVelocity,
+            zoomSmoothTime
+        );
+
+        Vector3 desired = new Vector3(activeTarget.position.x, activeTarget.position.y, transform.position.z);
         Vector3 smoothed = Vector3.SmoothDamp(transform.position, desired, ref velocity, smoothTime);
 
-        // 3) Clamp to room bounds
         if (roomBounds != null)
-        {
             smoothed = ClampToBounds(smoothed);
-        }
 
         transform.position = smoothed;
     }
@@ -53,8 +73,6 @@ public class CameraFollow : MonoBehaviour
         float camHalfHeight = cam.orthographicSize;
         float camHalfWidth = camHalfHeight * cam.aspect;
 
-        // If the camera view is larger than the room, clamp will invert.
-        // In that case, lock camera to the center of the room.
         float minX = b.min.x + camHalfWidth;
         float maxX = b.max.x - camHalfWidth;
         float minY = b.min.y + camHalfHeight;
@@ -72,5 +90,41 @@ public class CameraFollow : MonoBehaviour
     public void SetRoomBounds(BoxCollider2D bounds)
     {
         roomBounds = bounds;
+    }
+
+    public void SetTemporaryZoom(float orthoSize)
+    {
+        temporaryOrthoSize = Mathf.Max(0.1f, orthoSize);
+        hasTemporaryZoom = true;
+    }
+
+    public void ClearTemporaryZoom()
+    {
+        hasTemporaryZoom = false;
+    }
+
+    public void SetTemporaryFocusTarget(Transform focusTarget)
+    {
+        temporaryFocusTarget = focusTarget;
+        hasTemporaryFocusTarget = temporaryFocusTarget != null;
+    }
+
+    public void ClearTemporaryFocusTarget()
+    {
+        temporaryFocusTarget = null;
+        hasTemporaryFocusTarget = false;
+    }
+
+    public float GetDefaultZoom()
+    {
+        return defaultOrthoSize;
+    }
+
+    public void SetDefaultZoom(float orthoSize)
+    {
+        defaultOrthoSize = Mathf.Max(0.1f, orthoSize);
+
+        if (!hasTemporaryZoom && cam != null)
+            cam.orthographicSize = defaultOrthoSize;
     }
 }
