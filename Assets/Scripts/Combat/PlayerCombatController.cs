@@ -28,6 +28,8 @@ public class PlayerCombatController : MonoBehaviour
 
     private void Update()
     {
+        if (UIInputBlocker.BlockGameplayInput)
+            return;
         // Reset per-frame intents
         WantsFire = false;
         WantsDisappear = false;

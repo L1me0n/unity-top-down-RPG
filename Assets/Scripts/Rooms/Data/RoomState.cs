@@ -37,7 +37,8 @@ public class RoomState
 
     //Challenge rooms
     public ChallengeType challengeType;
-    public bool challengeCompleted; 
+    public bool challengeCompleted;
+    public int lastChallengeCompletedStep; 
 
     public RoomState(
         bool visited,
@@ -53,7 +54,8 @@ public class RoomState
         bool hostageGhostsRescued = false,
         int storedHostageGhostCount = 0,
         ChallengeType challengeType = ChallengeType.None,
-        bool challengeCompleted = false)
+        bool challengeCompleted = false,
+        int lastChallengeCompletedStep = -1)
     {
         this.visited = visited;
         this.cleared = cleared;
@@ -76,5 +78,6 @@ public class RoomState
 
         this.challengeType = challengeType;
         this.challengeCompleted = challengeCompleted;
+        this.lastChallengeCompletedStep = lastChallengeCompletedStep;
     }
 }

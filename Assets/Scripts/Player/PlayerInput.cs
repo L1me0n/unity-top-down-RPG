@@ -7,6 +7,8 @@ public class PlayerInput : MonoBehaviour
 
     private void Update()
     {
+        if (UIInputBlocker.BlockGameplayInput)
+            return;
         // Movement axes (old Input Manager)
         float x = Input.GetAxisRaw("Horizontal"); // -1, 0, 1
         float y = Input.GetAxisRaw("Vertical");

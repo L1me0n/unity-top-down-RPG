@@ -34,6 +34,13 @@ public class RunSaveData
     // 7.5: deterministic progress clock for future repopulation logic.
     public int runStepCount;
 
+    // Tips seen
+    public bool hasSeenGeneralChallengeTips;
+    public bool hasSeenBettingTips;
+    public bool hasSeenGluttonyTips;
+    public bool hasSeenSlothTips;
+    public bool hasSeenLieTips;
+
     public RoomStateSaveEntry[] rooms;
 
     public ChallengeEffectSaveEntry[] activeChallengeEffects;
@@ -53,6 +60,7 @@ public class RoomStateSaveEntry
     // Challenge rooms
     public int challengeType;
     public bool challengeCompleted;
+    public int lastChallengeCompletedStep;
 
     public bool encounterInitialized;
     public int combatLevel;

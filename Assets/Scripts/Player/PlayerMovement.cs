@@ -15,6 +15,11 @@ public class PlayerMovement : MonoBehaviour
 
     private void Update()
     {
+        if (UIInputBlocker.BlockGameplayInput) 
+        {
+            desiredVelocity = Vector2.zero;
+            return;
+        }
         // Convert input direction into a target velocity
         desiredVelocity = input.Move * GameConfig.PlayerMoveSpeed;
     }

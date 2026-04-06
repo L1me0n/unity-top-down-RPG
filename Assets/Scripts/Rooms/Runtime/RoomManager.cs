@@ -7,6 +7,7 @@ public class RoomManager : MonoBehaviour
     [Header("Prefabs")]
     [SerializeField] private GameObject combatRoomPrefab;
     [SerializeField] private GameObject campfireRoomPrefab;
+    [SerializeField] private GameObject bettingRoomPrefab;
 
     [Header("References")]
     [SerializeField] private Transform player;
@@ -32,6 +33,9 @@ public class RoomManager : MonoBehaviour
 
     [Header("Repopulation")]
     [SerializeField] private int repopulationDelaySteps = 50;
+
+    [Header("Challenge Reset")]
+    [SerializeField] private int challengeResetDelaySteps = 50;
 
     [Header("Hostage Campfire Capacity")]
     [SerializeField] private int maxStoredHostageGhostsPerCampfire = 10;
@@ -152,6 +156,13 @@ public class RoomManager : MonoBehaviour
 
                 Debug.LogError("[RoomManager] Combat room prefab is not assigned.");
                 return null;
+
+            case RoomType.Challenge:
+                if (bettingRoomPrefab != null)
+                    return bettingRoomPrefab;
+
+                Debug.LogError("[RoomManager] Betting room prefab is not assigned.");
+                return null;
         }
     }
 
@@ -235,6 +246,10 @@ public class RoomManager : MonoBehaviour
         // 7.5:
         // If this is an old cleared combat room, wake it back up before combat flow runs.
         TryRepopulateRoomState(coord, state);
+
+        // 8.2:
+        // If this is an old cleared challenge room, wake it back up.
+        TryResetChallengeRoomState(coord, state);
 
         // Stamp room visit history using the current run step.
         state.visited = true;
@@ -499,6 +514,10 @@ public class RoomManager : MonoBehaviour
 
             if (s.roomType == RoomType.Challenge)
             {
+                if (!s.challengeCompleted)
+                {
+                    s.lastChallengeCompletedStep = -1;
+                }
                 if (!System.Enum.IsDefined(typeof(ChallengeType), s.challengeType) || s.challengeType == ChallengeType.None)
                 {
                     s.challengeType = DetermineChallengeTypeForNewState(c);
@@ -513,6 +532,7 @@ public class RoomManager : MonoBehaviour
             {
                 s.challengeType = ChallengeType.None;
                 s.challengeCompleted = false;
+                s.lastChallengeCompletedStep = -1;
             }
 
             if (!s.hasHostageGhosts)
@@ -534,6 +554,7 @@ public class RoomManager : MonoBehaviour
             if (s.timesRepopulated < 0) s.timesRepopulated = 0;
             if (s.hostageGhostCount < 0) s.hostageGhostCount = 0;
             if (s.storedHostageGhostCount < 0) s.storedHostageGhostCount = 0;
+            if (s.lastChallengeCompletedStep < -1) s.lastChallengeCompletedStep = -1;
         }
 
         return s;
@@ -664,6 +685,26 @@ public class RoomManager : MonoBehaviour
             Debug.Log($"[RoomManager] Marked room {currentCoord} cleared at run step {runStepCount}.");
     }
 
+    public void MarkChallengeRoomCompleted(Vector2Int coord)
+    {
+        RoomState state = GetOrCreateState(coord);
+        if (state == null)
+            return;
+
+        if (state.roomType != RoomType.Challenge)
+            return;
+
+        state.challengeCompleted = true;
+        state.lastChallengeCompletedStep = runStepCount;
+
+        if (logTransitions)
+        {
+            Debug.Log(
+                $"[RoomManager] Marked challenge room {coord} completed at run step {runStepCount}."
+            );
+        }
+    }
+
     public bool TryGetRoomState(Vector2Int coord, out RoomState state)
     {
         return states.TryGetValue(coord, out state);
@@ -780,6 +821,7 @@ public class RoomManager : MonoBehaviour
             // Challenge rooms
             entry.challengeType = (int)s.challengeType;
             entry.challengeCompleted = s.challengeCompleted;
+            entry.lastChallengeCompletedStep = s.lastChallengeCompletedStep;
 
             entry.encounterInitialized = s.encounterInitialized;
             entry.combatLevel = s.combatLevel;
@@ -849,7 +891,8 @@ public class RoomManager : MonoBehaviour
                     e.hostageGhostsRescued,
                     e.storedHostageGhostCount,
                     restoredChallengeType,
-                    e.challengeCompleted
+                    e.challengeCompleted,
+                    e.lastChallengeCompletedStep
                 );
 
                 s.encounterInitialized = e.encounterInitialized;
@@ -1034,7 +1077,7 @@ public class RoomManager : MonoBehaviour
     }
 
     // -----------------------------
-    // 8.0-8.1: challenge room helpers
+    // 8.0-8.2: challenge room helpers
     // -----------------------------
 
     private ChallengeType DetermineChallengeTypeForNewState(Vector2Int coord)
@@ -1061,20 +1104,115 @@ public class RoomManager : MonoBehaviour
         {
             Debug.Log(
                 $"[RoomManager] Entered challenge room at {coord} " +
-                $"| challengeType={state.challengeType} | allowEffectClear={allowEffectClear}"
+                $"| challengeType={state.challengeType} | " +
+                $"challengeCompleted={state.challengeCompleted} | " +
+                $"allowEffectClear={allowEffectClear}"
             );
         }
 
-        if (!allowEffectClear)
-            return;
+        if (allowEffectClear)
+        {
+            if (challengeEffectManager == null)
+            {
+                if (logTransitions)
+                    Debug.LogWarning("[RoomManager] ChallengeEffectManager not found while entering challenge room.");
+            }
+            else
+            {
+                challengeEffectManager.ClearEffectsThatExpireOnNextChallengeEntry();
+            }
+        }
 
-        if (challengeEffectManager == null)
+        if (currentRoom == null)
         {
             if (logTransitions)
-                Debug.LogWarning("[RoomManager] ChallengeEffectManager not found while entering challenge room.");
+                Debug.LogWarning($"[RoomManager] currentRoom is null while handling challenge room {coord}.");
             return;
         }
 
-        challengeEffectManager.ClearEffectsThatExpireOnNextChallengeEntry();
+        ChallengeRoomController controller = currentRoom.GetComponent<ChallengeRoomController>();
+        if (controller == null)
+        {
+            if (logTransitions)
+            {
+                Debug.LogWarning(
+                    $"[RoomManager] Challenge room at {coord} has no ChallengeRoomController on prefab " +
+                    $"'{currentRoom.name}'."
+                );
+            }
+            return;
+        }
+
+        controller.Initialize(this, coord, state);
+
+        if (logTransitions)
+        {
+            Debug.Log(
+                $"[RoomManager] Initialized ChallengeRoomController for room {coord} " +
+                $"| challengeType={state.challengeType} | challengeCompleted={state.challengeCompleted}"
+            );
+        }
+    }
+
+    public int GetChallengeAgeSinceCompletion(RoomState state)
+    {
+        if (state == null)
+            return -1;
+
+        if (state.roomType != RoomType.Challenge)
+            return -1;
+
+        if (!state.challengeCompleted)
+            return -1;
+
+        if (state.lastChallengeCompletedStep < 0)
+            return -1;
+
+        return runStepCount - state.lastChallengeCompletedStep;
+    }
+
+    public bool CanChallengeRoomResetNow(RoomState state)
+    {
+        if (state == null)
+            return false;
+
+        if (state.roomType != RoomType.Challenge)
+            return false;
+
+        if (!state.challengeCompleted)
+            return false;
+
+        if (state.lastChallengeCompletedStep < 0)
+            return false;
+
+        int ageSinceCompletion = GetChallengeAgeSinceCompletion(state);
+        if (ageSinceCompletion < 0)
+            return false;
+
+        return ageSinceCompletion >= challengeResetDelaySteps;
+    }
+
+    private bool TryResetChallengeRoomState(Vector2Int coord, RoomState state)
+    {
+        if (!CanChallengeRoomResetNow(state))
+            return false;
+
+        int oldCompletedStep = state.lastChallengeCompletedStep;
+        int ageSinceCompletion = GetChallengeAgeSinceCompletion(state);
+
+        state.challengeCompleted = false;
+        state.lastChallengeCompletedStep = -1;
+
+        if (logTransitions)
+        {
+            Debug.Log(
+                $"[RoomManager] Reset challenge room {coord} | " +
+                $"oldLastChallengeCompletedStep={oldCompletedStep} | " +
+                $"ageSinceCompletion={ageSinceCompletion} | " +
+                $"resetDelay={challengeResetDelaySteps}"
+            );
+        }
+
+        return true;
     }
 }

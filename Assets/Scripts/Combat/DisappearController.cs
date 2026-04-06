@@ -82,6 +82,9 @@ public class DisappearController : MonoBehaviour
         // Spend AP
         if (!stats.TrySpendAP(apCost))
             return;
+        
+        if (UIInputBlocker.BlockGameplayInput)
+            return;
 
         StartDisappear();
     }

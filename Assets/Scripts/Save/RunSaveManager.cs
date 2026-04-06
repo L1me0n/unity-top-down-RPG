@@ -10,6 +10,7 @@ public class RunSaveManager : MonoBehaviour
     [SerializeField] private DeathPenaltyTracker penalties;
     [SerializeField] private RoomManager roomManager;
     [SerializeField] private ChallengeEffectManager challengeEffectManager;
+    [SerializeField] private TipsSeenTracker tipsSeenTracker;
 
     [Header("Options")]
     [SerializeField] private bool autoLoadOnStart = true;
@@ -25,6 +26,7 @@ public class RunSaveManager : MonoBehaviour
         if (penalties == null) penalties = FindFirstObjectByType<DeathPenaltyTracker>();
         if (roomManager == null) roomManager = FindFirstObjectByType<RoomManager>();
         if (challengeEffectManager == null) challengeEffectManager = FindFirstObjectByType<ChallengeEffectManager>();
+        if (tipsSeenTracker == null) tipsSeenTracker = FindFirstObjectByType<TipsSeenTracker>();
     }
 
     private void Start()
@@ -114,7 +116,13 @@ public class RunSaveManager : MonoBehaviour
             checkpointRoomY = roomManager.LastActivatedCampfireCoord.y,
 
             // 7.5A
-            runStepCount = roomManager.CurrentRunStep
+            runStepCount = roomManager.CurrentRunStep,
+
+            hasSeenGeneralChallengeTips = tipsSeenTracker != null && tipsSeenTracker.HasSeenGeneralChallengeTips,
+            hasSeenBettingTips = tipsSeenTracker != null && tipsSeenTracker.HasSeenChallengeTypeTips(ChallengeType.Betting),
+            hasSeenGluttonyTips = tipsSeenTracker != null && tipsSeenTracker.HasSeenChallengeTypeTips(ChallengeType.Gluttony),
+            hasSeenSlothTips = tipsSeenTracker != null && tipsSeenTracker.HasSeenChallengeTypeTips(ChallengeType.Sloth),
+            hasSeenLieTips = tipsSeenTracker != null && tipsSeenTracker.HasSeenChallengeTypeTips(ChallengeType.Lie),
         };
 
         if (challengeEffectManager != null)
@@ -177,6 +185,17 @@ public class RunSaveManager : MonoBehaviour
         if (penalties != null)
         {
             penalties.LoadState(data.maxHPLoss, data.maxAPLoss, data.actionRateLoss, data.dpLoss);
+        }
+
+        if (tipsSeenTracker != null)
+        {
+            tipsSeenTracker.LoadChallengeTipsState(
+                data.hasSeenGeneralChallengeTips,
+                data.hasSeenBettingTips,
+                data.hasSeenGluttonyTips,
+                data.hasSeenSlothTips,
+                data.hasSeenLieTips
+            );
         }
 
         if (roomManager != null)
