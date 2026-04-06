@@ -9,6 +9,7 @@ public class RunSaveManager : MonoBehaviour
     [SerializeField] private BranchProgression branches;
     [SerializeField] private DeathPenaltyTracker penalties;
     [SerializeField] private RoomManager roomManager;
+    [SerializeField] private ChallengeEffectManager challengeEffectManager;
 
     [Header("Options")]
     [SerializeField] private bool autoLoadOnStart = true;
@@ -23,6 +24,7 @@ public class RunSaveManager : MonoBehaviour
         if (branches == null) branches = FindFirstObjectByType<BranchProgression>();
         if (penalties == null) penalties = FindFirstObjectByType<DeathPenaltyTracker>();
         if (roomManager == null) roomManager = FindFirstObjectByType<RoomManager>();
+        if (challengeEffectManager == null) challengeEffectManager = FindFirstObjectByType<ChallengeEffectManager>();
     }
 
     private void Start()
@@ -115,6 +117,31 @@ public class RunSaveManager : MonoBehaviour
             runStepCount = roomManager.CurrentRunStep
         };
 
+        if (challengeEffectManager != null)
+        {
+            ChallengeEffectEntry[] exportedEffects = challengeEffectManager.ExportActiveEffects();
+
+            data.activeChallengeEffects = new ChallengeEffectSaveEntry[exportedEffects.Length];
+
+            for (int i = 0; i < exportedEffects.Length; i++)
+            {
+                ChallengeEffectEntry effect = exportedEffects[i];
+
+                ChallengeEffectSaveEntry saveEntry = new ChallengeEffectSaveEntry();
+                saveEntry.sourceChallenge = (int)effect.sourceChallenge;
+                saveEntry.effectType = (int)effect.effectType;
+                saveEntry.value = effect.value;
+                saveEntry.clearsOnNextChallengeEntry = effect.clearsOnNextChallengeEntry;
+                saveEntry.debugLabel = effect.debugLabel;
+
+                data.activeChallengeEffects[i] = saveEntry;
+            }
+        }
+        else
+        {
+            data.activeChallengeEffects = System.Array.Empty<ChallengeEffectSaveEntry>();
+        }
+
         var roomStates = roomManager.ExportRoomStates();
         data.playerRoomX = roomManager.CurrentCoord.x;
         data.playerRoomY = roomManager.CurrentCoord.y;
@@ -167,6 +194,43 @@ public class RunSaveManager : MonoBehaviour
                 data.hasActivatedCampfireCheckpoint,
                 new Vector2Int(data.checkpointRoomX, data.checkpointRoomY)
             );
+        }
+
+        if (challengeEffectManager != null)
+        {
+            ChallengeEffectEntry[] restoredEffects;
+
+            if (data.activeChallengeEffects != null && data.activeChallengeEffects.Length > 0)
+            {
+                restoredEffects = new ChallengeEffectEntry[data.activeChallengeEffects.Length];
+
+                for (int i = 0; i < data.activeChallengeEffects.Length; i++)
+                {
+                    ChallengeEffectSaveEntry saveEntry = data.activeChallengeEffects[i];
+
+                    ChallengeType sourceChallenge = System.Enum.IsDefined(typeof(ChallengeType), saveEntry.sourceChallenge)
+                        ? (ChallengeType)saveEntry.sourceChallenge
+                        : ChallengeType.None;
+
+                    ChallengeEffectType effectType = System.Enum.IsDefined(typeof(ChallengeEffectType), saveEntry.effectType)
+                        ? (ChallengeEffectType)saveEntry.effectType
+                        : ChallengeEffectType.None;
+
+                    restoredEffects[i] = new ChallengeEffectEntry(
+                        sourceChallenge,
+                        effectType,
+                        saveEntry.value,
+                        saveEntry.clearsOnNextChallengeEntry,
+                        saveEntry.debugLabel
+                    );
+                }
+            }
+            else
+            {
+                restoredEffects = System.Array.Empty<ChallengeEffectEntry>();
+            }
+
+            challengeEffectManager.ImportActiveEffects(restoredEffects);
         }
 
         levelSystem.EndLoad();

@@ -12,6 +12,7 @@ public class RoomManager : MonoBehaviour
     [SerializeField] private Transform player;
     [SerializeField] private Rigidbody2D playerRb;
     [SerializeField] private Collider2D playerCollider;
+    [SerializeField] private ChallengeEffectManager challengeEffectManager;
 
     [Header("Transition Tuning")]
     [SerializeField] private float transitionLockSeconds = 0.15f;
@@ -72,6 +73,7 @@ public class RoomManager : MonoBehaviour
     {
         if (playerRb == null && player != null) playerRb = player.GetComponent<Rigidbody2D>();
         if (playerCollider == null && player != null) playerCollider = player.GetComponent<Collider2D>();
+        if (challengeEffectManager == null) challengeEffectManager = FindFirstObjectByType<ChallengeEffectManager>();
     }
 
     private void Start()
@@ -262,6 +264,8 @@ public class RoomManager : MonoBehaviour
         var doors = currentRoom.Doors;
         for (int i = 0; i < doors.Length; i++)
             doors[i].SetRoomManager(this);
+        
+        HandleChallengeRoomEntered(coord, state, allowEffectClear: countAsRunStep);
 
         if (logTransitions)
         {
@@ -1030,7 +1034,7 @@ public class RoomManager : MonoBehaviour
     }
 
     // -----------------------------
-    // 8.0: challenge room helpers
+    // 8.0-8.1: challenge room helpers
     // -----------------------------
 
     private ChallengeType DetermineChallengeTypeForNewState(Vector2Int coord)
@@ -1043,5 +1047,34 @@ public class RoomManager : MonoBehaviour
         if (roll <= 6) return ChallengeType.Gluttony;  // 4,5,6 = 30%
         if (roll <= 8) return ChallengeType.Sloth;     // 7,8 = 20%
         return ChallengeType.Lie;                      // 9 = 10%
+    }
+
+    private void HandleChallengeRoomEntered(Vector2Int coord, RoomState state, bool allowEffectClear)
+    {
+        if (state == null)
+            return;
+
+        if (state.roomType != RoomType.Challenge)
+            return;
+
+        if (logTransitions)
+        {
+            Debug.Log(
+                $"[RoomManager] Entered challenge room at {coord} " +
+                $"| challengeType={state.challengeType} | allowEffectClear={allowEffectClear}"
+            );
+        }
+
+        if (!allowEffectClear)
+            return;
+
+        if (challengeEffectManager == null)
+        {
+            if (logTransitions)
+                Debug.LogWarning("[RoomManager] ChallengeEffectManager not found while entering challenge room.");
+            return;
+        }
+
+        challengeEffectManager.ClearEffectsThatExpireOnNextChallengeEntry();
     }
 }

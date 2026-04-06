@@ -8,6 +8,7 @@ public class ProgressionApplier : MonoBehaviour
     [SerializeField] private APRegen apRegen;
     [SerializeField] private DeathPenaltyTracker penalty;
     [SerializeField] private PlayerDamageReceiver damageReceiver;
+    [SerializeField] private ChallengeEffectManager challengeEffectManager;
 
     [Header("Tuning")]
     [SerializeField] private int demonDPPerPoint = 2;
@@ -35,6 +36,7 @@ public class ProgressionApplier : MonoBehaviour
         if (penalty == null) penalty = GetComponent<DeathPenaltyTracker>();
 
         if (damageReceiver == null) damageReceiver = GetComponent<PlayerDamageReceiver>();
+        if (challengeEffectManager == null) challengeEffectManager = FindFirstObjectByType<ChallengeEffectManager>();
     }
 
     private void Start()
@@ -51,6 +53,9 @@ public class ProgressionApplier : MonoBehaviour
         if (damageReceiver != null)
             damageReceiver.OnDied += ApplyAll;
 
+        if (challengeEffectManager != null)
+            challengeEffectManager.OnEffectsChanged += ApplyAll;
+
         ApplyAll(); // apply on start/load
     }
 
@@ -58,6 +63,10 @@ public class ProgressionApplier : MonoBehaviour
     {
         if (branches != null)
             branches.OnBranchChanged -= HandleBranchChanged;
+        if (damageReceiver != null)            
+            damageReceiver.OnDied -= ApplyAll;
+        if (challengeEffectManager != null)            
+            challengeEffectManager.OnEffectsChanged -= ApplyAll;
     }
 
     private void HandleBranchChanged(BranchType _, int __)
@@ -87,11 +96,44 @@ public class ProgressionApplier : MonoBehaviour
         int actionRatePenalty = penalty != null ? penalty.ActionRateLoss : 0;
         int dpPenalty = penalty != null ? penalty.DPLoss : 0;
 
-        int effectiveBonusHP = bonusHP - hpPenalty;
-        int effectiveBonusAP = bonusAP - apPenalty;
-        int effectiveBonusDP = bonusDP - dpPenalty;
+        // Challenge effects
+        int challengeBonusHP = 0;
+        int challengeTempHPLoss = 0;
 
+        int challengeLockedAP = 0;
+        int challengeTempAPLoss = 0;
+
+        int challengeFlatDPBonus = 0;
+        float challengeDPMultiplier = 1f;
+
+        bool hasTempStatHalving = false;
+
+        if (challengeEffectManager != null)
+        {
+            challengeBonusHP = Mathf.RoundToInt(challengeEffectManager.GetTotalBonusMaxHP());
+            challengeTempHPLoss = Mathf.RoundToInt(challengeEffectManager.GetTotalTempMaxHPLoss());
+
+            challengeLockedAP = Mathf.RoundToInt(challengeEffectManager.GetTotalLockedAP());
+            challengeTempAPLoss = Mathf.RoundToInt(challengeEffectManager.GetTotalTempMaxAPLoss());
+
+            challengeFlatDPBonus = Mathf.RoundToInt(challengeEffectManager.GetTotalTempDPBonus());
+            challengeDPMultiplier = challengeEffectManager.GetCombinedTempDPMultiplier();
+
+            hasTempStatHalving = challengeEffectManager.HasTempStatHalving();
+        }
+
+        int effectiveBonusHP = bonusHP - hpPenalty + challengeBonusHP - challengeTempHPLoss;
+        int effectiveBonusAP = bonusAP - apPenalty - challengeLockedAP - challengeTempAPLoss;
+        int effectiveBaseBonusDP = bonusDP - dpPenalty + challengeFlatDPBonus;
+        int effectiveBonusDP = Mathf.RoundToInt(effectiveBaseBonusDP * challengeDPMultiplier);
         int effectiveBonusActionRate = bonusActionRate - actionRatePenalty;
+
+        if (hasTempStatHalving)
+        {
+            effectiveBonusHP = Mathf.FloorToInt(effectiveBonusHP * 0.5f);
+            effectiveBonusAP = Mathf.FloorToInt(effectiveBonusAP * 0.5f);
+            effectiveBonusDP = Mathf.FloorToInt(effectiveBonusDP * 0.5f);
+        }
 
         ApplyWithStoredBonuses(effectiveBonusHP, effectiveBonusAP, effectiveBonusDP, effectiveBonusActionRate, bonusDisappear);
     }

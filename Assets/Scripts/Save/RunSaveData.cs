@@ -35,6 +35,8 @@ public class RunSaveData
     public int runStepCount;
 
     public RoomStateSaveEntry[] rooms;
+
+    public ChallengeEffectSaveEntry[] activeChallengeEffects;
 }
 
 [Serializable]
@@ -79,4 +81,14 @@ public class RoomEnemyStateSaveEntry
     public int enemyType;
     public int spawnPointIndex;
     public bool alive;
+}
+
+[Serializable]
+public class ChallengeEffectSaveEntry
+{
+    public int sourceChallenge;
+    public int effectType;
+    public float value;
+    public bool clearsOnNextChallengeEntry;
+    public string debugLabel;
 }
