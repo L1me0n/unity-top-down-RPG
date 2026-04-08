@@ -9,6 +9,7 @@ public class RoomManager : MonoBehaviour
     [SerializeField] private GameObject campfireRoomPrefab;
     [SerializeField] private GameObject bettingRoomPrefab;
     [SerializeField] private GameObject gluttonyRoomPrefab;
+    [SerializeField] private GameObject slothRoomPrefab;
 
     [Header("References")]
     [SerializeField] private Transform player;
@@ -181,6 +182,11 @@ public class RoomManager : MonoBehaviour
                         return null;
 
                     case ChallengeType.Sloth:
+                        if (slothRoomPrefab != null)
+                            return slothRoomPrefab;
+
+                        Debug.LogError("[RoomManager] Sloth room prefab is not assigned.");
+                        return null;
                     case ChallengeType.Lie:
                     case ChallengeType.None:
                     default:
@@ -409,7 +415,7 @@ public class RoomManager : MonoBehaviour
         
         int challengeHash = Mathf.Abs((coord.x * 83492791) ^ (coord.y * 297121507));
 
-        if (challengeHash % 6 == 0)
+        if (challengeHash % 4 == 0)
             return RoomType.Challenge;
 
         return RoomType.Combat;
@@ -1122,9 +1128,9 @@ public class RoomManager : MonoBehaviour
 
         int roll = hash % 10;
 
-        // if (roll <= 3) return ChallengeType.Betting;   // 0,1,2,3 = 40%
-        if (roll <= 9) return ChallengeType.Gluttony;  // 4,5,6 = 30%
-        // if (roll <= 8) return ChallengeType.Sloth;     // 7,8 = 20%
+        if (roll <= 3) return ChallengeType.Betting;   // 0,1,2,3 = 40%
+        if (roll <= 6) return ChallengeType.Gluttony;  // 4,5,6 = 30%
+        if (roll <= 8) return ChallengeType.Sloth;     // 7,8 = 20%
         return ChallengeType.Lie;                      // 9 = 10%
     }
 
