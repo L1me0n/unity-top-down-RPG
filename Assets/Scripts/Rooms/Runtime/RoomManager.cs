@@ -8,6 +8,7 @@ public class RoomManager : MonoBehaviour
     [SerializeField] private GameObject combatRoomPrefab;
     [SerializeField] private GameObject campfireRoomPrefab;
     [SerializeField] private GameObject bettingRoomPrefab;
+    [SerializeField] private GameObject gluttonyRoomPrefab;
 
     [Header("References")]
     [SerializeField] private Transform player;
@@ -138,9 +139,15 @@ public class RoomManager : MonoBehaviour
         isTransitioning = false;
     }
 
-    private GameObject GetPrefabForRoomType(RoomType roomType)
+    private GameObject GetPrefabForRoomState(RoomState state)
     {
-        switch (roomType)
+        if (state == null)
+        {
+            Debug.LogError("[RoomManager] GetPrefabForRoomState called with null RoomState.");
+            return null;
+        }
+
+        switch (state.roomType)
         {
             case RoomType.Campfire:
                 if (campfireRoomPrefab != null)
@@ -150,7 +157,6 @@ public class RoomManager : MonoBehaviour
                 return combatRoomPrefab;
 
             case RoomType.Combat:
-            default:
                 if (combatRoomPrefab != null)
                     return combatRoomPrefab;
 
@@ -158,10 +164,40 @@ public class RoomManager : MonoBehaviour
                 return null;
 
             case RoomType.Challenge:
-                if (bettingRoomPrefab != null)
-                    return bettingRoomPrefab;
+                switch (state.challengeType)
+                {
+                    case ChallengeType.Betting:
+                        if (bettingRoomPrefab != null)
+                            return bettingRoomPrefab;
 
-                Debug.LogError("[RoomManager] Betting room prefab is not assigned.");
+                        Debug.LogError("[RoomManager] Betting room prefab is not assigned.");
+                        return null;
+
+                    case ChallengeType.Gluttony:
+                        if (gluttonyRoomPrefab != null)
+                            return gluttonyRoomPrefab;
+
+                        Debug.LogError("[RoomManager] Gluttony room prefab is not assigned.");
+                        return null;
+
+                    case ChallengeType.Sloth:
+                    case ChallengeType.Lie:
+                    case ChallengeType.None:
+                    default:
+                        Debug.LogWarning(
+                            $"[RoomManager] No dedicated prefab assigned yet for challengeType={state.challengeType}. " +
+                            $"Falling back to betting room prefab."
+                        );
+
+                        if (bettingRoomPrefab != null)
+                            return bettingRoomPrefab;
+
+                        Debug.LogError("[RoomManager] Betting room prefab fallback is not assigned.");
+                        return null;
+                }
+
+            default:
+                Debug.LogError($"[RoomManager] Unsupported roomType={state.roomType}");
                 return null;
         }
     }
@@ -255,7 +291,7 @@ public class RoomManager : MonoBehaviour
         state.visited = true;
         state.lastVisitedStep = runStepCount;
 
-        GameObject prefabToSpawn = GetPrefabForRoomType(state.roomType);
+        GameObject prefabToSpawn = GetPrefabForRoomState(state);
         if (prefabToSpawn == null)
         {
             Debug.LogError($"[RoomManager] No valid prefab found for room type {state.roomType} at {coord}.");
@@ -1086,9 +1122,9 @@ public class RoomManager : MonoBehaviour
 
         int roll = hash % 10;
 
-        if (roll <= 3) return ChallengeType.Betting;   // 0,1,2,3 = 40%
-        if (roll <= 6) return ChallengeType.Gluttony;  // 4,5,6 = 30%
-        if (roll <= 8) return ChallengeType.Sloth;     // 7,8 = 20%
+        // if (roll <= 3) return ChallengeType.Betting;   // 0,1,2,3 = 40%
+        if (roll <= 9) return ChallengeType.Gluttony;  // 4,5,6 = 30%
+        // if (roll <= 8) return ChallengeType.Sloth;     // 7,8 = 20%
         return ChallengeType.Lie;                      // 9 = 10%
     }
 
@@ -1130,7 +1166,7 @@ public class RoomManager : MonoBehaviour
             return;
         }
 
-        ChallengeRoomController controller = currentRoom.GetComponent<ChallengeRoomController>();
+        ChallengeRoomController controller = currentRoom.GetComponentInChildren<ChallengeRoomController>(true);
         if (controller == null)
         {
             if (logTransitions)

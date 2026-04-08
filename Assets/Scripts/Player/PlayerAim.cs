@@ -34,23 +34,23 @@ public class PlayerAim : MonoBehaviour, IAimProvider
 
     private void Update()
     {
-        if (aimPivot == null || aimCamera == null) return;
+        if (aimPivot == null || aimCamera == null)
+            return;
 
-        // 1) Screen -> World
+        if (UIInputBlocker.BlockGameplayInput)
+            return;
+
         Vector3 mw3 = aimCamera.ScreenToWorldPoint(input.MouseScreen);
         MouseWorld = new Vector2(mw3.x, mw3.y);
 
-        // 2) Direction from pivot to mouse
         Vector2 pivotPos = aimPivot.position;
         Vector2 toMouse = MouseWorld - pivotPos;
 
-        // 3) Deadzone to prevent jitter if mouse sits on pivot
         if (toMouse.sqrMagnitude < GameConfig.AimDeadzone * GameConfig.AimDeadzone)
             return;
 
         AimDirection = toMouse.normalized;
 
-        // 4) Rotate AimPivot to face mouse
         float angle = Mathf.Atan2(AimDirection.y, AimDirection.x) * Mathf.Rad2Deg;
         aimPivot.rotation = Quaternion.Euler(0f, 0f, angle);
     }

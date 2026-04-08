@@ -28,14 +28,14 @@ public class PlayerCombatController : MonoBehaviour
 
     private void Update()
     {
-        if (UIInputBlocker.BlockGameplayInput)
-            return;
-        // Reset per-frame intents
+        // Always clear per-frame intents first
         WantsFire = false;
         WantsDisappear = false;
         ToggledThisFrame = false;
 
-        // Toggle mode
+        if (UIInputBlocker.BlockGameplayInput)
+            return;
+
         if (Input.GetKeyDown(toggleModeKey) || Input.GetKeyDown(toggleModeAltKey))
         {
             mode = (mode == CombatMode.Attack) ? CombatMode.Defense : CombatMode.Attack;
@@ -43,18 +43,12 @@ public class PlayerCombatController : MonoBehaviour
             OnModeChanged?.Invoke(mode);
         }
 
-        // Read action intent based on current mode.
-        // We still read both keys, but only "activate" the one for the mode.
-        bool firePressed = Input.GetMouseButton(0);       // hold to fire later
-        bool disappearPressed = Input.GetMouseButtonDown(1) || Input.GetKeyDown(disappearKey); // tap to disappear
+        bool firePressed = Input.GetMouseButton(0);
+        bool disappearPressed = Input.GetMouseButtonDown(1) || Input.GetKeyDown(disappearKey);
 
         if (mode == CombatMode.Attack)
-        {
             WantsFire = firePressed;
-        }
-        else // Defense
-        {
+        else
             WantsDisappear = disappearPressed;
-        }
     }
 }

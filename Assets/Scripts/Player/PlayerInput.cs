@@ -8,16 +8,18 @@ public class PlayerInput : MonoBehaviour
     private void Update()
     {
         if (UIInputBlocker.BlockGameplayInput)
+        {
+            Move = Vector2.zero;
+            MouseScreen = Input.mousePosition;
             return;
-        // Movement axes (old Input Manager)
-        float x = Input.GetAxisRaw("Horizontal"); // -1, 0, 1
+        }
+
+        float x = Input.GetAxisRaw("Horizontal");
         float y = Input.GetAxisRaw("Vertical");
 
-        // Normalize so diagonal isn't faster
         Vector2 raw = new Vector2(x, y);
         Move = raw.sqrMagnitude > 1f ? raw.normalized : raw;
 
-        // Mouse position in screen coordinates (pixels)
         MouseScreen = Input.mousePosition;
     }
 }
