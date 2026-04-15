@@ -16,6 +16,10 @@ public class PlayerStats : MonoBehaviour
     [SerializeField] private int currentAP;
     [SerializeField] private float disappearDuration;
 
+    public int BaseMaxHP => baseMaxHP;
+    public int BaseMaxAP => baseMaxAP;
+    public int BaseDP => baseDP;
+
     public int MaxHP => maxHP;
     public int MaxAP => maxAP;
     public int DP => dp;
@@ -44,7 +48,6 @@ public class PlayerStats : MonoBehaviour
         OnChanged?.Invoke();
     }
 
-    // Spend / Gain AP
     public bool CanSpendAP(int amount) => amount <= 0 || currentAP >= amount;
 
     public bool TrySpendAP(int amount)
@@ -64,7 +67,6 @@ public class PlayerStats : MonoBehaviour
         OnChanged?.Invoke();
     }
 
-    // Damage / Heal HP 
     public void TakeDamage(int amount)
     {
         if (amount <= 0) return;
@@ -79,7 +81,6 @@ public class PlayerStats : MonoBehaviour
         OnChanged?.Invoke();
     }
 
-    // For future upgrades/downgrades 
     public void SetMaxHP(int newMax)
     {
         maxHP = Mathf.Max(1, newMax);

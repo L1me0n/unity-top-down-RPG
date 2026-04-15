@@ -17,14 +17,9 @@ public class RoomState
     public List<RoomEnemyStateEntry> enemyStates = new List<RoomEnemyStateEntry>();
 
     // 7.5: repopulation memory fields
-    // -1 means "this event has never happened yet"
     public int lastVisitedStep;
     public int lastClearedStep;
-
-    // If current run step is below this value, repopulation is blocked
     public int repopulationBlockedUntilStep;
-
-    // Tracks how many times this room has been repopulated in the future system
     public int timesRepopulated;
 
     // Hostages
@@ -35,10 +30,24 @@ public class RoomState
     // Campfire storage
     public int storedHostageGhostCount;
 
-    //Challenge rooms
+    // Challenge rooms
     public ChallengeType challengeType;
     public bool challengeCompleted;
-    public int lastChallengeCompletedStep; 
+    public int lastChallengeCompletedStep;
+
+    // Lie mid-progress persistence
+    public bool lieProgressActive;
+    public int lieChosenRoute;
+    public int lieRuntimeState;
+    public bool lieSneakOutcomeRolled;
+    public bool lieSneakWillSucceed;
+    public bool lieSneakAttemptFinished;
+    public bool lieTrialsPrepared;
+    public int lieForcedTrialCount;
+    public int lieCurrentTrialIndex;
+    public int lieForcedTrial0;
+    public int lieForcedTrial1;
+    public int lieForcedTrial2;
 
     public RoomState(
         bool visited,
@@ -55,7 +64,19 @@ public class RoomState
         int storedHostageGhostCount = 0,
         ChallengeType challengeType = ChallengeType.None,
         bool challengeCompleted = false,
-        int lastChallengeCompletedStep = -1)
+        int lastChallengeCompletedStep = -1,
+        bool lieProgressActive = false,
+        int lieChosenRoute = 0,
+        int lieRuntimeState = 0,
+        bool lieSneakOutcomeRolled = false,
+        bool lieSneakWillSucceed = false,
+        bool lieSneakAttemptFinished = false,
+        bool lieTrialsPrepared = false,
+        int lieForcedTrialCount = 0,
+        int lieCurrentTrialIndex = -1,
+        int lieForcedTrial0 = 0,
+        int lieForcedTrial1 = 0,
+        int lieForcedTrial2 = 0)
     {
         this.visited = visited;
         this.cleared = cleared;
@@ -79,5 +100,18 @@ public class RoomState
         this.challengeType = challengeType;
         this.challengeCompleted = challengeCompleted;
         this.lastChallengeCompletedStep = lastChallengeCompletedStep;
+
+        this.lieProgressActive = lieProgressActive;
+        this.lieChosenRoute = lieChosenRoute;
+        this.lieRuntimeState = lieRuntimeState;
+        this.lieSneakOutcomeRolled = lieSneakOutcomeRolled;
+        this.lieSneakWillSucceed = lieSneakWillSucceed;
+        this.lieSneakAttemptFinished = lieSneakAttemptFinished;
+        this.lieTrialsPrepared = lieTrialsPrepared;
+        this.lieForcedTrialCount = lieForcedTrialCount;
+        this.lieCurrentTrialIndex = lieCurrentTrialIndex;
+        this.lieForcedTrial0 = lieForcedTrial0;
+        this.lieForcedTrial1 = lieForcedTrial1;
+        this.lieForcedTrial2 = lieForcedTrial2;
     }
 }

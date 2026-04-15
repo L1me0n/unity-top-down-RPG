@@ -10,6 +10,7 @@ public class RoomManager : MonoBehaviour
     [SerializeField] private GameObject bettingRoomPrefab;
     [SerializeField] private GameObject gluttonyRoomPrefab;
     [SerializeField] private GameObject slothRoomPrefab;
+    [SerializeField] private GameObject lieRoomPrefab;
 
     [Header("References")]
     [SerializeField] private Transform player;
@@ -75,6 +76,8 @@ public class RoomManager : MonoBehaviour
     public System.Action<Vector2Int> OnCheckpointActivated;
     public System.Action<Vector2Int, RoomState> OnHostagesRescued;
 
+    public System.Action<Vector2Int, RoomDirection> OnBeforeTransitionRequested;
+
     private void Awake()
     {
         if (playerRb == null && player != null) playerRb = player.GetComponent<Rigidbody2D>();
@@ -114,6 +117,8 @@ public class RoomManager : MonoBehaviour
 
         if (logTransitions)
             Debug.Log($"[RoomManager] Transition {currentCoord} -> {next} via {viaDoorDirection} (enter new room from {enteredFromSideInNewRoom})");
+
+        OnBeforeTransitionRequested?.Invoke(currentCoord, viaDoorDirection);
 
         StartCoroutine(DoTransition(next, enteredFromSideInNewRoom));
     }
@@ -188,6 +193,11 @@ public class RoomManager : MonoBehaviour
                         Debug.LogError("[RoomManager] Sloth room prefab is not assigned.");
                         return null;
                     case ChallengeType.Lie:
+                        if (lieRoomPrefab != null)
+                            return lieRoomPrefab;
+
+                        Debug.LogError("[RoomManager] Lie room prefab is not assigned.");
+                        return null;
                     case ChallengeType.None:
                     default:
                         Debug.LogWarning(
@@ -599,6 +609,14 @@ public class RoomManager : MonoBehaviour
             if (s.lastChallengeCompletedStep < -1) s.lastChallengeCompletedStep = -1;
         }
 
+        bool isActiveLieRoom =
+            s.roomType == RoomType.Challenge &&
+            s.challengeType == ChallengeType.Lie &&
+            !s.challengeCompleted;
+
+        if (!isActiveLieRoom)
+            ResetLieProgressState(s);
+
         return s;
     }
 
@@ -738,6 +756,8 @@ public class RoomManager : MonoBehaviour
 
         state.challengeCompleted = true;
         state.lastChallengeCompletedStep = runStepCount;
+
+        ResetLieProgressState(state);
 
         if (logTransitions)
         {
@@ -879,6 +899,19 @@ public class RoomManager : MonoBehaviour
             entry.hostageGhostsRescued = s.hostageGhostsRescued;
             entry.storedHostageGhostCount = s.storedHostageGhostCount;
 
+            entry.lieProgressActive = s.lieProgressActive;
+            entry.lieChosenRoute = s.lieChosenRoute;
+            entry.lieRuntimeState = s.lieRuntimeState;
+            entry.lieSneakOutcomeRolled = s.lieSneakOutcomeRolled;
+            entry.lieSneakWillSucceed = s.lieSneakWillSucceed;
+            entry.lieSneakAttemptFinished = s.lieSneakAttemptFinished;
+            entry.lieTrialsPrepared = s.lieTrialsPrepared;
+            entry.lieForcedTrialCount = s.lieForcedTrialCount;
+            entry.lieCurrentTrialIndex = s.lieCurrentTrialIndex;
+            entry.lieForcedTrial0 = s.lieForcedTrial0;
+            entry.lieForcedTrial1 = s.lieForcedTrial1;
+            entry.lieForcedTrial2 = s.lieForcedTrial2;
+
             if (s.enemyStates != null)
             {
                 for (int i = 0; i < s.enemyStates.Count; i++)
@@ -934,7 +967,19 @@ public class RoomManager : MonoBehaviour
                     e.storedHostageGhostCount,
                     restoredChallengeType,
                     e.challengeCompleted,
-                    e.lastChallengeCompletedStep
+                    e.lastChallengeCompletedStep,
+                    e.lieProgressActive,
+                    e.lieChosenRoute,
+                    e.lieRuntimeState,
+                    e.lieSneakOutcomeRolled,
+                    e.lieSneakWillSucceed,
+                    e.lieSneakAttemptFinished,
+                    e.lieTrialsPrepared,
+                    e.lieForcedTrialCount,
+                    e.lieCurrentTrialIndex,
+                    e.lieForcedTrial0,
+                    e.lieForcedTrial1,
+                    e.lieForcedTrial2
                 );
 
                 s.encounterInitialized = e.encounterInitialized;
@@ -1128,9 +1173,9 @@ public class RoomManager : MonoBehaviour
 
         int roll = hash % 10;
 
-        if (roll <= 3) return ChallengeType.Betting;   // 0,1,2,3 = 40%
-        if (roll <= 6) return ChallengeType.Gluttony;  // 4,5,6 = 30%
-        if (roll <= 8) return ChallengeType.Sloth;     // 7,8 = 20%
+        //if (roll <= 3) return ChallengeType.Betting;   // 0,1,2,3 = 40%
+        //if (roll <= 6) return ChallengeType.Gluttony;  // 4,5,6 = 30%
+        //if (roll <= 8) return ChallengeType.Sloth;     // 7,8 = 20%
         return ChallengeType.Lie;                      // 9 = 10%
     }
 
@@ -1152,17 +1197,28 @@ public class RoomManager : MonoBehaviour
             );
         }
 
-        if (allowEffectClear)
+        bool shouldClearChallengeEntryEffects =
+            allowEffectClear &&
+            !state.challengeCompleted;
+
+        if (shouldClearChallengeEntryEffects)
         {
             if (challengeEffectManager == null)
             {
                 if (logTransitions)
-                    Debug.LogWarning("[RoomManager] ChallengeEffectManager not found while entering challenge room.");
+                    Debug.LogWarning("[RoomManager] ChallengeEffectManager not found while entering active challenge room.");
             }
             else
             {
                 challengeEffectManager.ClearEffectsThatExpireOnNextChallengeEntry();
             }
+        }
+        else if (logTransitions)
+        {
+            Debug.Log(
+                $"[RoomManager] Skipped clearing challenge-entry effects at {coord} | " +
+                $"allowEffectClear={allowEffectClear} | challengeCompleted={state.challengeCompleted}"
+            );
         }
 
         if (currentRoom == null)
@@ -1256,5 +1312,24 @@ public class RoomManager : MonoBehaviour
         }
 
         return true;
+    }
+
+    private void ResetLieProgressState(RoomState s)
+    {
+        if (s == null)
+            return;
+
+        s.lieProgressActive = false;
+        s.lieChosenRoute = 0;
+        s.lieRuntimeState = 0;
+        s.lieSneakOutcomeRolled = false;
+        s.lieSneakWillSucceed = false;
+        s.lieSneakAttemptFinished = false;
+        s.lieTrialsPrepared = false;
+        s.lieForcedTrialCount = 0;
+        s.lieCurrentTrialIndex = -1;
+        s.lieForcedTrial0 = 0;
+        s.lieForcedTrial1 = 0;
+        s.lieForcedTrial2 = 0;
     }
 }

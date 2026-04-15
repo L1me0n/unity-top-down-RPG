@@ -15,12 +15,15 @@ public class DisappearController : MonoBehaviour
     [SerializeField, Range(0f, 1f)] private float ghostAlpha = 0.35f;
 
     public bool IsDisappeared => isDisappeared;
+    public bool IsLieSneakOverrideActive => lieSneakOverrideActive;
 
     public float ActiveProgress01
     {
         get
         {
             if (!isDisappeared) return 0f;
+            if (lieSneakOverrideActive) return 1f;
+
             float remaining = endTime - Time.time;
             return activeDuration <= 0f ? 0f : Mathf.Clamp01(remaining / activeDuration);
         }
@@ -31,26 +34,27 @@ public class DisappearController : MonoBehaviour
     {
         get
         {
+            if (lieSneakOverrideActive) return 1f;
             if (rechargeDuration <= 0f) return 1f;
             return Mathf.Clamp01((Time.time - lastUseTime) / rechargeDuration);
         }
     }
-    public bool IsReady => !isDisappeared && RechargeProgress01 >= 1f;
 
+    public bool IsReady => lieSneakOverrideActive || (!isDisappeared && RechargeProgress01 >= 1f);
     public bool CanTakeDamage() => !isDisappeared;
 
-    // ---- Internals ----
     private PlayerStats stats;
     private PlayerCombatController combat;
 
     private bool isDisappeared;
     private float endTime;
     private float lastUseTime = -999f;
-
     private float activeDuration;
 
     private int normalLayer;
     private int ghostLayer;
+
+    private bool lieSneakOverrideActive;
 
     private void Awake()
     {
@@ -69,17 +73,16 @@ public class DisappearController : MonoBehaviour
 
     private void Update()
     {
-        // End if time is up
+        if (lieSneakOverrideActive)
+            return;
+
         if (isDisappeared && Time.time >= endTime)
             EndDisappear();
 
-        // Trigger only in Defense mode
         if (combat.Mode != CombatMode.Defense) return;
         if (!combat.WantsDisappear) return;
-
         if (!IsReady) return;
 
-        // Spend AP
         if (!stats.TrySpendAP(apCost))
             return;
         
@@ -87,6 +90,30 @@ public class DisappearController : MonoBehaviour
             return;
 
         StartDisappear();
+    }
+
+    public void BeginLieSneakOverride()
+    {
+        lieSneakOverrideActive = true;
+
+        if (!isDisappeared)
+            ForceGhostStateOn();
+    }
+
+    public void EndLieSneakOverride()
+    {
+        lieSneakOverrideActive = false;
+
+        if (isDisappeared)
+            EndDisappear();
+    }
+
+    public void BreakLieSneakOverride()
+    {
+        lieSneakOverrideActive = false;
+
+        if (isDisappeared)
+            EndDisappear();
     }
 
     private void StartDisappear()
@@ -98,10 +125,18 @@ public class DisappearController : MonoBehaviour
         endTime = Time.time + activeDuration;
         lastUseTime = Time.time;
 
-        // Collision behavior via layer swap
         gameObject.layer = ghostLayer;
+        SetAlpha(ghostAlpha);
+    }
 
-        // Visual feedback
+    private void ForceGhostStateOn()
+    {
+        isDisappeared = true;
+        activeDuration = 999999f;
+        endTime = float.MaxValue;
+        lastUseTime = Time.time;
+
+        gameObject.layer = ghostLayer;
         SetAlpha(ghostAlpha);
     }
 

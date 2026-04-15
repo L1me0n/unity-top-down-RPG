@@ -41,7 +41,6 @@ public class ProgressionApplier : MonoBehaviour
 
     private void Start()
     {
-        // We delay apply until Start to ensure that any Start-based initialization in PlayerStats or APRegen happens first, so we don't accidentally overwrite changes from them.
         ApplyAll();
     }
 
@@ -56,16 +55,16 @@ public class ProgressionApplier : MonoBehaviour
         if (challengeEffectManager != null)
             challengeEffectManager.OnEffectsChanged += ApplyAll;
 
-        ApplyAll(); // apply on start/load
+        ApplyAll();
     }
 
     private void OnDisable()
     {
         if (branches != null)
             branches.OnBranchChanged -= HandleBranchChanged;
-        if (damageReceiver != null)            
+        if (damageReceiver != null)
             damageReceiver.OnDied -= ApplyAll;
-        if (challengeEffectManager != null)            
+        if (challengeEffectManager != null)
             challengeEffectManager.OnEffectsChanged -= ApplyAll;
     }
 
@@ -82,13 +81,11 @@ public class ProgressionApplier : MonoBehaviour
         int monster = branches.Monster;
         int fallen = branches.FallenGod;
 
-        // Compute totals
         int bonusDP = demon * demonDPPerPoint + fallen * fallenGodDPPerPoint;
         int bonusHP = monster * monsterHPPerPoint;
         int bonusAP = monster * monsterAPPerPoint;
 
         int bonusActionRate = fallen * fallenGodActionRatePerPoint;
-
         float bonusDisappear = demon * demonDisappearSecondsPerPoint;
 
         int hpPenalty = penalty != null ? penalty.MaxHPLoss : 0;
@@ -96,7 +93,6 @@ public class ProgressionApplier : MonoBehaviour
         int actionRatePenalty = penalty != null ? penalty.ActionRateLoss : 0;
         int dpPenalty = penalty != null ? penalty.DPLoss : 0;
 
-        // Challenge effects
         int challengeBonusHP = 0;
         int challengeTempHPLoss = 0;
 
@@ -128,14 +124,22 @@ public class ProgressionApplier : MonoBehaviour
         int effectiveBonusDP = Mathf.RoundToInt(effectiveBaseBonusDP * challengeDPMultiplier);
         int effectiveBonusActionRate = bonusActionRate - actionRatePenalty;
 
+        int totalTargetHP = stats.BaseMaxHP + effectiveBonusHP;
+        int totalTargetAP = stats.BaseMaxAP + effectiveBonusAP;
+        int totalTargetDP = stats.BaseDP + effectiveBonusDP;
+
         if (hasTempStatHalving)
         {
-            effectiveBonusHP = Mathf.FloorToInt(effectiveBonusHP * 0.5f);
-            effectiveBonusAP = Mathf.FloorToInt(effectiveBonusAP * 0.5f);
-            effectiveBonusDP = Mathf.FloorToInt(effectiveBonusDP * 0.5f);
+            totalTargetHP = Mathf.Max(1, Mathf.FloorToInt(totalTargetHP * 0.5f));
+            totalTargetAP = Mathf.Max(1, Mathf.FloorToInt(totalTargetAP * 0.5f));
+            totalTargetDP = Mathf.Max(1, Mathf.FloorToInt(totalTargetDP * 0.5f));
         }
 
-        ApplyWithStoredBonuses(effectiveBonusHP, effectiveBonusAP, effectiveBonusDP, effectiveBonusActionRate, bonusDisappear);
+        int finalBonusHP = totalTargetHP - stats.BaseMaxHP;
+        int finalBonusAP = totalTargetAP - stats.BaseMaxAP;
+        int finalBonusDP = totalTargetDP - stats.BaseDP;
+
+        ApplyWithStoredBonuses(finalBonusHP, finalBonusAP, finalBonusDP, effectiveBonusActionRate, bonusDisappear);
     }
 
     private int appliedBonusHP;
@@ -146,7 +150,6 @@ public class ProgressionApplier : MonoBehaviour
 
     private void ApplyWithStoredBonuses(int newBonusHP, int newBonusAP, int newBonusDP, int newBonusActionRate, float newBonusDisappear)
     {
-        // We must avoid stacking upgrades on top of already-upgraded Max values.
         int deltaHP = newBonusHP - appliedBonusHP;
         int deltaAP = newBonusAP - appliedBonusAP;
         int deltaDP = newBonusDP - appliedBonusDP;

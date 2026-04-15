@@ -4,21 +4,17 @@ using System.Collections.Generic;
 [Serializable]
 public class RunSaveData
 {
-    // Currency
     public int souls;
     public int xp;
 
-    // Level system
     public int level;
     public int unspentPoints;
 
-    // Branches
     public int demon;
     public int monster;
     public int fallenGod;
     public int hellhound;
 
-    // Penalties
     public int maxHPLoss;
     public int maxAPLoss;
     public int actionRateLoss;
@@ -31,10 +27,8 @@ public class RunSaveData
     public int checkpointRoomX;
     public int checkpointRoomY;
 
-    // 7.5: deterministic progress clock for future repopulation logic.
     public int runStepCount;
 
-    // Tips seen
     public bool hasSeenGeneralChallengeTips;
     public bool hasSeenBettingTips;
     public bool hasSeenGluttonyTips;
@@ -42,7 +36,6 @@ public class RunSaveData
     public bool hasSeenLieTips;
 
     public RoomStateSaveEntry[] rooms;
-
     public ChallengeEffectSaveEntry[] activeChallengeEffects;
 }
 
@@ -57,7 +50,6 @@ public class RoomStateSaveEntry
 
     public int roomType;
 
-    // Challenge rooms
     public int challengeType;
     public bool challengeCompleted;
     public int lastChallengeCompletedStep;
@@ -66,19 +58,30 @@ public class RoomStateSaveEntry
     public int combatLevel;
     public int encounterSeed;
 
-    // 7.5: repopulation memory fields
     public int lastVisitedStep;
     public int lastClearedStep;
     public int repopulationBlockedUntilStep;
     public int timesRepopulated;
 
-     // Hostages
     public bool hasHostageGhosts;
     public int hostageGhostCount;
     public bool hostageGhostsRescued;
 
-    // Campfire storage
     public int storedHostageGhostCount;
+
+    // Lie mid-progress persistence
+    public bool lieProgressActive;
+    public int lieChosenRoute;
+    public int lieRuntimeState;
+    public bool lieSneakOutcomeRolled;
+    public bool lieSneakWillSucceed;
+    public bool lieSneakAttemptFinished;
+    public bool lieTrialsPrepared;
+    public int lieForcedTrialCount;
+    public int lieCurrentTrialIndex;
+    public int lieForcedTrial0;
+    public int lieForcedTrial1;
+    public int lieForcedTrial2;
 
     public List<RoomEnemyStateSaveEntry> enemyStates = new List<RoomEnemyStateSaveEntry>();
 }

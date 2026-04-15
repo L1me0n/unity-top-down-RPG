@@ -28,7 +28,6 @@ public class PlayerCombatController : MonoBehaviour
 
     private void Update()
     {
-        // Always clear per-frame intents first
         WantsFire = false;
         WantsDisappear = false;
         ToggledThisFrame = false;
@@ -38,9 +37,7 @@ public class PlayerCombatController : MonoBehaviour
 
         if (Input.GetKeyDown(toggleModeKey) || Input.GetKeyDown(toggleModeAltKey))
         {
-            mode = (mode == CombatMode.Attack) ? CombatMode.Defense : CombatMode.Attack;
-            ToggledThisFrame = true;
-            OnModeChanged?.Invoke(mode);
+            ToggleMode();
         }
 
         bool firePressed = Input.GetMouseButton(0);
@@ -50,5 +47,31 @@ public class PlayerCombatController : MonoBehaviour
             WantsFire = firePressed;
         else
             WantsDisappear = disappearPressed;
+    }
+
+    public void SetMode(CombatMode newMode, bool forceEvent = false)
+    {
+        if (!forceEvent && mode == newMode)
+            return;
+
+        mode = newMode;
+        OnModeChanged?.Invoke(mode);
+    }
+
+    public void ToggleMode()
+    {
+        mode = (mode == CombatMode.Attack) ? CombatMode.Defense : CombatMode.Attack;
+        ToggledThisFrame = true;
+        OnModeChanged?.Invoke(mode);
+    }
+
+    public void SetAttackMode()
+    {
+        SetMode(CombatMode.Attack);
+    }
+
+    public void SetDefenseMode()
+    {
+        SetMode(CombatMode.Defense);
     }
 }
