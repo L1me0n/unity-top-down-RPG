@@ -11,6 +11,7 @@ public class RunSaveManager : MonoBehaviour
     [SerializeField] private RoomManager roomManager;
     [SerializeField] private ChallengeEffectManager challengeEffectManager;
     [SerializeField] private TipsSeenTracker tipsSeenTracker;
+    [SerializeField] private TradeItemInventory tradeItemInventory;
 
     [Header("Options")]
     [SerializeField] private bool autoLoadOnStart = true;
@@ -27,6 +28,7 @@ public class RunSaveManager : MonoBehaviour
         if (roomManager == null) roomManager = FindFirstObjectByType<RoomManager>();
         if (challengeEffectManager == null) challengeEffectManager = FindFirstObjectByType<ChallengeEffectManager>();
         if (tipsSeenTracker == null) tipsSeenTracker = FindFirstObjectByType<TipsSeenTracker>();
+        if (tradeItemInventory == null) tradeItemInventory = FindFirstObjectByType<TradeItemInventory>();
     }
 
     private void Start()
@@ -65,6 +67,9 @@ public class RunSaveManager : MonoBehaviour
             roomManager.OnRoomEntered += OnRoomEntered;
             roomManager.OnCampfireEntered += OnCampfireEntered;
         }
+
+        if (tradeItemInventory != null)
+            tradeItemInventory.OnInventoryChanged += Save;
     }
 
     private void Unsubscribe()
@@ -87,6 +92,9 @@ public class RunSaveManager : MonoBehaviour
             roomManager.OnRoomEntered -= OnRoomEntered;
             roomManager.OnCampfireEntered -= OnCampfireEntered;
         }
+
+        if (tradeItemInventory != null)
+            tradeItemInventory.OnInventoryChanged -= Save;
     }
 
     public void Save()
@@ -123,6 +131,12 @@ public class RunSaveManager : MonoBehaviour
             hasSeenGluttonyTips = tipsSeenTracker != null && tipsSeenTracker.HasSeenChallengeTypeTips(ChallengeType.Gluttony),
             hasSeenSlothTips = tipsSeenTracker != null && tipsSeenTracker.HasSeenChallengeTypeTips(ChallengeType.Sloth),
             hasSeenLieTips = tipsSeenTracker != null && tipsSeenTracker.HasSeenChallengeTypeTips(ChallengeType.Lie),
+
+            // 9.2C: Trade item inventory counts.
+            chronosSpellCount = tradeItemInventory != null ? tradeItemInventory.GetCount(TradeItemType.ChronosSpell) : 0,
+            bloodlustPotionCount = tradeItemInventory != null ? tradeItemInventory.GetCount(TradeItemType.BloodlustPotion) : 0,
+            ectoplasmPotionCount = tradeItemInventory != null ? tradeItemInventory.GetCount(TradeItemType.EctoplasmPotion) : 0,
+            horsemenRingCount = tradeItemInventory != null ? tradeItemInventory.GetCount(TradeItemType.HorsemenRing) : 0,
         };
 
         if (challengeEffectManager != null)
@@ -196,6 +210,16 @@ public class RunSaveManager : MonoBehaviour
                 data.hasSeenSlothTips,
                 data.hasSeenLieTips
             );
+        }
+
+        if (tradeItemInventory != null)
+        {
+            tradeItemInventory.SetCountFromSave(TradeItemType.ChronosSpell, data.chronosSpellCount);
+            tradeItemInventory.SetCountFromSave(TradeItemType.BloodlustPotion, data.bloodlustPotionCount);
+            tradeItemInventory.SetCountFromSave(TradeItemType.EctoplasmPotion, data.ectoplasmPotionCount);
+            tradeItemInventory.SetCountFromSave(TradeItemType.HorsemenRing, data.horsemenRingCount);
+
+            Debug.Log($"[RunSaveManager] Loaded trade inventory: {tradeItemInventory.GetDebugSummary()}");
         }
 
         if (roomManager != null)

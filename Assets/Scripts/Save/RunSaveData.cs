@@ -35,6 +35,12 @@ public class RunSaveData
     public bool hasSeenSlothTips;
     public bool hasSeenLieTips;
 
+    // Phase 9.2C: Trade item inventory counts.
+    public int chronosSpellCount;
+    public int bloodlustPotionCount;
+    public int ectoplasmPotionCount;
+    public int horsemenRingCount;
+
     public RoomStateSaveEntry[] rooms;
     public ChallengeEffectSaveEntry[] activeChallengeEffects;
 }

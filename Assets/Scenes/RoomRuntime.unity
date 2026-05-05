@@ -358,6 +358,7 @@ GameObject:
   - component: {fileID: 9033571}
   - component: {fileID: 9033570}
   - component: {fileID: 9033569}
+  - component: {fileID: 9033572}
   m_Layer: 5
   m_Name: HorsemenRingButton
   m_TagString: Untagged
@@ -427,7 +428,7 @@ MonoBehaviour:
     m_PressedTrigger: Pressed
     m_SelectedTrigger: Selected
     m_DisabledTrigger: Disabled
-  m_Interactable: 1
+  m_Interactable: 0
   m_TargetGraphic: {fileID: 9033570}
   m_OnClick:
     m_PersistentCalls:
@@ -470,6 +471,25 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 9033567}
   m_CullTransparentMesh: 1
+--- !u!114 &9033572
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9033567}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bb4e6355cc53ee344a33f4c7964e7197, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TradeShopItemButtonUI
+  itemType: 4
+  button: {fileID: 9033569}
+  nameText: {fileID: 870073216}
+  countText: {fileID: 1657279233}
+  descriptionText: {fileID: 975342580}
+  priceText: {fileID: 892081037}
+  logClicks: 0
 --- !u!1 &10363961
 GameObject:
   m_ObjectHideFlags: 0
@@ -1889,6 +1909,7 @@ GameObject:
   - component: {fileID: 187347951}
   - component: {fileID: 187347950}
   - component: {fileID: 187347949}
+  - component: {fileID: 187347952}
   m_Layer: 5
   m_Name: BloodlustPotionButton
   m_TagString: Untagged
@@ -1958,7 +1979,7 @@ MonoBehaviour:
     m_PressedTrigger: Pressed
     m_SelectedTrigger: Selected
     m_DisabledTrigger: Disabled
-  m_Interactable: 1
+  m_Interactable: 0
   m_TargetGraphic: {fileID: 187347950}
   m_OnClick:
     m_PersistentCalls:
@@ -2001,6 +2022,25 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 187347947}
   m_CullTransparentMesh: 1
+--- !u!114 &187347952
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 187347947}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bb4e6355cc53ee344a33f4c7964e7197, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TradeShopItemButtonUI
+  itemType: 2
+  button: {fileID: 187347949}
+  nameText: {fileID: 1401204846}
+  countText: {fileID: 140273718}
+  descriptionText: {fileID: 1823230391}
+  priceText: {fileID: 218804122}
+  logClicks: 0
 --- !u!1 &206729647
 GameObject:
   m_ObjectHideFlags: 0
@@ -3052,15 +3092,24 @@ MonoBehaviour:
   m_GameObject: {fileID: 256349246}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 250c5287ca5f5c04ba35b7b66448b80b, type: 3}
+  m_Script: {fileID: 11500000, guid: 46fcce3cdaeea194b94bb9ea1513e432, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TradeShopUI
   rootPanel: {fileID: 1438689380}
   closeButton: {fileID: 0}
   titleText: {fileID: 88453852}
-  bodyText: {fileID: 0}
+  soulsText: {fileID: 590445504}
+  messageText: {fileID: 0}
+  itemCards:
+  - {fileID: 187347952}
+  - {fileID: 933523210}
+  - {fileID: 1357412882}
+  - {fileID: 9033572}
+  currency: {fileID: 2073994561}
+  inventory: {fileID: 1855649221}
   closeKey: 101
   pauseGameWhileOpen: 1
+  messageVisibleSeconds: 1.6
   log: 1
 --- !u!1 &271336542
 GameObject:
@@ -9337,6 +9386,7 @@ GameObject:
   - component: {fileID: 933523209}
   - component: {fileID: 933523208}
   - component: {fileID: 933523207}
+  - component: {fileID: 933523210}
   m_Layer: 5
   m_Name: ChronosSpellButton
   m_TagString: Untagged
@@ -9406,7 +9456,7 @@ MonoBehaviour:
     m_PressedTrigger: Pressed
     m_SelectedTrigger: Selected
     m_DisabledTrigger: Disabled
-  m_Interactable: 1
+  m_Interactable: 0
   m_TargetGraphic: {fileID: 933523208}
   m_OnClick:
     m_PersistentCalls:
@@ -9449,6 +9499,25 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 933523205}
   m_CullTransparentMesh: 1
+--- !u!114 &933523210
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 933523205}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bb4e6355cc53ee344a33f4c7964e7197, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TradeShopItemButtonUI
+  itemType: 1
+  button: {fileID: 933523207}
+  nameText: {fileID: 1684665421}
+  countText: {fileID: 1659168480}
+  descriptionText: {fileID: 843123389}
+  priceText: {fileID: 1364220364}
+  logClicks: 0
 --- !u!1 &940310238
 GameObject:
   m_ObjectHideFlags: 0
@@ -9827,11 +9896,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Prevents one Death
+  m_text: 'Prevents one death
 
-    Restores HP
-
-'
+    Restores full HP'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -13139,6 +13206,7 @@ GameObject:
   - component: {fileID: 1357412881}
   - component: {fileID: 1357412880}
   - component: {fileID: 1357412879}
+  - component: {fileID: 1357412882}
   m_Layer: 5
   m_Name: EctoplasmPotionButton
   m_TagString: Untagged
@@ -13208,7 +13276,7 @@ MonoBehaviour:
     m_PressedTrigger: Pressed
     m_SelectedTrigger: Selected
     m_DisabledTrigger: Disabled
-  m_Interactable: 1
+  m_Interactable: 0
   m_TargetGraphic: {fileID: 1357412880}
   m_OnClick:
     m_PersistentCalls:
@@ -13251,6 +13319,25 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1357412877}
   m_CullTransparentMesh: 1
+--- !u!114 &1357412882
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1357412877}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bb4e6355cc53ee344a33f4c7964e7197, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TradeShopItemButtonUI
+  itemType: 3
+  button: {fileID: 1357412879}
+  nameText: {fileID: 1691624007}
+  countText: {fileID: 1939669102}
+  descriptionText: {fileID: 2067742924}
+  priceText: {fileID: 1433152656}
+  logClicks: 0
 --- !u!1 &1364220362
 GameObject:
   m_ObjectHideFlags: 0
@@ -14082,6 +14169,7 @@ Transform:
   - {fileID: 397211897}
   - {fileID: 1335165859}
   - {fileID: 1498585893}
+  - {fileID: 1855649220}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1433152654
@@ -17612,6 +17700,7 @@ MonoBehaviour:
   roomManager: {fileID: 1254287709}
   challengeEffectManager: {fileID: 1498585894}
   tipsSeenTracker: {fileID: 0}
+  tradeItemInventory: {fileID: 1855649221}
   autoLoadOnStart: 1
   autoSaveOnChanges: 1
 --- !u!4 &1737582522
@@ -18920,6 +19009,55 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1838015530}
   m_CullTransparentMesh: 1
+--- !u!1 &1855649219
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1855649220}
+  - component: {fileID: 1855649221}
+  m_Layer: 0
+  m_Name: TradeInventorySystem
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1855649220
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1855649219}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1420016970}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1855649221
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1855649219}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b4955b8434a815c4894c985fe073a391, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TradeItemInventory
+  chronosSpellCount: 0
+  bloodlustPotionCount: 0
+  ectoplasmPotionCount: 0
+  horsemenRingCount: 0
+  logChanges: 1
 --- !u!1 &1858666887
 GameObject:
   m_ObjectHideFlags: 0
