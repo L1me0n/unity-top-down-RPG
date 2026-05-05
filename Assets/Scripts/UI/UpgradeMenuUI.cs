@@ -25,7 +25,8 @@ public class UpgradeMenuUI : MonoBehaviour
     [SerializeField] private TMP_Text hellhoundText;
     [SerializeField] private Button hellhoundButton;
 
-    private KeyCode toggleKey = KeyCode.E;
+    [Header("Input")]
+    [SerializeField] private KeyCode toggleKey = KeyCode.E;
 
     private void Awake()
     {
@@ -35,7 +36,6 @@ public class UpgradeMenuUI : MonoBehaviour
         if (rootPanel != null)
             rootPanel.SetActive(false);
 
-        // Button hooks
         if (demonButton != null) demonButton.onClick.AddListener(() => Spend(BranchType.Demon));
         if (monsterButton != null) monsterButton.onClick.AddListener(() => Spend(BranchType.Monster));
         if (fallenGodButton != null) fallenGodButton.onClick.AddListener(() => Spend(BranchType.FallenGod));
@@ -72,12 +72,25 @@ public class UpgradeMenuUI : MonoBehaviour
             progression.OnBranchChanged -= HandleBranchChanged;
             progression.OnSpendFailed -= HandleSpendFailed;
         }
+
+        // Safety: if this UI object is disabled while its panel is open,
+        // make sure gameplay does not stay permanently blocked.
+        if (rootPanel != null && rootPanel.activeSelf)
+        {
+            UIInputBlocker.BlockGameplayInput = false;
+            Time.timeScale = 1f;
+        }
     }
 
     private void Update()
     {
-        if (Input.GetKeyDown(toggleKey))
-            Toggle();
+        if (!Input.GetKeyDown(toggleKey))
+            return;
+
+        if (UIInputBlocker.BlockUpgradeMenuToggle)
+            return;
+
+        Toggle();
     }
 
     private void Toggle()
@@ -87,10 +100,7 @@ public class UpgradeMenuUI : MonoBehaviour
         bool newState = !rootPanel.activeSelf;
         rootPanel.SetActive(newState);
 
-        // Block gameplay input while menu open
         UIInputBlocker.BlockGameplayInput = newState;
-
-        // Pause while upgrading (feels nicer)
         Time.timeScale = newState ? 0f : 1f;
 
         RefreshAll();
@@ -99,12 +109,11 @@ public class UpgradeMenuUI : MonoBehaviour
     private void Spend(BranchType branch)
     {
         if (progression == null) return;
-        bool ok = progression.TrySpendPoint(branch);
 
+        progression.TrySpendPoint(branch);
         RefreshAll();
     }
 
-    // Event handlers
     private void HandleUnspentChanged(int _)
     {
         RefreshAll();
@@ -122,11 +131,9 @@ public class UpgradeMenuUI : MonoBehaviour
 
     private void HandleSpendFailed(string reason)
     {
-        // Keep it simple for now
         Debug.Log($"[UpgradeMenuUI] Spend failed: {reason}");
     }
 
-    // UI Refresh
     private void RefreshAll()
     {
         if (levelSystem == null || progression == null) return;
@@ -149,6 +156,7 @@ public class UpgradeMenuUI : MonoBehaviour
             text.text = $"{branch}: {pts}/{cap}";
 
         bool canSpend = levelSystem.UnspentPoints > 0 && pts < cap;
+
         if (button != null)
             button.interactable = canSpend;
     }

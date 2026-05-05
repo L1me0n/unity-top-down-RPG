@@ -11,6 +11,7 @@ public class RoomManager : MonoBehaviour
     [SerializeField] private GameObject gluttonyRoomPrefab;
     [SerializeField] private GameObject slothRoomPrefab;
     [SerializeField] private GameObject lieRoomPrefab;
+    [SerializeField] private GameObject tradeRoomPrefab;
 
     [Header("References")]
     [SerializeField] private Transform player;
@@ -212,6 +213,13 @@ public class RoomManager : MonoBehaviour
                         return null;
                 }
 
+            case RoomType.Trade:
+                if (tradeRoomPrefab != null)
+                    return tradeRoomPrefab;
+
+                Debug.LogWarning("[RoomManager] Trade room prefab is missing. Falling back to combat room prefab.");
+                return combatRoomPrefab;
+
             default:
                 Debug.LogError($"[RoomManager] Unsupported roomType={state.roomType}");
                 return null;
@@ -410,23 +418,32 @@ public class RoomManager : MonoBehaviour
 
         int ring = WorldDifficultyService.GetRing(coord);
 
-        //Campfire rooms
+        // Keep the inner area simple and combat-focused.
         if (ring < 2)
             return RoomType.Combat;
 
         int campfireHash = Mathf.Abs((coord.x * 73856093) ^ (coord.y * 19349663));
 
+        // Campfires come first because they are checkpoint anchors.
         if (campfireHash % 8 == 0)
             return RoomType.Campfire;
 
-        // Challenge rooms        
+        // Challenge rooms should not appear too close to the center.
         if (ring < 3)
             return RoomType.Combat;
         
         int challengeHash = Mathf.Abs((coord.x * 83492791) ^ (coord.y * 297121507));
 
+        // Challenges come before Trade so the shop does not steal authored challenge rooms.
         if (challengeHash % 4 == 0)
             return RoomType.Challenge;
+
+        int tradeHash = Mathf.Abs((coord.x * 19349663) ^ (coord.y * 73856093) ^ 297121507);
+
+        // Trade rooms are safe merchant stops.
+        // First tuning: about 1 in 11 eligible leftover rooms.
+        if (tradeHash % 11 == 0)
+            return RoomType.Trade;
 
         return RoomType.Combat;
     }
@@ -1173,9 +1190,9 @@ public class RoomManager : MonoBehaviour
 
         int roll = hash % 10;
 
-        //if (roll <= 3) return ChallengeType.Betting;   // 0,1,2,3 = 40%
-        //if (roll <= 6) return ChallengeType.Gluttony;  // 4,5,6 = 30%
-        //if (roll <= 8) return ChallengeType.Sloth;     // 7,8 = 20%
+        if (roll <= 3) return ChallengeType.Betting;   // 0,1,2,3 = 40%
+        if (roll <= 6) return ChallengeType.Gluttony;  // 4,5,6 = 30%
+        if (roll <= 8) return ChallengeType.Sloth;     // 7,8 = 20%
         return ChallengeType.Lie;                      // 9 = 10%
     }
 
