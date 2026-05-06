@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class HellpuppyChase : EnemyBrainBase
 {
-     [Header("Move Tuning")]
+    [Header("Move Tuning")]
     [SerializeField] private float moveSpeed = 3.5f;
     [SerializeField] private float acceleration = 40f;
     [SerializeField] private float stopDistance = 0.2f;
@@ -15,9 +15,13 @@ public class HellpuppyChase : EnemyBrainBase
 
     private void FixedUpdate()
     {
+        if (StopIfChronosFrozen())
+            return;
+
         if (!HasTarget())
         {
             TryFindPlayerTarget();
+            StopMovement(0.35f);
             return;
         }
 

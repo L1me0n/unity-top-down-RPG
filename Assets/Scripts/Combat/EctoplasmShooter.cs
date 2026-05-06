@@ -12,6 +12,9 @@ public class EctoplasmShooter : MonoBehaviour
     [SerializeField] private float fireCooldown = 0.5f;
     [SerializeField] private float muzzleOffset = 0.7f;
 
+    [Header("Debug")]
+    [SerializeField] private bool logBloodlustShots = false;
+
     private PlayerStats stats;
     private PlayerCombatController combat;
 
@@ -23,46 +26,79 @@ public class EctoplasmShooter : MonoBehaviour
         combat = GetComponent<PlayerCombatController>();
 
         if (aimPivot == null)
-            Debug.LogError("[EctoplasmShooter] AimPivot not assigned.");
+            Debug.LogError("[EctoplasmShooter] AimPivot not assigned.", this);
 
         if (projectilePrefab == null)
-            Debug.LogError("[EctoplasmShooter] Projectile prefab not assigned.");
+            Debug.LogError("[EctoplasmShooter] Projectile prefab not assigned.", this);
 
         if (aimProvider == null)
-            Debug.LogError("[EctoplasmShooter] Aim Provider not assigned.");
+            Debug.LogError("[EctoplasmShooter] Aim Provider not assigned.", this);
+
+        if (stats == null)
+            Debug.LogError("[EctoplasmShooter] PlayerStats missing on player.", this);
+
+        if (combat == null)
+            Debug.LogError("[EctoplasmShooter] PlayerCombatController missing on player.", this);
     }
 
     private void Update()
     {
         if (UIInputBlocker.BlockGameplayInput)
             return;
-        if (combat.Mode != CombatMode.Attack) return;
-        if (!combat.WantsFire) return;
 
-        if (Time.time < nextFireTime) return;
-        if (!stats.TrySpendAP(apCostPerShot)) return;
+        if (combat == null || stats == null)
+            return;
+
+        if (combat.Mode != CombatMode.Attack)
+            return;
+
+        if (!combat.WantsFire)
+            return;
+
+        if (Time.time < nextFireTime)
+            return;
 
         Vector2 aimDir = GetAimDirectionSafe();
-        if (aimDir.sqrMagnitude < 0.0001f) return;
+        if (aimDir.sqrMagnitude < 0.0001f)
+            return;
+
+        bool bloodlustActive = IsBloodlustActive();
+
+        if (!bloodlustActive)
+        {
+            if (!stats.TrySpendAP(apCostPerShot))
+                return;
+        }
+        else if (logBloodlustShots)
+        {
+            Debug.Log("[EctoplasmShooter] Bloodlust active. Shot fired with no AP cost.", this);
+        }
 
         Fire(aimDir);
         nextFireTime = Time.time + fireCooldown;
+    }
+
+    private bool IsBloodlustActive()
+    {
+        return TradeItemEffectManager.Instance != null &&
+               TradeItemEffectManager.Instance.IsBloodlustActive;
     }
 
     private void Fire(Vector2 aimDir)
     {
         Vector3 spawnPos = aimPivot.position + (Vector3)(aimDir.normalized * muzzleOffset);
 
-        var proj = Instantiate(projectilePrefab, spawnPos, Quaternion.identity);
+        EctoplasmProjectile proj = Instantiate(projectilePrefab, spawnPos, Quaternion.identity);
         proj.Init(aimDir, stats.DP);
     }
 
     private Vector2 GetAimDirectionSafe()
     {
-        var asInterface = aimProvider as IAimProvider;
-        if (asInterface != null) return asInterface.AimDirection;
+        IAimProvider asInterface = aimProvider as IAimProvider;
+        if (asInterface != null)
+            return asInterface.AimDirection;
 
-        Debug.LogError("[EctoplasmShooter] AimProvider does not implement IAimProvider. Add IAimProvider to your aim script.");
+        Debug.LogError("[EctoplasmShooter] AimProvider does not implement IAimProvider. Add IAimProvider to your aim script.", this);
         return Vector2.zero;
     }
 }

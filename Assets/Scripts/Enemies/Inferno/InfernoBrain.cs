@@ -13,6 +13,9 @@ public class InfernoBrain : EnemyBrainBase
 
     private void FixedUpdate()
     {
+        if (StopIfChronosFrozen())
+            return;
+
         if (!HasTarget())
         {
             if (!TryFindPlayerTarget())

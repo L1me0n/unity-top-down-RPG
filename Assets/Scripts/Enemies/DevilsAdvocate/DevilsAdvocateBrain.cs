@@ -81,6 +81,9 @@ public class DevilsAdvocateBrain : EnemyBrainBase
 
     private void Update()
     {
+        if (IsChronosFrozen())
+            return;
+
         if (!HasTarget())
             TryFindPlayerTarget();
 
@@ -93,6 +96,9 @@ public class DevilsAdvocateBrain : EnemyBrainBase
 
     private void FixedUpdate()
     {
+        if (StopIfChronosFrozen())
+            return;
+
         if (!HasTarget())
         {
             StopMovement(0.3f);

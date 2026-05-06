@@ -10,7 +10,7 @@ public class PlayerLevelUpFlash : MonoBehaviour
     [SerializeField] private SpriteRenderer[] renderers;
 
     [Header("Flash Tuning")]
-    [SerializeField] private Color flashColor = new Color(1f, 0.2f, 0.2f, 1f); // red tint
+    [SerializeField] private Color flashColor = new Color(1f, 0.2f, 0.2f, 1f);
     [SerializeField] private float flashInSeconds = 0.06f;
     [SerializeField] private float flashOutSeconds = 0.16f;
 
@@ -19,19 +19,13 @@ public class PlayerLevelUpFlash : MonoBehaviour
 
     private void Awake()
     {
-        if (levelSystem == null) levelSystem = FindFirstObjectByType<LevelSystem>();
+        if (levelSystem == null)
+            levelSystem = FindFirstObjectByType<LevelSystem>();
 
         if (renderers == null || renderers.Length == 0)
-        {
-            // try to grab sprite renderers on this object + children
             renderers = GetComponentsInChildren<SpriteRenderer>(true);
-        }
 
-        originalColors = new Color[renderers.Length];
-        for (int i = 0; i < renderers.Length; i++)
-        {
-            originalColors[i] = renderers[i] != null ? renderers[i].color : Color.white;
-        }
+        CacheOriginalColors();
     }
 
     private void OnEnable()
@@ -48,26 +42,52 @@ public class PlayerLevelUpFlash : MonoBehaviour
 
     private void HandleLevelChanged(int _)
     {
-        if (routine != null) StopCoroutine(routine);
-        routine = StartCoroutine(FlashRoutine());
+        PlayFlash();
     }
 
-    private IEnumerator FlashRoutine()
+    public void PlayFlash()
     {
-        // In case disappear changes colors dynamically, refresh original colors at flash time
-        for (int i = 0; i < renderers.Length; i++)
-        {
-            if (renderers[i] != null)
-                originalColors[i] = renderers[i].color;
-        }
+        PlayFlashWithColor(flashColor);
+    }
 
-        // Flash in (lerp to red)
-        yield return LerpColors(originalColors, flashColor, flashInSeconds);
+    public void PlayFlashWithColor(Color color)
+    {
+        if (renderers == null || renderers.Length == 0)
+            return;
 
-        // Flash out (lerp back to original per-renderer)
+        if (routine != null)
+            StopCoroutine(routine);
+
+        routine = StartCoroutine(FlashRoutine(color));
+    }
+
+    private IEnumerator FlashRoutine(Color color)
+    {
+        // In case Disappear or other systems changed colors dynamically,
+        // refresh original colors at flash time.
+        CacheOriginalColors();
+
+        yield return LerpColors(originalColors, color, flashInSeconds);
         yield return LerpBack(originalColors, flashOutSeconds);
 
         routine = null;
+    }
+
+    private void CacheOriginalColors()
+    {
+        if (renderers == null)
+        {
+            originalColors = new Color[0];
+            return;
+        }
+
+        if (originalColors == null || originalColors.Length != renderers.Length)
+            originalColors = new Color[renderers.Length];
+
+        for (int i = 0; i < renderers.Length; i++)
+        {
+            originalColors[i] = renderers[i] != null ? renderers[i].color : Color.white;
+        }
     }
 
     private IEnumerator LerpColors(Color[] fromColors, Color toColor, float seconds)
@@ -79,6 +99,7 @@ public class PlayerLevelUpFlash : MonoBehaviour
         }
 
         float t = 0f;
+
         while (t < seconds)
         {
             t += Time.unscaledDeltaTime;
@@ -86,8 +107,9 @@ public class PlayerLevelUpFlash : MonoBehaviour
 
             for (int i = 0; i < renderers.Length; i++)
             {
-                if (renderers[i] == null) continue;
-                // preserve alpha of each renderer
+                if (renderers[i] == null)
+                    continue;
+
                 Color from = fromColors[i];
                 Color target = toColor;
                 target.a = from.a;
@@ -104,16 +126,21 @@ public class PlayerLevelUpFlash : MonoBehaviour
         if (seconds <= 0f)
         {
             for (int i = 0; i < renderers.Length; i++)
-                if (renderers[i] != null) renderers[i].color = toColors[i];
+            {
+                if (renderers[i] != null)
+                    renderers[i].color = toColors[i];
+            }
+
             yield break;
         }
 
-        // capture current
         Color[] from = new Color[renderers.Length];
+
         for (int i = 0; i < renderers.Length; i++)
             from[i] = renderers[i] != null ? renderers[i].color : Color.white;
 
         float t = 0f;
+
         while (t < seconds)
         {
             t += Time.unscaledDeltaTime;
@@ -121,7 +148,9 @@ public class PlayerLevelUpFlash : MonoBehaviour
 
             for (int i = 0; i < renderers.Length; i++)
             {
-                if (renderers[i] == null) continue;
+                if (renderers[i] == null)
+                    continue;
+
                 renderers[i].color = Color.Lerp(from[i], toColors[i], k);
             }
 
@@ -129,12 +158,18 @@ public class PlayerLevelUpFlash : MonoBehaviour
         }
 
         for (int i = 0; i < renderers.Length; i++)
-            if (renderers[i] != null) renderers[i].color = toColors[i];
+        {
+            if (renderers[i] != null)
+                renderers[i].color = toColors[i];
+        }
     }
 
     private void SetAll(Color c)
     {
         for (int i = 0; i < renderers.Length; i++)
-            if (renderers[i] != null) renderers[i].color = c;
+        {
+            if (renderers[i] != null)
+                renderers[i].color = c;
+        }
     }
 }

@@ -84,6 +84,29 @@ public abstract class EnemyBrainBase : MonoBehaviour
         rb.linearVelocity = Vector2.Lerp(rb.linearVelocity, Vector2.zero, lerpFactor);
     }
 
+    protected void HardStopMovement()
+    {
+        if (rb == null)
+            return;
+
+        rb.linearVelocity = Vector2.zero;
+    }
+
+    protected bool IsChronosFrozen()
+    {
+        return TradeItemEffectManager.Instance != null &&
+               TradeItemEffectManager.Instance.IsChronosActive;
+    }
+
+    protected bool StopIfChronosFrozen()
+    {
+        if (!IsChronosFrozen())
+            return false;
+
+        HardStopMovement();
+        return true;
+    }
+
     protected void MoveTowardsTarget(float moveSpeed, float acceleration)
     {
         if (rb == null || target == null)

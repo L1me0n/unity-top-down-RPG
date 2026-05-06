@@ -5,7 +5,7 @@ public abstract class EnemyCombatBase : MonoBehaviour
     [Header("Shared Combat")]
     [SerializeField] protected float attackCooldown = 1f;
     [SerializeField] protected float attackRange = 5f;
-    [SerializeField] protected Transform firePoint=null;
+    [SerializeField] protected Transform firePoint = null;
 
     protected EnemyBrainBase brain;
     protected Health health;
@@ -19,6 +19,12 @@ public abstract class EnemyCombatBase : MonoBehaviour
 
         if (firePoint == null)
             firePoint = transform;
+    }
+
+    protected bool IsChronosFrozen()
+    {
+        return TradeItemEffectManager.Instance != null &&
+               TradeItemEffectManager.Instance.IsChronosActive;
     }
 
     protected bool HasTarget()
@@ -68,6 +74,9 @@ public abstract class EnemyCombatBase : MonoBehaviour
 
     protected bool CanAttack()
     {
+        if (IsChronosFrozen())
+            return false;
+
         if (health == null)
             return false;
 

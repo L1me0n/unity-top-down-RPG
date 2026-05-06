@@ -43,6 +43,9 @@ public class WardenBrain : EnemyBrainBase
 
     private void Update()
     {
+        if (IsChronosFrozen())
+            return;
+
         if (!HasTarget())
             TryFindPlayerTarget();
 
@@ -58,6 +61,9 @@ public class WardenBrain : EnemyBrainBase
 
     private void FixedUpdate()
     {
+        if (StopIfChronosFrozen())
+            return;
+
         if (!HasTarget())
         {
             StopMovement(0.2f);
@@ -113,7 +119,7 @@ public class WardenBrain : EnemyBrainBase
             modeTimer = Random.Range(attackModeDurationMin, attackModeDurationMax);
         else
             modeTimer = Random.Range(defenseModeDurationMin, defenseModeDurationMax);
-            
+
         if (defenseRingVisual != null)
             defenseRingVisual.SetActive(currentMode == WardenMode.Defense);
 

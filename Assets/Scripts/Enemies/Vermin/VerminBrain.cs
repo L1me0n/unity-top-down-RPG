@@ -13,6 +13,8 @@ public class VerminBrain : EnemyBrainBase
 
     private void FixedUpdate()
     {
+        if (StopIfChronosFrozen())
+            return;
 
         if (!HasTarget())
         {

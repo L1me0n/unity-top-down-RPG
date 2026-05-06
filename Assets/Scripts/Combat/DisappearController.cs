@@ -4,7 +4,7 @@ public class DisappearController : MonoBehaviour
 {
     [Header("Tuning")]
     [SerializeField] private int apCost = 2;
-    [SerializeField] private float rechargeDuration = 1.2f; 
+    [SerializeField] private float rechargeDuration = 1.2f;
 
     [Header("Layers")]
     [SerializeField] private string normalLayerName = "Player";
@@ -13,6 +13,9 @@ public class DisappearController : MonoBehaviour
     [Header("Visual Feedback")]
     [SerializeField] private SpriteRenderer[] renderers;
     [SerializeField, Range(0f, 1f)] private float ghostAlpha = 0.35f;
+
+    [Header("Debug")]
+    [SerializeField] private bool logEctoplasmBonus = false;
 
     public bool IsDisappeared => isDisappeared;
     public bool IsLieSneakOverrideActive => lieSneakOverrideActive;
@@ -30,6 +33,7 @@ public class DisappearController : MonoBehaviour
     }
 
     public float RechargeDuration => rechargeDuration;
+
     public float RechargeProgress01
     {
         get
@@ -41,6 +45,7 @@ public class DisappearController : MonoBehaviour
     }
 
     public bool IsReady => lieSneakOverrideActive || (!isDisappeared && RechargeProgress01 >= 1f);
+
     public bool CanTakeDamage() => !isDisappeared;
 
     private PlayerStats stats;
@@ -64,8 +69,17 @@ public class DisappearController : MonoBehaviour
         normalLayer = LayerMask.NameToLayer(normalLayerName);
         ghostLayer = LayerMask.NameToLayer(ghostLayerName);
 
-        if (normalLayer < 0) Debug.LogError($"[Disappear] Layer not found: {normalLayerName}");
-        if (ghostLayer < 0) Debug.LogError($"[Disappear] Layer not found: {ghostLayerName}");
+        if (normalLayer < 0)
+            Debug.LogError($"[Disappear] Layer not found: {normalLayerName}", this);
+
+        if (ghostLayer < 0)
+            Debug.LogError($"[Disappear] Layer not found: {ghostLayerName}", this);
+
+        if (stats == null)
+            Debug.LogError("[Disappear] PlayerStats missing on player.", this);
+
+        if (combat == null)
+            Debug.LogError("[Disappear] PlayerCombatController missing on player.", this);
 
         if (renderers == null || renderers.Length == 0)
             renderers = GetComponentsInChildren<SpriteRenderer>(true);
@@ -79,14 +93,22 @@ public class DisappearController : MonoBehaviour
         if (isDisappeared && Time.time >= endTime)
             EndDisappear();
 
-        if (combat.Mode != CombatMode.Defense) return;
-        if (!combat.WantsDisappear) return;
-        if (!IsReady) return;
+        if (UIInputBlocker.BlockGameplayInput)
+            return;
+
+        if (combat == null || stats == null)
+            return;
+
+        if (combat.Mode != CombatMode.Defense)
+            return;
+
+        if (!combat.WantsDisappear)
+            return;
+
+        if (!IsReady)
+            return;
 
         if (!stats.TrySpendAP(apCost))
-            return;
-        
-        if (UIInputBlocker.BlockGameplayInput)
             return;
 
         StartDisappear();
@@ -150,16 +172,39 @@ public class DisappearController : MonoBehaviour
 
     private float GetDisappearDuration()
     {
-        return Mathf.Max(0.1f, stats.DisappearDuration);
+        float baseDuration = stats != null ? stats.DisappearDuration : 0.1f;
+        float bonusDuration = 0f;
+
+        if (TradeItemEffectManager.Instance != null &&
+            TradeItemEffectManager.Instance.IsEctoplasmActive)
+        {
+            bonusDuration = TradeItemEffectManager.Instance.EctoplasmDisappearBonusSeconds;
+        }
+
+        float finalDuration = Mathf.Max(0.1f, baseDuration + bonusDuration);
+
+        if (logEctoplasmBonus && bonusDuration > 0f)
+        {
+            Debug.Log(
+                $"[Disappear] Ectoplasm Potion bonus applied. " +
+                $"Base={baseDuration:0.00}s Bonus={bonusDuration:0.00}s Final={finalDuration:0.00}s",
+                this
+            );
+        }
+
+        return finalDuration;
     }
 
     private void SetAlpha(float a)
     {
-        if (renderers == null) return;
+        if (renderers == null)
+            return;
 
         for (int i = 0; i < renderers.Length; i++)
         {
-            if (renderers[i] == null) continue;
+            if (renderers[i] == null)
+                continue;
+
             Color c = renderers[i].color;
             c.a = a;
             renderers[i].color = c;

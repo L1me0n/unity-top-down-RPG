@@ -20,19 +20,23 @@ public class HellpuppyBiteDamage : MonoBehaviour
 
     private void TryBite(Collider2D other)
     {
-        if (Time.time < nextBiteTime) return;
-
-        // only bite the player
-        if (!other.CompareTag("Player")) return;
-
-        var receiver = other.GetComponent<PlayerDamageReceiver>();
-        if (receiver != null)
+        if (TradeItemEffectManager.Instance != null &&
+            TradeItemEffectManager.Instance.IsChronosActive)
         {
-            receiver.ApplyDamage(damage);
-
-            nextBiteTime = Time.time + biteCooldown;
             return;
         }
 
+        if (Time.time < nextBiteTime)
+            return;
+
+        if (!other.CompareTag("Player"))
+            return;
+
+        PlayerDamageReceiver receiver = other.GetComponent<PlayerDamageReceiver>();
+        if (receiver != null)
+        {
+            receiver.ApplyDamage(damage);
+            nextBiteTime = Time.time + biteCooldown;
+        }
     }
 }
