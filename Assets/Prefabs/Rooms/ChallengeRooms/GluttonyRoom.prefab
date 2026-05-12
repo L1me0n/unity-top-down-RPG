@@ -1610,6 +1610,7 @@ GameObject:
   - component: {fileID: 8565852264521940851}
   - component: {fileID: -6917670511581003751}
   - component: {fileID: 3597775143870823134}
+  - component: {fileID: 7082684584250531766}
   m_Layer: 0
   m_Name: GluttonyRoom
   m_TagString: Untagged
@@ -1833,6 +1834,22 @@ MonoBehaviour:
   explodeDuration: 0.22
   explodeScaleMultiplier: 1.45
   log: 0
+--- !u!114 &7082684584250531766
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4052264067139323334}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 081760e68dfc8b84eaddb4a838a08daa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GluttonyBossClueAwarder
+  challengeRoomController: {fileID: 8250909053641579330}
+  bossProgressionManager: {fileID: 0}
+  requireSuccessfulOutcome: 1
+  debugLogs: 1
 --- !u!1 &4197071344696378217
 GameObject:
   m_ObjectHideFlags: 0

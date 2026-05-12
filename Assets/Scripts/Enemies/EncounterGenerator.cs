@@ -51,25 +51,33 @@ public static class EncounterGenerator
             case 1:
                 return new EncounterTemplate[]
                 {
-                    new EncounterTemplate("L1_A", new EnemyType[]
-                    {
-                        EnemyType.Hellpuppy,
-                        EnemyType.Hellpuppy
-                    }),
-                    new EncounterTemplate("L1_B", new EnemyType[]
+                    // Level 1: Hellpuppy-only rooms.
+                    // Range: 3-6.
+                    new EncounterTemplate("L1_Hellpuppies_3", new EnemyType[]
                     {
                         EnemyType.Hellpuppy,
                         EnemyType.Hellpuppy,
                         EnemyType.Hellpuppy
                     }),
-                    new EncounterTemplate("L1_C", new EnemyType[]
+                    new EncounterTemplate("L1_Hellpuppies_4", new EnemyType[]
                     {
+                        EnemyType.Hellpuppy,
                         EnemyType.Hellpuppy,
                         EnemyType.Hellpuppy,
                         EnemyType.Hellpuppy
                     }),
-                    new EncounterTemplate("L1_D", new EnemyType[]
+                    new EncounterTemplate("L1_Hellpuppies_5", new EnemyType[]
                     {
+                        EnemyType.Hellpuppy,
+                        EnemyType.Hellpuppy,
+                        EnemyType.Hellpuppy,
+                        EnemyType.Hellpuppy,
+                        EnemyType.Hellpuppy
+                    }),
+                    new EncounterTemplate("L1_Hellpuppies_6", new EnemyType[]
+                    {
+                        EnemyType.Hellpuppy,
+                        EnemyType.Hellpuppy,
                         EnemyType.Hellpuppy,
                         EnemyType.Hellpuppy,
                         EnemyType.Hellpuppy,
@@ -80,143 +88,578 @@ public static class EncounterGenerator
             case 2:
                 return new EncounterTemplate[]
                 {
-                    new EncounterTemplate("L2_A", new EnemyType[]
+                    // Level 2: Vermin is introduced.
+                    // Vermin-only range: 2-5.
+                    // No Hellpuppy-only rooms.
+                    new EncounterTemplate("L2_Vermin_2", new EnemyType[]
                     {
-                        EnemyType.Hellpuppy,
-                        EnemyType.Hellpuppy,
-                        EnemyType.Vermin
-                    }),
-                    new EncounterTemplate("L2_B", new EnemyType[]
-                    {
-                        EnemyType.Hellpuppy,
-                        EnemyType.Hellpuppy,
-                        EnemyType.Vermin
-                    }),
-                    new EncounterTemplate("L2_C", new EnemyType[]
-                    {
-                        EnemyType.Hellpuppy,
                         EnemyType.Vermin,
                         EnemyType.Vermin
                     }),
-                    new EncounterTemplate("L2_D", new EnemyType[]
+                    new EncounterTemplate("L2_Vermin_3", new EnemyType[]
                     {
-                        EnemyType.Hellpuppy,
-                        EnemyType.Hellpuppy,
-                        EnemyType.Hellpuppy,
-                        EnemyType.Vermin
-                    }),
-                    new EncounterTemplate("L2_E", new EnemyType[]
-                    {
-                        EnemyType.Hellpuppy,
-                        EnemyType.Hellpuppy,
+                        EnemyType.Vermin,
                         EnemyType.Vermin,
                         EnemyType.Vermin
+                    }),
+                    new EncounterTemplate("L2_Vermin_4", new EnemyType[]
+                    {
+                        EnemyType.Vermin,
+                        EnemyType.Vermin,
+                        EnemyType.Vermin,
+                        EnemyType.Vermin
+                    }),
+                    new EncounterTemplate("L2_Vermin_5", new EnemyType[]
+                    {
+                        EnemyType.Vermin,
+                        EnemyType.Vermin,
+                        EnemyType.Vermin,
+                        EnemyType.Vermin,
+                        EnemyType.Vermin
+                    }),
+                    new EncounterTemplate("L2_Vermin_Hellpuppy_A", new EnemyType[]
+                    {
+                        EnemyType.Vermin,
+                        EnemyType.Vermin,
+                        EnemyType.Hellpuppy
+                    }),
+                    new EncounterTemplate("L2_Vermin_Hellpuppy_B", new EnemyType[]
+                    {
+                        EnemyType.Vermin,
+                        EnemyType.Vermin,
+                        EnemyType.Hellpuppy,
+                        EnemyType.Hellpuppy
+                    }),
+                    new EncounterTemplate("L2_Vermin_Hellpuppy_C", new EnemyType[]
+                    {
+                        EnemyType.Vermin,
+                        EnemyType.Vermin,
+                        EnemyType.Vermin,
+                        EnemyType.Hellpuppy
+                    }),
+                    new EncounterTemplate("L2_Vermin_Hellpuppy_D", new EnemyType[]
+                    {
+                        EnemyType.Vermin,
+                        EnemyType.Vermin,
+                        EnemyType.Vermin,
+                        EnemyType.Hellpuppy,
+                        EnemyType.Hellpuppy
                     })
                 };
 
             case 3:
                 return new EncounterTemplate[]
                 {
-                    new EncounterTemplate("L3_A", new EnemyType[]
+                    // Level 3: Inferno is introduced.
+                    // Can be Inferno-only, Inferno + Vermin, Inferno + Hellpuppy,
+                    // or Inferno + Vermin + Hellpuppy.
+                    new EncounterTemplate("L3_Inferno_2", new EnemyType[]
                     {
-                        EnemyType.Hellpuppy,
-                        EnemyType.Hellpuppy,
+                        EnemyType.Inferno,
                         EnemyType.Inferno
                     }),
-                    new EncounterTemplate("L3_B", new EnemyType[]
+                    new EncounterTemplate("L3_Inferno_3", new EnemyType[]
                     {
-                        EnemyType.Hellpuppy,
+                        EnemyType.Inferno,
+                        EnemyType.Inferno,
+                        EnemyType.Inferno
+                    }),
+                    new EncounterTemplate("L3_Inferno_4", new EnemyType[]
+                    {
+                        EnemyType.Inferno,
+                        EnemyType.Inferno,
+                        EnemyType.Inferno,
+                        EnemyType.Inferno
+                    }),
+                    new EncounterTemplate("L3_Inferno_5", new EnemyType[]
+                    {
+                        EnemyType.Inferno,
+                        EnemyType.Inferno,
+                        EnemyType.Inferno,
+                        EnemyType.Inferno,
+                        EnemyType.Inferno
+                    }),
+                    new EncounterTemplate("L3_Inferno_Vermin_A", new EnemyType[]
+                    {
+                        EnemyType.Inferno,
                         EnemyType.Vermin,
-                        EnemyType.Inferno
-                    }),
-                    new EncounterTemplate("L3_C", new EnemyType[]
-                    {
-                        EnemyType.Vermin,
-                        EnemyType.Vermin,
-                        EnemyType.Inferno
-                    }),
-                    new EncounterTemplate("L3_D", new EnemyType[]
-                    {
-                        EnemyType.Hellpuppy,
-                        EnemyType.Hellpuppy,
-                        EnemyType.Vermin,
-                        EnemyType.Inferno
-                    }),
-                    new EncounterTemplate("L3_E", new EnemyType[]
-                    {
-                        EnemyType.Hellpuppy,
-                        EnemyType.Hellpuppy,
-                        EnemyType.Inferno
-                    }),
-                    new EncounterTemplate("L3_F", new EnemyType[]
-                    {
-                        EnemyType.Hellpuppy,
-                        EnemyType.Hellpuppy,
-                        EnemyType.Hellpuppy,
-                        EnemyType.Hellpuppy,
                         EnemyType.Vermin
+                    }),
+                    new EncounterTemplate("L3_Inferno_Vermin_B", new EnemyType[]
+                    {
+                        EnemyType.Inferno,
+                        EnemyType.Inferno,
+                        EnemyType.Vermin,
+                        EnemyType.Vermin
+                    }),
+                    new EncounterTemplate("L3_Inferno_Hellpuppy_A", new EnemyType[]
+                    {
+                        EnemyType.Inferno,
+                        EnemyType.Hellpuppy,
+                        EnemyType.Hellpuppy
+                    }),
+                    new EncounterTemplate("L3_Inferno_Hellpuppy_B", new EnemyType[]
+                    {
+                        EnemyType.Inferno,
+                        EnemyType.Inferno,
+                        EnemyType.Hellpuppy,
+                        EnemyType.Hellpuppy
+                    }),
+                    new EncounterTemplate("L3_Inferno_Mixed_A", new EnemyType[]
+                    {
+                        EnemyType.Inferno,
+                        EnemyType.Vermin,
+                        EnemyType.Hellpuppy,
+                        EnemyType.Hellpuppy
+                    }),
+                    new EncounterTemplate("L3_Inferno_Mixed_B", new EnemyType[]
+                    {
+                        EnemyType.Inferno,
+                        EnemyType.Inferno,
+                        EnemyType.Vermin,
+                        EnemyType.Hellpuppy
+                    }),
+                    new EncounterTemplate("L3_Inferno_Mixed_C", new EnemyType[]
+                    {
+                        EnemyType.Inferno,
+                        EnemyType.Vermin,
+                        EnemyType.Vermin,
+                        EnemyType.Hellpuppy
                     })
                 };
 
             case 4:
                 return new EncounterTemplate[]
                 {
-                    new EncounterTemplate("L4_A", new EnemyType[]
+                    // Level 4: Warden is introduced.
+                    // Wardens should make the player stop brainless shooting.
+                    new EncounterTemplate("L4_Warden_Intro_A", new EnemyType[]
                     {
                         EnemyType.Warden,
                         EnemyType.Hellpuppy,
-                        EnemyType.Hellpuppy,
                         EnemyType.Hellpuppy
                     }),
-                    new EncounterTemplate("L4_B", new EnemyType[]
+                    new EncounterTemplate("L4_Warden_Intro_B", new EnemyType[]
                     {
                         EnemyType.Warden,
-                        EnemyType.Hellpuppy,
-                        EnemyType.Hellpuppy,
-                        EnemyType.Hellpuppy,
+                        EnemyType.Vermin,
+                        EnemyType.Vermin
+                    }),
+                    new EncounterTemplate("L4_Warden_Inferno_A", new EnemyType[]
+                    {
+                        EnemyType.Warden,
+                        EnemyType.Inferno,
                         EnemyType.Hellpuppy
                     }),
-                    new EncounterTemplate("L4_C", new EnemyType[]
+                    new EncounterTemplate("L4_Warden_Inferno_B", new EnemyType[]
                     {
-                        EnemyType.Vermin,
-                        EnemyType.Vermin,
-                        EnemyType.Warden
+                        EnemyType.Warden,
+                        EnemyType.Inferno,
+                        EnemyType.Vermin
                     }),
-                    new EncounterTemplate("L4_D", new EnemyType[]
+                    new EncounterTemplate("L4_Warden_Mixed_A", new EnemyType[]
                     {
+                        EnemyType.Warden,
                         EnemyType.Inferno,
-                        EnemyType.Inferno,
+                        EnemyType.Vermin,
+                        EnemyType.Hellpuppy
+                    }),
+                    new EncounterTemplate("L4_Warden_Mixed_B", new EnemyType[]
+                    {
+                        EnemyType.Warden,
+                        EnemyType.Warden,
+                        EnemyType.Vermin,
+                        EnemyType.Hellpuppy
+                    }),
+                    new EncounterTemplate("L4_Warden_Mixed_C", new EnemyType[]
+                    {
+                        EnemyType.Warden,
+                        EnemyType.Warden,
                         EnemyType.Inferno
+                    }),
+                    new EncounterTemplate("L4_Warden_Mixed_D", new EnemyType[]
+                    {
+                        EnemyType.Warden,
+                        EnemyType.Inferno,
+                        EnemyType.Vermin,
+                        EnemyType.Vermin
                     })
-                };   
+                };
 
             case 5:
                 return new EncounterTemplate[]
                 {
-                    new EncounterTemplate("L5_A", new EnemyType[]
+                    // Level 5: Devil's Advocate is introduced.
+                    // No solo Devil's Advocate. Always protect him with pressure.
+                    new EncounterTemplate("L5_Advocate_Intro_A", new EnemyType[]
                     {
-                        EnemyType.Warden,
+                        EnemyType.DevilsAdvocate,
+                        EnemyType.Hellpuppy,
+                        EnemyType.Hellpuppy
+                    }),
+                    new EncounterTemplate("L5_Advocate_Intro_B", new EnemyType[]
+                    {
+                        EnemyType.DevilsAdvocate,
+                        EnemyType.Vermin,
+                        EnemyType.Vermin
+                    }),
+                    new EncounterTemplate("L5_Advocate_Inferno_A", new EnemyType[]
+                    {
+                        EnemyType.DevilsAdvocate,
+                        EnemyType.Inferno,
+                        EnemyType.Hellpuppy
+                    }),
+                    new EncounterTemplate("L5_Advocate_Inferno_B", new EnemyType[]
+                    {
+                        EnemyType.DevilsAdvocate,
+                        EnemyType.Inferno,
+                        EnemyType.Vermin
+                    }),
+                    new EncounterTemplate("L5_Advocate_Warden_A", new EnemyType[]
+                    {
+                        EnemyType.DevilsAdvocate,
                         EnemyType.Warden,
                         EnemyType.Hellpuppy
+                    }),
+                    new EncounterTemplate("L5_Advocate_Warden_B", new EnemyType[]
+                    {
+                        EnemyType.DevilsAdvocate,
+                        EnemyType.Warden,
+                        EnemyType.Vermin
+                    }),
+                    new EncounterTemplate("L5_Advocate_Mixed_A", new EnemyType[]
+                    {
+                        EnemyType.DevilsAdvocate,
+                        EnemyType.Warden,
+                        EnemyType.Inferno,
+                        EnemyType.Hellpuppy
+                    }),
+                    new EncounterTemplate("L5_Advocate_Mixed_B", new EnemyType[]
+                    {
+                        EnemyType.DevilsAdvocate,
+                        EnemyType.Inferno,
+                        EnemyType.Vermin,
+                        EnemyType.Vermin
                     })
                 };
 
-                case 6:
+            case 6:
                 return new EncounterTemplate[]
                 {
-                    new EncounterTemplate("L6_A", new EnemyType[]
+                    // Level 6: all types can appear.
+                    // Still some Hellpuppies, but no longer as the main meal.
+                    new EncounterTemplate("L6_Mixed_A", new EnemyType[]
                     {
-                        EnemyType.DevilsAdvocate
+                        EnemyType.DevilsAdvocate,
+                        EnemyType.Warden,
+                        EnemyType.Inferno,
+                        EnemyType.Vermin,
+                        EnemyType.Hellpuppy
+                    }),
+                    new EncounterTemplate("L6_Mixed_B", new EnemyType[]
+                    {
+                        EnemyType.DevilsAdvocate,
+                        EnemyType.Warden,
+                        EnemyType.Vermin,
+                        EnemyType.Vermin,
+                        EnemyType.Hellpuppy
+                    }),
+                    new EncounterTemplate("L6_Mixed_C", new EnemyType[]
+                    {
+                        EnemyType.DevilsAdvocate,
+                        EnemyType.Inferno,
+                        EnemyType.Inferno,
+                        EnemyType.Vermin,
+                        EnemyType.Hellpuppy
+                    }),
+                    new EncounterTemplate("L6_Mixed_D", new EnemyType[]
+                    {
+                        EnemyType.Warden,
+                        EnemyType.Warden,
+                        EnemyType.Inferno,
+                        EnemyType.Vermin,
+                        EnemyType.Hellpuppy
+                    }),
+                    new EncounterTemplate("L6_Mixed_E", new EnemyType[]
+                    {
+                        EnemyType.DevilsAdvocate,
+                        EnemyType.Warden,
+                        EnemyType.Inferno,
+                        EnemyType.Vermin,
+                        EnemyType.Vermin
+                    }),
+                    new EncounterTemplate("L6_Mixed_F", new EnemyType[]
+                    {
+                        EnemyType.DevilsAdvocate,
+                        EnemyType.Inferno,
+                        EnemyType.Inferno,
+                        EnemyType.Vermin,
+                        EnemyType.Vermin
                     })
-                };           
+                };
+
+            case 7:
+                return new EncounterTemplate[]
+                {
+                    // Level 7: 6-7 enemies, more high-type pressure.
+                    new EncounterTemplate("L7_Elite_A", new EnemyType[]
+                    {
+                        EnemyType.DevilsAdvocate,
+                        EnemyType.Warden,
+                        EnemyType.Warden,
+                        EnemyType.Inferno,
+                        EnemyType.Vermin,
+                        EnemyType.Hellpuppy
+                    }),
+                    new EncounterTemplate("L7_Elite_B", new EnemyType[]
+                    {
+                        EnemyType.DevilsAdvocate,
+                        EnemyType.DevilsAdvocate,
+                        EnemyType.Warden,
+                        EnemyType.Inferno,
+                        EnemyType.Vermin,
+                        EnemyType.Hellpuppy
+                    }),
+                    new EncounterTemplate("L7_Elite_C", new EnemyType[]
+                    {
+                        EnemyType.DevilsAdvocate,
+                        EnemyType.Warden,
+                        EnemyType.Inferno,
+                        EnemyType.Inferno,
+                        EnemyType.Vermin,
+                        EnemyType.Vermin
+                    }),
+                    new EncounterTemplate("L7_Elite_D", new EnemyType[]
+                    {
+                        EnemyType.Warden,
+                        EnemyType.Warden,
+                        EnemyType.Inferno,
+                        EnemyType.Inferno,
+                        EnemyType.Vermin,
+                        EnemyType.Vermin
+                    }),
+                    new EncounterTemplate("L7_Elite_E", new EnemyType[]
+                    {
+                        EnemyType.DevilsAdvocate,
+                        EnemyType.Warden,
+                        EnemyType.Warden,
+                        EnemyType.Inferno,
+                        EnemyType.Vermin,
+                        EnemyType.Vermin,
+                        EnemyType.Hellpuppy
+                    }),
+                    new EncounterTemplate("L7_Elite_F", new EnemyType[]
+                    {
+                        EnemyType.DevilsAdvocate,
+                        EnemyType.DevilsAdvocate,
+                        EnemyType.Inferno,
+                        EnemyType.Inferno,
+                        EnemyType.Vermin,
+                        EnemyType.Vermin
+                    })
+                };
+
+            case 8:
+                return new EncounterTemplate[]
+                {
+                    // Level 8: 7-8 enemies. Hellpuppies become rare.
+                    new EncounterTemplate("L8_DeepHell_A", new EnemyType[]
+                    {
+                        EnemyType.DevilsAdvocate,
+                        EnemyType.DevilsAdvocate,
+                        EnemyType.Warden,
+                        EnemyType.Warden,
+                        EnemyType.Inferno,
+                        EnemyType.Vermin,
+                        EnemyType.Vermin
+                    }),
+                    new EncounterTemplate("L8_DeepHell_B", new EnemyType[]
+                    {
+                        EnemyType.DevilsAdvocate,
+                        EnemyType.Warden,
+                        EnemyType.Warden,
+                        EnemyType.Inferno,
+                        EnemyType.Inferno,
+                        EnemyType.Vermin,
+                        EnemyType.Vermin
+                    }),
+                    new EncounterTemplate("L8_DeepHell_C", new EnemyType[]
+                    {
+                        EnemyType.DevilsAdvocate,
+                        EnemyType.DevilsAdvocate,
+                        EnemyType.Warden,
+                        EnemyType.Inferno,
+                        EnemyType.Inferno,
+                        EnemyType.Vermin,
+                        EnemyType.Vermin
+                    }),
+                    new EncounterTemplate("L8_DeepHell_D", new EnemyType[]
+                    {
+                        EnemyType.DevilsAdvocate,
+                        EnemyType.Warden,
+                        EnemyType.Warden,
+                        EnemyType.Warden,
+                        EnemyType.Inferno,
+                        EnemyType.Vermin,
+                        EnemyType.Hellpuppy
+                    }),
+                    new EncounterTemplate("L8_DeepHell_E", new EnemyType[]
+                    {
+                        EnemyType.DevilsAdvocate,
+                        EnemyType.DevilsAdvocate,
+                        EnemyType.Warden,
+                        EnemyType.Warden,
+                        EnemyType.Inferno,
+                        EnemyType.Inferno,
+                        EnemyType.Vermin,
+                        EnemyType.Vermin
+                    }),
+                    new EncounterTemplate("L8_DeepHell_F", new EnemyType[]
+                    {
+                        EnemyType.Warden,
+                        EnemyType.Warden,
+                        EnemyType.Warden,
+                        EnemyType.Inferno,
+                        EnemyType.Inferno,
+                        EnemyType.Vermin,
+                        EnemyType.Vermin
+                    })
+                };
+
+            case 9:
+                return new EncounterTemplate[]
+                {
+                    // Level 9: brutal rooms. Strong lean toward Wardens / Devil's Advocates.
+                    new EncounterTemplate("L9_Nightmare_A", new EnemyType[]
+                    {
+                        EnemyType.DevilsAdvocate,
+                        EnemyType.DevilsAdvocate,
+                        EnemyType.Warden,
+                        EnemyType.Warden,
+                        EnemyType.Inferno,
+                        EnemyType.Inferno,
+                        EnemyType.Vermin,
+                        EnemyType.Vermin
+                    }),
+                    new EncounterTemplate("L9_Nightmare_B", new EnemyType[]
+                    {
+                        EnemyType.DevilsAdvocate,
+                        EnemyType.DevilsAdvocate,
+                        EnemyType.Warden,
+                        EnemyType.Warden,
+                        EnemyType.Warden,
+                        EnemyType.Inferno,
+                        EnemyType.Vermin,
+                        EnemyType.Vermin
+                    }),
+                    new EncounterTemplate("L9_Nightmare_C", new EnemyType[]
+                    {
+                        EnemyType.DevilsAdvocate,
+                        EnemyType.DevilsAdvocate,
+                        EnemyType.DevilsAdvocate,
+                        EnemyType.Warden,
+                        EnemyType.Warden,
+                        EnemyType.Inferno,
+                        EnemyType.Vermin
+                    }),
+                    new EncounterTemplate("L9_Nightmare_D", new EnemyType[]
+                    {
+                        EnemyType.DevilsAdvocate,
+                        EnemyType.Warden,
+                        EnemyType.Warden,
+                        EnemyType.Warden,
+                        EnemyType.Inferno,
+                        EnemyType.Inferno,
+                        EnemyType.Vermin
+                    }),
+                    new EncounterTemplate("L9_Nightmare_E", new EnemyType[]
+                    {
+                        EnemyType.DevilsAdvocate,
+                        EnemyType.DevilsAdvocate,
+                        EnemyType.Warden,
+                        EnemyType.Warden,
+                        EnemyType.Inferno,
+                        EnemyType.Inferno,
+                        EnemyType.Inferno,
+                        EnemyType.Vermin
+                    })
+                };
+
+            case 10:
+                return new EncounterTemplate[]
+                {
+                    // Level 10: final normal-room nightmare tier.
+                    // High types dominate. Hellpuppies are basically gone.
+                    new EncounterTemplate("L10_Abyss_A", new EnemyType[]
+                    {
+                        EnemyType.DevilsAdvocate,
+                        EnemyType.DevilsAdvocate,
+                        EnemyType.DevilsAdvocate,
+                        EnemyType.Warden,
+                        EnemyType.Warden,
+                        EnemyType.Inferno,
+                        EnemyType.Inferno,
+                        EnemyType.Vermin
+                    }),
+                    new EncounterTemplate("L10_Abyss_B", new EnemyType[]
+                    {
+                        EnemyType.DevilsAdvocate,
+                        EnemyType.DevilsAdvocate,
+                        EnemyType.Warden,
+                        EnemyType.Warden,
+                        EnemyType.Warden,
+                        EnemyType.Inferno,
+                        EnemyType.Inferno,
+                        EnemyType.Vermin
+                    }),
+                    new EncounterTemplate("L10_Abyss_C", new EnemyType[]
+                    {
+                        EnemyType.DevilsAdvocate,
+                        EnemyType.DevilsAdvocate,
+                        EnemyType.DevilsAdvocate,
+                        EnemyType.Warden,
+                        EnemyType.Warden,
+                        EnemyType.Warden,
+                        EnemyType.Inferno
+                    }),
+                    new EncounterTemplate("L10_Abyss_D", new EnemyType[]
+                    {
+                        EnemyType.DevilsAdvocate,
+                        EnemyType.DevilsAdvocate,
+                        EnemyType.Warden,
+                        EnemyType.Warden,
+                        EnemyType.Inferno,
+                        EnemyType.Inferno,
+                        EnemyType.Inferno,
+                        EnemyType.Vermin
+                    }),
+                    new EncounterTemplate("L10_Abyss_E", new EnemyType[]
+                    {
+                        EnemyType.DevilsAdvocate,
+                        EnemyType.DevilsAdvocate,
+                        EnemyType.DevilsAdvocate,
+                        EnemyType.Warden,
+                        EnemyType.Warden,
+                        EnemyType.Inferno,
+                        EnemyType.Inferno,
+                        EnemyType.Vermin
+                    })
+                };
 
             default:
+                // If combat level goes beyond 10, keep using level 10-style rooms.
                 return new EncounterTemplate[]
                 {
-                    new EncounterTemplate("Fallback", new EnemyType[]
+                    new EncounterTemplate("Fallback_Abyss", new EnemyType[]
                     {
-                        EnemyType.Hellpuppy,
-                        EnemyType.Hellpuppy
+                        EnemyType.DevilsAdvocate,
+                        EnemyType.DevilsAdvocate,
+                        EnemyType.Warden,
+                        EnemyType.Warden,
+                        EnemyType.Inferno,
+                        EnemyType.Inferno,
+                        EnemyType.Vermin,
+                        EnemyType.Vermin
                     })
                 };
         }
@@ -230,6 +673,7 @@ public static class EncounterGenerator
         {
             return new EncounterTemplate("Fallback", new EnemyType[]
             {
+                EnemyType.Hellpuppy,
                 EnemyType.Hellpuppy,
                 EnemyType.Hellpuppy
             });

@@ -12,14 +12,15 @@ public static class WorldDifficultyService
         int ring = GetRing(coord);
 
         // temporary compressed mapping for your small bounded test map
-        if (ring <= 1) return 1;
-        if (ring == 2) return 2;
-        if (ring == 3) return 3;
-        if (ring == 4) return 4;
-        if (ring == 5) return 5;
-        if (ring == 6) return 6;
-        if (ring == 7) return 7;
-        if (ring == 8) return 8;
-        return 9;
+        if (ring <= 5) return 1;
+        if (ring <= 10) return 2;
+        if (ring <= 15) return 3;
+        if (ring <= 20) return 4;
+        if (ring <= 25) return 5;
+        if (ring <= 30) return 6;
+        if (ring <= 35) return 7;
+        if (ring <= 40) return 8;
+        if (ring <= 45) return 9;
+        return 10;
     }
 }

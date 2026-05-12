@@ -11,7 +11,7 @@ public static class TradeItemCatalog
             "Time is frozen\n5 seconds",
             60,
             5,
-            "1",
+            "2",
             false
         ),
 
@@ -21,7 +21,7 @@ public static class TradeItemCatalog
             "No AP loss on Attack\n15 seconds",
             100,
             5,
-            "2",
+            "1",
             false
         ),
 

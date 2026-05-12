@@ -41,6 +41,9 @@ public class RunSaveData
     public int ectoplasmPotionCount;
     public int horsemenRingCount;
 
+    // Phase 10.0: Boss progression / MVP route.
+    public BossProgressionState bossProgression = new BossProgressionState();
+
     public RoomStateSaveEntry[] rooms;
     public ChallengeEffectSaveEntry[] activeChallengeEffects;
 }

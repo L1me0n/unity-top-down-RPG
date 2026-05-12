@@ -12,6 +12,7 @@ public class RunSaveManager : MonoBehaviour
     [SerializeField] private ChallengeEffectManager challengeEffectManager;
     [SerializeField] private TipsSeenTracker tipsSeenTracker;
     [SerializeField] private TradeItemInventory tradeItemInventory;
+    [SerializeField] private BossProgressionManager bossProgressionManager;
 
     [Header("Options")]
     [SerializeField] private bool autoLoadOnStart = true;
@@ -29,6 +30,7 @@ public class RunSaveManager : MonoBehaviour
         if (challengeEffectManager == null) challengeEffectManager = FindFirstObjectByType<ChallengeEffectManager>();
         if (tipsSeenTracker == null) tipsSeenTracker = FindFirstObjectByType<TipsSeenTracker>();
         if (tradeItemInventory == null) tradeItemInventory = FindFirstObjectByType<TradeItemInventory>();
+        if (bossProgressionManager == null) bossProgressionManager = FindFirstObjectByType<BossProgressionManager>();
     }
 
     private void Start()
@@ -70,6 +72,9 @@ public class RunSaveManager : MonoBehaviour
 
         if (tradeItemInventory != null)
             tradeItemInventory.OnInventoryChanged += Save;
+
+        if (bossProgressionManager != null)
+            bossProgressionManager.OnBossProgressionChanged += Save;
     }
 
     private void Unsubscribe()
@@ -95,6 +100,9 @@ public class RunSaveManager : MonoBehaviour
 
         if (tradeItemInventory != null)
             tradeItemInventory.OnInventoryChanged -= Save;
+
+        if (bossProgressionManager != null)
+            bossProgressionManager.OnBossProgressionChanged -= Save;
     }
 
     public void Save()
@@ -137,6 +145,11 @@ public class RunSaveManager : MonoBehaviour
             bloodlustPotionCount = tradeItemInventory != null ? tradeItemInventory.GetCount(TradeItemType.BloodlustPotion) : 0,
             ectoplasmPotionCount = tradeItemInventory != null ? tradeItemInventory.GetCount(TradeItemType.EctoplasmPotion) : 0,
             horsemenRingCount = tradeItemInventory != null ? tradeItemInventory.GetCount(TradeItemType.HorsemenRing) : 0,
+
+            // 10.0: Boss progression.
+            bossProgression = bossProgressionManager != null
+                ? bossProgressionManager.ExportState()
+                : new BossProgressionState(),
         };
 
         if (challengeEffectManager != null)
@@ -220,6 +233,11 @@ public class RunSaveManager : MonoBehaviour
             tradeItemInventory.SetCountFromSave(TradeItemType.HorsemenRing, data.horsemenRingCount);
 
             Debug.Log($"[RunSaveManager] Loaded trade inventory: {tradeItemInventory.GetDebugSummary()}");
+        }
+
+        if (bossProgressionManager != null)
+        {
+            bossProgressionManager.ImportState(data.bossProgression);
         }
 
         if (roomManager != null)
