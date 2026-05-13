@@ -46,6 +46,19 @@ public class EctoplasmProjectile : MonoBehaviour
             return;
         }
 
+        GluttonyBossDamageReceiver gluttonyBoss =
+            other.GetComponent<GluttonyBossDamageReceiver>();
+
+        if (gluttonyBoss == null)
+            gluttonyBoss = other.GetComponentInParent<GluttonyBossDamageReceiver>();
+
+        if (gluttonyBoss != null)
+        {
+            gluttonyBoss.TryReceiveDamage(damage);
+            ConsumeAndDestroy();
+            return;
+        }
+
         var health = other.GetComponent<Health>();
         if (health != null)
         {

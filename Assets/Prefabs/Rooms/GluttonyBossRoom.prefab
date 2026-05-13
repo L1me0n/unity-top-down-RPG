@@ -170,6 +170,82 @@ MonoBehaviour:
   doorTrigger: {fileID: 5293484974017997543}
   renderers: []
   ghostAlpha: 0.35
+--- !u!1 &340069382433958714
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 9041858405947506977}
+  - component: {fileID: 4523354910341213194}
+  - component: {fileID: 1992244724076544729}
+  m_Layer: 0
+  m_Name: HealthBar
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &9041858405947506977
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 340069382433958714}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 711138843262713966}
+  m_Father: {fileID: 7370251150936413364}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 175}
+  m_SizeDelta: {x: 1010, y: 20}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!222 &4523354910341213194
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 340069382433958714}
+  m_CullTransparentMesh: 1
+--- !u!114 &1992244724076544729
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 340069382433958714}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 0, g: 0, b: 0, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
 --- !u!1 &804938752060427924
 GameObject:
   m_ObjectHideFlags: 0
@@ -682,6 +758,130 @@ MonoBehaviour:
   doorTrigger: {fileID: 8878122393302498042}
   renderers: []
   ghostAlpha: 0.35
+--- !u!1 &1718495527375885780
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7370251150936413364}
+  - component: {fileID: 137949618412524910}
+  - component: {fileID: 6282220084609518724}
+  - component: {fileID: 1045176520302233690}
+  - component: {fileID: 7358137845947464239}
+  m_Layer: 0
+  m_Name: BossUI
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &7370251150936413364
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1718495527375885780}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 0, y: 0, z: 0}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 9041858405947506977}
+  m_Father: {fileID: 925430044321457944}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0, y: 0}
+--- !u!223 &137949618412524910
+Canvas:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1718495527375885780}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_RenderMode: 0
+  m_Camera: {fileID: 0}
+  m_PlaneDistance: 100
+  m_PixelPerfect: 0
+  m_ReceivesEvents: 1
+  m_OverrideSorting: 0
+  m_OverridePixelPerfect: 0
+  m_SortingBucketNormalizedSize: 0
+  m_VertexColorAlwaysGammaSpace: 0
+  m_AdditionalShaderChannelsFlag: 0
+  m_UpdateRectTransformForStandalone: 0
+  m_SortingLayerID: 0
+  m_SortingOrder: 0
+  m_TargetDisplay: 0
+--- !u!114 &6282220084609518724
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1718495527375885780}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0cd44c1031e13a943bb63640046fad76, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.CanvasScaler
+  m_UiScaleMode: 0
+  m_ReferencePixelsPerUnit: 100
+  m_ScaleFactor: 1
+  m_ReferenceResolution: {x: 800, y: 600}
+  m_ScreenMatchMode: 0
+  m_MatchWidthOrHeight: 0
+  m_PhysicalUnit: 3
+  m_FallbackScreenDPI: 96
+  m_DefaultSpriteDPI: 96
+  m_DynamicPixelsPerUnit: 1
+  m_PresetInfoIsWorld: 0
+--- !u!114 &1045176520302233690
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1718495527375885780}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dc42784cf147c0c48a680349fa168899, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.GraphicRaycaster
+  m_IgnoreReversedGraphics: 1
+  m_BlockingObjects: 0
+  m_BlockingMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+--- !u!114 &7358137845947464239
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1718495527375885780}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1716739c035c1974da1bffc4ae20b570, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BossHealthBarUI
+  bossRoomController: {fileID: 8016123040208921056}
+  gluttonyBossController: {fileID: 4795065578131462605}
+  health: {fileID: 3249875558897078048}
+  panelRoot: {fileID: 340069382433958714}
+  fillImage: {fileID: 3735233765902379573}
+  nameText: {fileID: 0}
+  valueText: {fileID: 0}
+  bossDisplayName: GLUTTONY
+  debugLogs: 1
 --- !u!1 &1789295177360835086
 GameObject:
   m_ObjectHideFlags: 0
@@ -1223,6 +1423,81 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 1, y: 20}
   m_EdgeRadius: 0
+--- !u!1 &3633015698596785465
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 711138843262713966}
+  - component: {fileID: 8083350639557099789}
+  - component: {fileID: 3735233765902379573}
+  m_Layer: 0
+  m_Name: Fill
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &711138843262713966
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3633015698596785465}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 9041858405947506977}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 1000, y: 20}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!222 &8083350639557099789
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3633015698596785465}
+  m_CullTransparentMesh: 1
+--- !u!114 &3735233765902379573
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3633015698596785465}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 0.47843137, g: 0.4, b: 0.11764706, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 10911, guid: 0000000000000000f000000000000000, type: 0}
+  m_Type: 3
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 0
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
 --- !u!1 &3822792076015973840
 GameObject:
   m_ObjectHideFlags: 0
@@ -1265,6 +1540,7 @@ GameObject:
   - component: {fileID: 925430044321457944}
   - component: {fileID: 7205095247361074584}
   - component: {fileID: 8016123040208921056}
+  - component: {fileID: 4795065578131462605}
   m_Layer: 0
   m_Name: GluttonyBossRoom
   m_TagString: Untagged
@@ -1290,6 +1566,7 @@ Transform:
   - {fileID: 7813993403948030937}
   - {fileID: 631738927235406058}
   - {fileID: 2600485524225149604}
+  - {fileID: 7370251150936413364}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &7205095247361074584
@@ -1324,6 +1601,35 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BossRoomController
   bossType: 1
   bossContentRoot: {fileID: 1514510978889168717}
+  gluttonyBossController: {fileID: 4795065578131462605}
+  cameraFollow: {fileID: 0}
+  bossRoomOrthoSize: 8.5
+  useBossRoomZoom: 1
+  bossHealthBarUI: {fileID: 7358137845947464239}
+  debugLogs: 1
+--- !u!114 &4795065578131462605
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4052264067139323334}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cfdce5c75c509a8409c25cfb7751b69b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GluttonyBossController
+  introDuration: 1
+  spawnHellhoundsDuration: 1.25
+  waveTelegraphDuration: 1.25
+  waveReleaseDuration: 0.75
+  sleepMinDuration: 3
+  sleepMaxDuration: 5
+  idleVisualRoot: {fileID: 8500480363409237131}
+  mouthGlowVisual: {fileID: 2961901143271739541}
+  sleepVisual: {fileID: 5410540197980618909}
+  summonVisual: {fileID: 0}
+  health: {fileID: 3249875558897078048}
   debugLogs: 1
 --- !u!1 &4197071344696378217
 GameObject:
@@ -1901,10 +2207,57 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 89284764828159788, guid: 5e3ca17d07b516148a7c7bbae20225fd, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 6132854742115060446}
   m_SourcePrefab: {fileID: 100100000, guid: 5e3ca17d07b516148a7c7bbae20225fd, type: 3}
 --- !u!4 &1692438330787910510 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7185016493166393545, guid: 5e3ca17d07b516148a7c7bbae20225fd, type: 3}
   m_PrefabInstance: {fileID: 8415804794351856551}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &2961901143271739541 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6759965414393264946, guid: 5e3ca17d07b516148a7c7bbae20225fd, type: 3}
+  m_PrefabInstance: {fileID: 8415804794351856551}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &3249875558897078048 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6472536077748397191, guid: 5e3ca17d07b516148a7c7bbae20225fd, type: 3}
+  m_PrefabInstance: {fileID: 8415804794351856551}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8500480363409237131}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2b2ae78be1a31e348a7ce76aa543915b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Health
+--- !u!1 &5410540197980618909 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4601808538233498426, guid: 5e3ca17d07b516148a7c7bbae20225fd, type: 3}
+  m_PrefabInstance: {fileID: 8415804794351856551}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &8500480363409237131 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 89284764828159788, guid: 5e3ca17d07b516148a7c7bbae20225fd, type: 3}
+  m_PrefabInstance: {fileID: 8415804794351856551}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &6132854742115060446
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8500480363409237131}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b1374db3004f71641ba9c1c9471c2a0b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GluttonyBossDamageReceiver
+  bossController: {fileID: 4795065578131462605}
+  bossRoomController: {fileID: 8016123040208921056}
+  health: {fileID: 3249875558897078048}
+  blockedHitVisual: {fileID: 0}
+  vulnerableHitVisual: {fileID: 0}
+  debugLogs: 1

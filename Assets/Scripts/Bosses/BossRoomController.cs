@@ -9,10 +9,16 @@ public class BossRoomController : MonoBehaviour
     [Header("Boss Content")]
     [SerializeField] private GameObject bossContentRoot;
 
+    [Header("Gluttony Boss")]
+    [SerializeField] private GluttonyBossController gluttonyBossController;
+
     [Header("Boss Camera")]
     [SerializeField] private CameraFollow cameraFollow;
     [SerializeField] private float bossRoomOrthoSize = 8.5f;
     [SerializeField] private bool useBossRoomZoom = true;
+
+    [Header("Boss UI")]
+    [SerializeField] private BossHealthBarUI bossHealthBarUI;
 
     [Header("Debug")]
     [SerializeField] private bool debugLogs = true;
@@ -49,6 +55,12 @@ public class BossRoomController : MonoBehaviour
 
         if (cameraFollow == null)
             cameraFollow = FindFirstObjectByType<CameraFollow>();
+
+        if (gluttonyBossController == null)
+            gluttonyBossController = GetComponentInChildren<GluttonyBossController>(true);
+
+        if (bossHealthBarUI == null)
+            bossHealthBarUI = GetComponentInChildren<BossHealthBarUI>(true);
 
         initialized = true;
         fightStarted = false;
@@ -91,8 +103,14 @@ public class BossRoomController : MonoBehaviour
         fightStarted = true;
 
         SetBossContentVisible(true);
+
+        if (bossHealthBarUI != null)
+            bossHealthBarUI.Show();
+
         SetDoorLocks(true);
         ApplyBossRoomCamera();
+
+        StartBossLogic();
 
         Log("Boss fight entry started at " + roomCoord + " | bossType=" + bossType);
 
@@ -103,7 +121,17 @@ public class BossRoomController : MonoBehaviour
     {
         fightStarted = false;
 
+        if (gluttonyBossController == null)
+            gluttonyBossController = GetComponentInChildren<GluttonyBossController>(true);
+
+        if (gluttonyBossController != null)
+            gluttonyBossController.MarkDead();
+
         SetBossContentVisible(false);
+
+        if (bossHealthBarUI != null)
+            bossHealthBarUI.Hide();
+
         SetDoorLocks(false);
         ApplyBossRoomCamera();
 
@@ -119,6 +147,9 @@ public class BossRoomController : MonoBehaviour
 
         roomState.bossDefeated = true;
         roomState.cleared = true;
+
+        if (gluttonyBossController != null)
+            gluttonyBossController.MarkDead();
 
         if (bossType == BossType.Gluttony && BossProgressionManager.Instance != null)
             BossProgressionManager.Instance.MarkGluttonyBossDefeated();
@@ -165,6 +196,23 @@ public class BossRoomController : MonoBehaviour
     private void OnDisable()
     {
         ClearBossRoomCamera();
+    }
+
+    private void StartBossLogic()
+    {
+        if (bossType != BossType.Gluttony)
+            return;
+
+        if (gluttonyBossController == null)
+            gluttonyBossController = GetComponentInChildren<GluttonyBossController>(true);
+
+        if (gluttonyBossController == null)
+        {
+            Debug.LogWarning("[BossRoomController] GluttonyBossController missing.", this);
+            return;
+        }
+
+        gluttonyBossController.StartFight(this);
     }
 
     private void Log(string message)
