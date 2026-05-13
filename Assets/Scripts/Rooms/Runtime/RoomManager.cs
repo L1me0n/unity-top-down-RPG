@@ -12,6 +12,7 @@ public class RoomManager : MonoBehaviour
     [SerializeField] private GameObject slothRoomPrefab;
     [SerializeField] private GameObject lieRoomPrefab;
     [SerializeField] private GameObject tradeRoomPrefab;
+    [SerializeField] private GameObject gluttonyBossRoomPrefab;
 
     [Header("References")]
     [SerializeField] private Transform player;
@@ -43,6 +44,22 @@ public class RoomManager : MonoBehaviour
 
     [Header("Hostage Campfire Capacity")]
     [SerializeField] private int maxStoredHostageGhostsPerCampfire = 10;
+
+    [Header("Boss Rooms")]
+    [SerializeField] private Vector2Int gluttonyBossCoord = new Vector2Int(44, 39);
+
+    [Header("Guaranteed Gluttony Clue Rooms")]
+    [SerializeField] private Vector2Int[] guaranteedGluttonyChallengeCoords =
+    {
+        new Vector2Int(8, 4),
+        new Vector2Int(16, 11),
+        new Vector2Int(24, 18),
+        new Vector2Int(32, 26),
+        new Vector2Int(40, 34),
+        new Vector2Int(-14, 12),
+        new Vector2Int(-22, -9),
+        new Vector2Int(12, -18)
+    };
 
     private readonly Dictionary<Vector2Int, RoomState> states
         = new Dictionary<Vector2Int, RoomState>();
@@ -220,6 +237,17 @@ public class RoomManager : MonoBehaviour
                 Debug.LogWarning("[RoomManager] Trade room prefab is missing. Falling back to combat room prefab.");
                 return combatRoomPrefab;
 
+            case RoomType.Boss:
+                if (state.bossType == BossType.Gluttony && gluttonyBossRoomPrefab != null)
+                    return gluttonyBossRoomPrefab;
+
+                Debug.LogWarning(
+                    $"[RoomManager] Boss room prefab missing for bossType={state.bossType}. " +
+                    "Falling back to combat room prefab for now."
+                );
+
+                return combatRoomPrefab;
+
             default:
                 Debug.LogError($"[RoomManager] Unsupported roomType={state.roomType}");
                 return null;
@@ -351,6 +379,7 @@ public class RoomManager : MonoBehaviour
             Debug.Log(
                 $"[RoomManager] Loaded room {coord} | roomType={state.roomType} | " +
                 $"challengeType={state.challengeType} | challengeCompleted={state.challengeCompleted} | " +
+                $"bossType={state.bossType} | bossDefeated={state.bossDefeated} | " +
                 $"ring={ring} | combatLevel={state.combatLevel} | encounterSeed={state.encounterSeed} | " +
                 $"encounterInitialized={state.encounterInitialized} | visited={state.visited} | cleared={state.cleared} | " +
                 $"runStep={runStepCount} | lastVisitedStep={state.lastVisitedStep} | lastClearedStep={state.lastClearedStep} | " +
@@ -371,6 +400,8 @@ public class RoomManager : MonoBehaviour
 
         Vector3 spawnPos = currentRoom.GetSpawnPosition(enteredFrom);
         player.position = spawnPos;
+
+        InitializeBossRoomController(coord, state);
 
         // 7.6 
         HandleCampfireRoomEntered(coord, state, allowCheckpointFeedback: countAsRunStep);
@@ -411,10 +442,170 @@ public class RoomManager : MonoBehaviour
         return c.x >= minCoord.x && c.x <= maxCoord.x && c.y >= minCoord.y && c.y <= maxCoord.y;
     }
 
+    private bool IsGuaranteedGluttonyChallengeCoord(Vector2Int coord)
+    {
+        if (guaranteedGluttonyChallengeCoords == null)
+            return false;
+
+        for (int i = 0; i < guaranteedGluttonyChallengeCoords.Length; i++)
+        {
+            if (guaranteedGluttonyChallengeCoords[i] == coord)
+                return true;
+        }
+
+        return false;
+    }
+
+    private void ApplyGuaranteedGluttonyChallengeOverride(Vector2Int coord, RoomState state)
+    {
+        if (state == null)
+            return;
+
+        if (!IsGuaranteedGluttonyChallengeCoord(coord))
+            return;
+
+        bool alreadyCorrect =
+            state.roomType == RoomType.Challenge &&
+            state.challengeType == ChallengeType.Gluttony;
+
+        if (alreadyCorrect)
+            return;
+
+        state.roomType = RoomType.Challenge;
+        state.challengeType = ChallengeType.Gluttony;
+        state.challengeCompleted = false;
+        state.lastChallengeCompletedStep = -1;
+
+        // Clear combat state, because this coordinate is no longer allowed to behave as Combat.
+        state.cleared = false;
+        state.remainingEnemies = -1;
+        state.encounterInitialized = false;
+
+        if (state.enemyStates == null)
+            state.enemyStates = new List<RoomEnemyStateEntry>();
+        else
+            state.enemyStates.Clear();
+
+        // Clear hostage data, because Challenge rooms should not carry hostage payloads.
+        state.hasHostageGhosts = false;
+        state.hostageGhostCount = 0;
+        state.hostageGhostsRescued = false;
+
+        // Clear campfire storage, because this room is not a campfire.
+        state.storedHostageGhostCount = 0;
+
+        ResetLieProgressState(state);
+
+        if (logTransitions)
+        {
+            Debug.Log(
+                $"[RoomManager] Forced guaranteed Gluttony Challenge room at {coord}. " +
+                $"roomType={state.roomType}, challengeType={state.challengeType}"
+            );
+        }
+    }
+
+    private void ApplyGluttonyBossRoomOverride(Vector2Int coord, RoomState state)
+    {
+        if (state == null)
+            return;
+
+        if (coord != gluttonyBossCoord)
+            return;
+
+        BossProgressionManager bossProgression = BossProgressionManager.Instance;
+
+        if (bossProgression == null)
+            return;
+
+        // Before unlock, room (44,39) remains whatever normal generation/save says it is.
+        if (!bossProgression.GluttonyBossUnlocked && !bossProgression.GluttonyBossDefeated)
+            return;
+
+        // Once defeated, keep the room as a cleared Gluttony boss room.
+        if (bossProgression.GluttonyBossDefeated)
+        {
+            state.roomType = RoomType.Boss;
+            state.bossType = BossType.Gluttony;
+            state.bossDefeated = true;
+            state.cleared = true;
+
+            ClearBossRoomIncompatibleState(state);
+
+            if (logTransitions)
+            {
+                Debug.Log(
+                    $"[RoomManager] Gluttony Boss room marked defeated at {coord}. " +
+                    $"roomType={state.roomType}, bossType={state.bossType}, bossDefeated={state.bossDefeated}"
+                );
+            }
+
+            return;
+        }
+
+        bool alreadyCorrect =
+            state.roomType == RoomType.Boss &&
+            state.bossType == BossType.Gluttony &&
+            !state.bossDefeated;
+
+        if (alreadyCorrect)
+            return;
+
+        state.roomType = RoomType.Boss;
+        state.bossType = BossType.Gluttony;
+        state.bossDefeated = false;
+        state.cleared = false;
+        state.lastClearedStep = -1;
+
+        ClearBossRoomIncompatibleState(state);
+
+        if (logTransitions)
+        {
+            Debug.Log(
+                $"[RoomManager] Gluttony Boss room override applied at {coord}. " +
+                $"roomType={state.roomType}, bossType={state.bossType}, bossDefeated={state.bossDefeated}"
+            );
+        }
+    }
+
+    private void ClearBossRoomIncompatibleState(RoomState state)
+    {
+        if (state == null)
+            return;
+
+        // Boss rooms are not challenge rooms.
+        state.challengeType = ChallengeType.None;
+        state.challengeCompleted = false;
+        state.lastChallengeCompletedStep = -1;
+
+        // Boss rooms should not carry normal combat encounter state.
+        state.remainingEnemies = -1;
+        state.encounterInitialized = false;
+
+        if (state.enemyStates == null)
+            state.enemyStates = new List<RoomEnemyStateEntry>();
+        else
+            state.enemyStates.Clear();
+
+        // Boss rooms should not carry hostage payloads.
+        state.hasHostageGhosts = false;
+        state.hostageGhostCount = 0;
+        state.hostageGhostsRescued = false;
+
+        // Boss rooms are not campfires.
+        state.storedHostageGhostCount = 0;
+
+        // Boss rooms must not carry Lie challenge progress.
+        ResetLieProgressState(state);
+    }
+
     private RoomType DetermineRoomTypeForNewState(Vector2Int coord)
     {
         if (coord == Vector2Int.zero)
             return RoomType.Campfire;
+
+        if (IsGuaranteedGluttonyChallengeCoord(coord))
+            return RoomType.Challenge;
 
         int ring = WorldDifficultyService.GetRing(coord);
 
@@ -625,6 +816,9 @@ public class RoomManager : MonoBehaviour
             if (s.storedHostageGhostCount < 0) s.storedHostageGhostCount = 0;
             if (s.lastChallengeCompletedStep < -1) s.lastChallengeCompletedStep = -1;
         }
+
+        ApplyGuaranteedGluttonyChallengeOverride(c, s);
+        ApplyGluttonyBossRoomOverride(c, s);
 
         bool isActiveLieRoom =
             s.roomType == RoomType.Challenge &&
@@ -902,6 +1096,10 @@ public class RoomManager : MonoBehaviour
             entry.challengeCompleted = s.challengeCompleted;
             entry.lastChallengeCompletedStep = s.lastChallengeCompletedStep;
 
+            // Boss rooms
+            entry.bossType = (int)s.bossType;
+            entry.bossDefeated = s.bossDefeated;
+
             entry.encounterInitialized = s.encounterInitialized;
             entry.combatLevel = s.combatLevel;
             entry.encounterSeed = s.encounterSeed;
@@ -969,6 +1167,10 @@ public class RoomManager : MonoBehaviour
                     ? (ChallengeType)e.challengeType
                     : ChallengeType.None;
 
+                BossType restoredBossType = System.Enum.IsDefined(typeof(BossType), e.bossType)
+                    ? (BossType)e.bossType
+                    : BossType.None;
+
                 RoomState s = new RoomState(
                     e.visited,
                     e.cleared,
@@ -985,6 +1187,8 @@ public class RoomManager : MonoBehaviour
                     restoredChallengeType,
                     e.challengeCompleted,
                     e.lastChallengeCompletedStep,
+                    restoredBossType,
+                    e.bossDefeated,
                     e.lieProgressActive,
                     e.lieChosenRoute,
                     e.lieRuntimeState,
@@ -1186,6 +1390,9 @@ public class RoomManager : MonoBehaviour
 
     private ChallengeType DetermineChallengeTypeForNewState(Vector2Int coord)
     {
+        if (IsGuaranteedGluttonyChallengeCoord(coord))
+            return ChallengeType.Gluttony;
+
         int hash = Mathf.Abs((coord.x * 73856093) ^ (coord.y * 19349663) ^ 83492791);
 
         int roll = hash % 10;
@@ -1349,4 +1556,30 @@ public class RoomManager : MonoBehaviour
         s.lieForcedTrial1 = 0;
         s.lieForcedTrial2 = 0;
     }
+
+    // -----------------------------
+    // 10: boss room helpers
+    // -----------------------------
+    private void InitializeBossRoomController(Vector2Int coord, RoomState state)
+    {
+        if (currentRoom == null)
+            return;
+
+        BossRoomController bossRoomController =
+            currentRoom.GetComponentInChildren<BossRoomController>(true);
+
+        if (bossRoomController == null)
+            return;
+
+        Transform playerTransform = player != null ? player : null;
+
+        bossRoomController.Initialize(
+            coord,
+            state,
+            this,
+            currentRoom,
+            playerTransform
+        );
+    }
+
 }

@@ -63,6 +63,9 @@ public class RoomStateSaveEntry
     public bool challengeCompleted;
     public int lastChallengeCompletedStep;
 
+    public int bossType;
+    public bool bossDefeated;
+
     public bool encounterInitialized;
     public int combatLevel;
     public int encounterSeed;

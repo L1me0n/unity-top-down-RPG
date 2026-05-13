@@ -35,6 +35,10 @@ public class RoomState
     public bool challengeCompleted;
     public int lastChallengeCompletedStep;
 
+    // Boss rooms
+    public BossType bossType;
+    public bool bossDefeated;
+
     // Lie mid-progress persistence
     public bool lieProgressActive;
     public int lieChosenRoute;
@@ -65,6 +69,8 @@ public class RoomState
         ChallengeType challengeType = ChallengeType.None,
         bool challengeCompleted = false,
         int lastChallengeCompletedStep = -1,
+        BossType bossType = BossType.None,
+        bool bossDefeated = false,
         bool lieProgressActive = false,
         int lieChosenRoute = 0,
         int lieRuntimeState = 0,
@@ -100,6 +106,9 @@ public class RoomState
         this.challengeType = challengeType;
         this.challengeCompleted = challengeCompleted;
         this.lastChallengeCompletedStep = lastChallengeCompletedStep;
+
+        this.bossType = bossType;
+        this.bossDefeated = bossDefeated;
 
         this.lieProgressActive = lieProgressActive;
         this.lieChosenRoute = lieChosenRoute;

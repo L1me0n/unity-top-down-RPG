@@ -524,22 +524,55 @@ public class LieChallengeRuntime : MonoBehaviour, IChallengeRuntime
     {
         List<LieForcedTrialType> result = new List<LieForcedTrialType>();
 
+        List<LieForcedTrialType> pool = BuildDeterministicallyShuffledTrialPool(
+            context != null ? context.Coord : Vector2Int.zero
+        );
+
+        if (pool.Count == 0)
+            return result;
+
         int minCount = Mathf.Max(1, minForcedTrials);
         int maxCount = Mathf.Max(minCount, maxForcedTrials);
 
-        int count = BuildDeterministicTrialCount(minCount, maxCount, context != null ? context.Coord : Vector2Int.zero);
-        int seed = BuildLieSeed(context != null ? context.Coord : Vector2Int.zero);
+        // We only have three forced trial types right now:
+        // Betting, Gluttony, Sloth.
+        // Clamp count to pool.Count so one Lie chain cannot repeat a type.
+        maxCount = Mathf.Min(maxCount, pool.Count);
+        minCount = Mathf.Min(minCount, maxCount);
 
-        LieForcedTrialType previous = LieForcedTrialType.None;
+        int count = BuildDeterministicTrialCount(
+            minCount,
+            maxCount,
+            context != null ? context.Coord : Vector2Int.zero
+        );
 
         for (int i = 0; i < count; i++)
-        {
-            LieForcedTrialType next = BuildTrialTypeFromSeed(seed, i, previous);
-            result.Add(next);
-            previous = next;
-        }
+            result.Add(pool[i]);
 
         return result;
+    }
+
+    private List<LieForcedTrialType> BuildDeterministicallyShuffledTrialPool(Vector2Int coord)
+    {
+        List<LieForcedTrialType> pool = new List<LieForcedTrialType>
+        {
+            LieForcedTrialType.Betting,
+            LieForcedTrialType.Gluttony,
+            LieForcedTrialType.Sloth
+        };
+
+        int seed = Mathf.Abs(BuildLieSeed(coord) ^ 0x51F15);
+
+        for (int i = pool.Count - 1; i > 0; i--)
+        {
+            int j = Mathf.Abs(seed ^ (i * 92821) ^ (coord.x * 19349663) ^ (coord.y * 73856093)) % (i + 1);
+
+            LieForcedTrialType temp = pool[i];
+            pool[i] = pool[j];
+            pool[j] = temp;
+        }
+
+        return pool;
     }
 
     private int BuildDeterministicTrialCount(int minCount, int maxCount, Vector2Int coord)
@@ -547,27 +580,6 @@ public class LieChallengeRuntime : MonoBehaviour, IChallengeRuntime
         int range = (maxCount - minCount) + 1;
         int seed = Mathf.Abs(BuildLieSeed(coord) ^ 0x2F31A1);
         return minCount + (seed % range);
-    }
-
-    private LieForcedTrialType BuildTrialTypeFromSeed(int seed, int index, LieForcedTrialType previous)
-    {
-        LieForcedTrialType[] pool = new LieForcedTrialType[]
-        {
-            LieForcedTrialType.Betting,
-            LieForcedTrialType.Gluttony,
-            LieForcedTrialType.Sloth
-        };
-
-        if (pool.Length == 0)
-            return LieForcedTrialType.None;
-
-        int rolledIndex = Mathf.Abs(seed ^ (index * 92821) ^ 0x51F15) % pool.Length;
-        LieForcedTrialType rolled = pool[rolledIndex];
-
-        if (avoidImmediateDuplicateTrials && pool.Length > 1 && rolled == previous)
-            rolled = pool[(rolledIndex + 1) % pool.Length];
-
-        return rolled;
     }
 
     private float GetHellhoundPointsEstimate()

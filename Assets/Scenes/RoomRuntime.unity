@@ -10841,7 +10841,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 142}
+  m_AnchoredPosition: {x: 0, y: 160}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &984318394
@@ -11618,7 +11618,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 142}
+  m_AnchoredPosition: {x: 0, y: 160}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1083149615
@@ -13182,6 +13182,7 @@ MonoBehaviour:
   slothRoomPrefab: {fileID: 4052264067139323334, guid: 009d47e9f18412d43b2bbe9418e08ef9, type: 3}
   lieRoomPrefab: {fileID: 4052264067139323334, guid: f736c70eb27e1dc4c8026e493404b0e7, type: 3}
   tradeRoomPrefab: {fileID: 4052264067139323334, guid: 68b57a458d3e7e2409e59d589b496c18, type: 3}
+  gluttonyBossRoomPrefab: {fileID: 4052264067139323334, guid: e7817ad040766994aa0870835285bd54, type: 3}
   player: {fileID: 2073994548}
   playerRb: {fileID: 2073994546}
   playerCollider: {fileID: 0}
@@ -13196,6 +13197,14 @@ MonoBehaviour:
   repopulationDelaySteps: 50
   challengeResetDelaySteps: 50
   maxStoredHostageGhostsPerCampfire: 10
+  gluttonyBossCoord: {x: 44, y: 39}
+  guaranteedGluttonyChallengeCoords:
+  - {x: 8, y: 4}
+  - {x: 16, y: 11}
+  - {x: 24, y: 18}
+  - {x: 32, y: 26}
+  - {x: 40, y: 34}
+  - {x: -14, y: 12}
 --- !u!4 &1254287710
 Transform:
   m_ObjectHideFlags: 0
@@ -13885,7 +13894,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 142}
+  m_AnchoredPosition: {x: 0, y: 160}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1320119798
@@ -19798,7 +19807,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 142}
+  m_AnchoredPosition: {x: 0, y: 160}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1745351305
