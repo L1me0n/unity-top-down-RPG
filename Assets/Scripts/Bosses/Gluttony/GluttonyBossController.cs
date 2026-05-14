@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using UnityEngine;
+using System.Collections.Generic;
 
 public class GluttonyBossController : MonoBehaviour
 {
@@ -11,6 +12,19 @@ public class GluttonyBossController : MonoBehaviour
     [SerializeField] private float waveReleaseDuration = 0.75f;
     [SerializeField] private float sleepMinDuration = 3f;
     [SerializeField] private float sleepMaxDuration = 5f;
+
+    [Header("Hellhound Summons")]
+    [SerializeField] private BossSummonedEnemy hellhoundPrefab;
+    [SerializeField] private Transform[] hellhoundSpawnPoints;
+    [SerializeField] private int hellhoundsPerSummon = 5;
+    [SerializeField] private int maxAliveHellhounds = 5;
+    [SerializeField] private bool cleanupHellhoundsOnSleep = false;
+
+    [Header("Eating Wave")]
+    [SerializeField] private GluttonyEatingWave eatingWavePrefab;
+    [SerializeField] private Transform eatingWaveSpawnPoint;
+    [SerializeField] private Transform playerTarget;
+    [SerializeField] private int eatingWaveMaxHPLoss = 1;
 
     [Header("Visual Placeholders")]
     [SerializeField] private GameObject idleVisualRoot;
@@ -27,6 +41,7 @@ public class GluttonyBossController : MonoBehaviour
     private BossRoomController bossRoomController;
     private Coroutine bossLoopRoutine;
     private GluttonyBossState currentState = GluttonyBossState.Inactive;
+    private readonly List<BossSummonedEnemy> activeHellhounds = new List<BossSummonedEnemy>();
 
     private bool fightRunning;
     private bool dead;
@@ -66,6 +81,13 @@ public class GluttonyBossController : MonoBehaviour
 
         bossRoomController = roomController;
 
+        if (playerTarget == null)
+        {
+            GameObject playerObject = GameObject.FindGameObjectWithTag("Player");
+            if (playerObject != null)
+                playerTarget = playerObject.transform;
+        }
+
         fightRunning = true;
 
         if (bossLoopRoutine != null)
@@ -86,6 +108,8 @@ public class GluttonyBossController : MonoBehaviour
             bossLoopRoutine = null;
         }
 
+        CleanupAllSummonedHellhounds();
+
         if (!dead)
             SetState(GluttonyBossState.Inactive);
 
@@ -104,6 +128,8 @@ public class GluttonyBossController : MonoBehaviour
             bossLoopRoutine = null;
         }
 
+        CleanupAllSummonedHellhounds();
+
         SetState(GluttonyBossState.Dead);
         SetAllStateVisualsOff();
         SetIdleVisible(false);
@@ -119,18 +145,54 @@ public class GluttonyBossController : MonoBehaviour
         while (fightRunning && !dead)
         {
             SetState(GluttonyBossState.SpawningHellhounds);
+            SummonHellhounds();
             yield return WaitForSecondsSafe(spawnHellhoundsDuration);
 
             SetState(GluttonyBossState.EatingWaveTelegraph);
             yield return WaitForSecondsSafe(waveTelegraphDuration);
 
             SetState(GluttonyBossState.EatingWaveRelease);
+            ReleaseEatingWave();
             yield return WaitForSecondsSafe(waveReleaseDuration);
 
             float sleepDuration = UnityEngine.Random.Range(sleepMinDuration, sleepMaxDuration);
             SetState(GluttonyBossState.Sleeping);
             yield return WaitForSecondsSafe(sleepDuration);
         }
+    }
+
+    private void ReleaseEatingWave()
+    {
+        if (eatingWavePrefab == null)
+        {
+            Log("Eating Wave prefab missing.");
+            return;
+        }
+
+        Transform spawnPoint = eatingWaveSpawnPoint != null ? eatingWaveSpawnPoint : transform;
+
+        Vector2 direction = Vector2.right;
+
+        if (playerTarget != null)
+        {
+            Vector2 rawDirection = playerTarget.position - spawnPoint.position;
+
+            if (rawDirection.sqrMagnitude > 0.001f)
+                direction = rawDirection.normalized;
+        }
+
+        GluttonyEatingWave wave = Instantiate(
+            eatingWavePrefab,
+            spawnPoint.position,
+            Quaternion.identity
+        );
+
+        wave.Initialize(direction, eatingWaveMaxHPLoss);
+
+        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+        wave.transform.rotation = Quaternion.Euler(0f, 0f, angle);
+
+        Log("Released Eating Wave toward " + direction);
     }
 
     private IEnumerator WaitForSecondsSafe(float seconds)
@@ -230,6 +292,83 @@ public class GluttonyBossController : MonoBehaviour
     {
         if (summonVisual != null)
             summonVisual.SetActive(visible);
+    }
+
+    private void SummonHellhounds()
+    {
+        CleanupNullHellhoundReferences();
+
+        if (hellhoundPrefab == null)
+        {
+            Log("Hellhound prefab missing.");
+            return;
+        }
+
+        if (hellhoundSpawnPoints == null || hellhoundSpawnPoints.Length == 0)
+        {
+            Log("Hellhound spawn points missing.");
+            return;
+        }
+
+        int aliveCount = activeHellhounds.Count;
+        int remainingCapacity = Mathf.Max(0, maxAliveHellhounds - aliveCount);
+
+        if (remainingCapacity <= 0)
+        {
+            Log("Skipped Hellhound summon because max alive count is already reached: " + aliveCount);
+            return;
+        }
+
+        int spawnCount = Mathf.Min(hellhoundsPerSummon, remainingCapacity);
+
+        for (int i = 0; i < spawnCount; i++)
+        {
+            Transform spawnPoint = hellhoundSpawnPoints[i % hellhoundSpawnPoints.Length];
+
+            if (spawnPoint == null)
+                continue;
+
+            BossSummonedEnemy summoned = Instantiate(
+                hellhoundPrefab,
+                spawnPoint.position,
+                Quaternion.identity
+            );
+
+            summoned.Initialize(this);
+            activeHellhounds.Add(summoned);
+        }
+
+        Log("Summoned " + spawnCount + " Gluttony Hellhounds. Alive now: " + activeHellhounds.Count);
+    }
+
+    private void CleanupNullHellhoundReferences()
+    {
+        for (int i = activeHellhounds.Count - 1; i >= 0; i--)
+        {
+            if (activeHellhounds[i] == null)
+                activeHellhounds.RemoveAt(i);
+        }
+    }
+
+    public void NotifySummonedHellhoundRemoved(BossSummonedEnemy summoned)
+    {
+        if (summoned == null)
+            return;
+
+        activeHellhounds.Remove(summoned);
+    }
+
+    private void CleanupAllSummonedHellhounds()
+    {
+        for (int i = activeHellhounds.Count - 1; i >= 0; i--)
+        {
+            if (activeHellhounds[i] != null)
+                activeHellhounds[i].Cleanup();
+        }
+
+        activeHellhounds.Clear();
+
+        Log("Cleaned up all summoned Hellhounds.");
     }
 
     private void Log(string message)

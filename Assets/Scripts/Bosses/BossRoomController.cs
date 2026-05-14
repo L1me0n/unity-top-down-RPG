@@ -20,6 +20,11 @@ public class BossRoomController : MonoBehaviour
     [Header("Boss UI")]
     [SerializeField] private BossHealthBarUI bossHealthBarUI;
 
+    [Header("Boss Attempt HP Snapshot")]
+    [SerializeField] private bool restorePlayerHpSnapshotOnAttemptEnd = true;
+    [SerializeField] private PlayerStats playerStats;
+    [SerializeField] private PlayerDamageReceiver playerDamageReceiver;
+
     [Header("Debug")]
     [SerializeField] private bool debugLogs = true;
 
@@ -31,6 +36,10 @@ public class BossRoomController : MonoBehaviour
 
     private bool initialized;
     private bool fightStarted;
+
+    private bool hpSnapshotCaptured;
+    private int hpSnapshotMaxHP;
+    private int hpSnapshotCurrentHP;
 
     public event Action<BossRoomController> OnBossFightStarted;
     public event Action<BossRoomController> OnBossRoomLoadedAsDefeated;
@@ -52,6 +61,15 @@ public class BossRoomController : MonoBehaviour
         roomManager = ownerRoomManager;
         roomInstance = ownerRoomInstance;
         player = playerTransform;
+
+        if (player != null)
+        {
+            if (playerStats == null)
+                playerStats = player.GetComponent<PlayerStats>();
+
+            if (playerDamageReceiver == null)
+                playerDamageReceiver = player.GetComponent<PlayerDamageReceiver>();
+        }
 
         if (cameraFollow == null)
             cameraFollow = FindFirstObjectByType<CameraFollow>();
@@ -110,6 +128,9 @@ public class BossRoomController : MonoBehaviour
         SetDoorLocks(true);
         ApplyBossRoomCamera();
 
+        CapturePlayerHPSnapshot();
+        SubscribeToPlayerDeathForSnapshotRestore();
+
         StartBossLogic();
 
         Log("Boss fight entry started at " + roomCoord + " | bossType=" + bossType);
@@ -154,6 +175,10 @@ public class BossRoomController : MonoBehaviour
         if (bossType == BossType.Gluttony && BossProgressionManager.Instance != null)
             BossProgressionManager.Instance.MarkGluttonyBossDefeated();
 
+        RestorePlayerHPSnapshot(true);
+        UnsubscribeFromPlayerDeathForSnapshotRestore();
+        hpSnapshotCaptured = false;
+
         SetupDefeatedBossRoom();
     }
 
@@ -195,6 +220,10 @@ public class BossRoomController : MonoBehaviour
 
     private void OnDisable()
     {
+        RestorePlayerHPSnapshot(true);
+        UnsubscribeFromPlayerDeathForSnapshotRestore();
+        hpSnapshotCaptured = false;
+
         ClearBossRoomCamera();
     }
 
@@ -213,6 +242,84 @@ public class BossRoomController : MonoBehaviour
         }
 
         gluttonyBossController.StartFight(this);
+    }
+
+    private void CapturePlayerHPSnapshot()
+    {
+        if (!restorePlayerHpSnapshotOnAttemptEnd)
+            return;
+
+        if (playerStats == null && player != null)
+            playerStats = player.GetComponent<PlayerStats>();
+
+        if (playerStats == null)
+        {
+            Debug.LogWarning("[BossRoomController] Cannot capture HP snapshot because PlayerStats is missing.", this);
+            return;
+        }
+
+        hpSnapshotMaxHP = playerStats.MaxHP;
+        hpSnapshotCurrentHP = playerStats.HP;
+        hpSnapshotCaptured = true;
+
+        Log("Captured boss attempt HP snapshot: " + hpSnapshotCurrentHP + "/" + hpSnapshotMaxHP);
+    }
+
+    private void RestorePlayerHPSnapshot(bool restoreCurrentHP)
+    {
+        if (!restorePlayerHpSnapshotOnAttemptEnd)
+            return;
+
+        if (!hpSnapshotCaptured)
+            return;
+
+        if (playerStats == null && player != null)
+            playerStats = player.GetComponent<PlayerStats>();
+
+        if (playerStats == null)
+            return;
+
+        playerStats.SetMaxHP(hpSnapshotMaxHP);
+
+        if (restoreCurrentHP)
+            playerStats.SetHP(hpSnapshotCurrentHP);
+
+        Log(
+            "Restored boss attempt HP snapshot. Current restore=" + restoreCurrentHP +
+            " | Snapshot=" + hpSnapshotCurrentHP + "/" + hpSnapshotMaxHP
+        );
+    }
+
+    private void SubscribeToPlayerDeathForSnapshotRestore()
+    {
+        if (playerDamageReceiver == null && player != null)
+            playerDamageReceiver = player.GetComponent<PlayerDamageReceiver>();
+
+        if (playerDamageReceiver == null)
+            return;
+
+        playerDamageReceiver.OnDied -= HandlePlayerDiedDuringBossAttempt;
+        playerDamageReceiver.OnDied += HandlePlayerDiedDuringBossAttempt;
+    }
+
+    private void UnsubscribeFromPlayerDeathForSnapshotRestore()
+    {
+        if (playerDamageReceiver == null)
+            return;
+
+        playerDamageReceiver.OnDied -= HandlePlayerDiedDuringBossAttempt;
+    }
+
+    private void HandlePlayerDiedDuringBossAttempt()
+    {
+        // Restore MaxHP before checkpoint respawn finishes.
+        // Do not restore current HP here, because the death/checkpoint flow owns HP recovery.
+        RestorePlayerHPSnapshot(false);
+
+        UnsubscribeFromPlayerDeathForSnapshotRestore();
+        hpSnapshotCaptured = false;
+
+        Log("Player died during boss attempt. Restored MaxHP snapshot before checkpoint respawn.");
     }
 
     private void Log(string message)

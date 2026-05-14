@@ -143,7 +143,7 @@ public class BossProgressionManager : MonoBehaviour
         string text = GetGluttonyBossClueDisplayText();
 
         if (state != null && state.hungerHorsemanClueUnlocked)
-            text += "\nHunger Horseman: clue acquired.";
+            text += "\nHunger Horseman: +69, __";
 
         return text;
     }

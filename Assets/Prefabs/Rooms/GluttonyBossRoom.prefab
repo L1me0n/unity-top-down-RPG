@@ -308,6 +308,37 @@ Transform:
   m_Children: []
   m_Father: {fileID: 631738927235406058}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1127297738676942713
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8735742288589375538}
+  m_Layer: 0
+  m_Name: WaveSpawnPoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8735742288589375538
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1127297738676942713}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -0.02, y: -0.23, z: 0}
+  m_LocalScale: {x: 2.1367521, y: 1.9841269, z: 2.3310022}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1603618821924373209}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1470305852400994447
 GameObject:
   m_ObjectHideFlags: 0
@@ -586,6 +617,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1692438330787910510}
+  - {fileID: 7370251150936413364}
   m_Father: {fileID: 925430044321457944}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1577237267255645857
@@ -791,7 +823,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 9041858405947506977}
-  m_Father: {fileID: 925430044321457944}
+  m_Father: {fileID: 2600485524225149604}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -1566,7 +1598,6 @@ Transform:
   - {fileID: 7813993403948030937}
   - {fileID: 631738927235406058}
   - {fileID: 2600485524225149604}
-  - {fileID: 7370251150936413364}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &7205095247361074584
@@ -1606,6 +1637,9 @@ MonoBehaviour:
   bossRoomOrthoSize: 8.5
   useBossRoomZoom: 1
   bossHealthBarUI: {fileID: 7358137845947464239}
+  restorePlayerHpSnapshotOnAttemptEnd: 1
+  playerStats: {fileID: 0}
+  playerDamageReceiver: {fileID: 0}
   debugLogs: 1
 --- !u!114 &4795065578131462605
 MonoBehaviour:
@@ -1625,6 +1659,20 @@ MonoBehaviour:
   waveReleaseDuration: 0.75
   sleepMinDuration: 3
   sleepMaxDuration: 5
+  hellhoundPrefab: {fileID: 6651478779562017982, guid: 34a4a61c18b013744b19f38cca88d520, type: 3}
+  hellhoundSpawnPoints:
+  - {fileID: 7119041114794855008}
+  - {fileID: 7594759664942551656}
+  - {fileID: 2377867500616174019}
+  - {fileID: 3417957630627494179}
+  - {fileID: 8466659521980842823}
+  hellhoundsPerSummon: 5
+  maxAliveHellhounds: 15
+  cleanupHellhoundsOnSleep: 0
+  eatingWavePrefab: {fileID: 2941674072595451753, guid: c74da90618927154babc5ae934239548, type: 3}
+  eatingWaveSpawnPoint: {fileID: 8735742288589375538}
+  playerTarget: {fileID: 0}
+  eatingWaveMaxHPLoss: 1
   idleVisualRoot: {fileID: 8500480363409237131}
   mouthGlowVisual: {fileID: 2961901143271739541}
   sleepVisual: {fileID: 5410540197980618909}
@@ -1842,7 +1890,7 @@ Transform:
   m_GameObject: {fileID: 5429254203255260473}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 6.65, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2206,15 +2254,28 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 7100983699586541950, guid: 5e3ca17d07b516148a7c7bbae20225fd, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 8735742288589375538}
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 89284764828159788, guid: 5e3ca17d07b516148a7c7bbae20225fd, type: 3}
       insertIndex: -1
       addedObject: {fileID: 6132854742115060446}
   m_SourcePrefab: {fileID: 100100000, guid: 5e3ca17d07b516148a7c7bbae20225fd, type: 3}
+--- !u!4 &1603618821924373209 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 7100983699586541950, guid: 5e3ca17d07b516148a7c7bbae20225fd, type: 3}
+  m_PrefabInstance: {fileID: 8415804794351856551}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &1692438330787910510 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7185016493166393545, guid: 5e3ca17d07b516148a7c7bbae20225fd, type: 3}
+  m_PrefabInstance: {fileID: 8415804794351856551}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &2377867500616174019 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 6067773921014538852, guid: 5e3ca17d07b516148a7c7bbae20225fd, type: 3}
   m_PrefabInstance: {fileID: 8415804794351856551}
   m_PrefabAsset: {fileID: 0}
 --- !u!1 &2961901143271739541 stripped
@@ -2233,9 +2294,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2b2ae78be1a31e348a7ce76aa543915b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Health
+--- !u!4 &3417957630627494179 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 6603956575935402628, guid: 5e3ca17d07b516148a7c7bbae20225fd, type: 3}
+  m_PrefabInstance: {fileID: 8415804794351856551}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &5410540197980618909 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 4601808538233498426, guid: 5e3ca17d07b516148a7c7bbae20225fd, type: 3}
+  m_PrefabInstance: {fileID: 8415804794351856551}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &7119041114794855008 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 1585579277907173831, guid: 5e3ca17d07b516148a7c7bbae20225fd, type: 3}
+  m_PrefabInstance: {fileID: 8415804794351856551}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &7594759664942551656 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 2138348295729363407, guid: 5e3ca17d07b516148a7c7bbae20225fd, type: 3}
+  m_PrefabInstance: {fileID: 8415804794351856551}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &8466659521980842823 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 123123471990909152, guid: 5e3ca17d07b516148a7c7bbae20225fd, type: 3}
   m_PrefabInstance: {fileID: 8415804794351856551}
   m_PrefabAsset: {fileID: 0}
 --- !u!1 &8500480363409237131 stripped

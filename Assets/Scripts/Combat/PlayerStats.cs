@@ -88,6 +88,31 @@ public class PlayerStats : MonoBehaviour
         OnChanged?.Invoke();
     }
 
+    public void SetHP(int value)
+    {
+        currentHP = Mathf.Clamp(value, 0, maxHP);
+        OnChanged?.Invoke();
+    }
+
+    public bool TryLoseMaxHP(int amount)
+    {
+        if (amount <= 0)
+            return false;
+
+        if (maxHP <= 1)
+            return false;
+
+        int oldMaxHP = maxHP;
+        int newMaxHP = Mathf.Max(1, maxHP - amount);
+
+        if (newMaxHP == oldMaxHP)
+            return false;
+
+        SetMaxHP(newMaxHP);
+
+        return true;
+    }
+
     public void SetMaxAP(int newMax)
     {
         maxAP = Mathf.Max(1, newMax);

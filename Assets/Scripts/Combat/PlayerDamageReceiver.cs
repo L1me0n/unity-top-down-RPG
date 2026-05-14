@@ -8,6 +8,7 @@ public class PlayerDamageReceiver : MonoBehaviour
     public bool IsDead => stats != null && stats.HP <= 0;
 
     public System.Action OnDied;
+    public System.Action<int> OnMaxHPLost;
 
     private PlayerStats stats;
 
@@ -44,5 +45,34 @@ public class PlayerDamageReceiver : MonoBehaviour
 
             OnDied?.Invoke();
         }
+    }
+
+    public bool TryApplyMaxHPLoss(int amount)
+    {
+        if (amount <= 0)
+            return false;
+
+        if (IsDead)
+            return false;
+
+        // Eating Wave is avoidable with Disappear.
+        if (disappear != null && disappear.IsDisappeared)
+            return false;
+
+        if (stats == null)
+            stats = GetComponent<PlayerStats>();
+
+        if (stats == null)
+        {
+            Debug.LogWarning("[PlayerDamageReceiver] Missing PlayerStats. Cannot apply Max HP loss.", this);
+            return false;
+        }
+
+        bool lost = stats.TryLoseMaxHP(amount);
+
+        if (lost)
+            OnMaxHPLost?.Invoke(amount);
+
+        return lost;
     }
 }
