@@ -40,6 +40,7 @@ public class TradeShopUI : MonoBehaviour
     public event Action OnClosed;
 
     private float clearMessageAtUnscaledTime = -1f;
+    private float previousTimeScale = 1f;
 
     private void Awake()
     {
@@ -113,11 +114,18 @@ public class TradeShopUI : MonoBehaviour
 
         rootPanel.SetActive(true);
 
-        UIInputBlocker.BlockGameplayInput = true;
-        UIInputBlocker.BlockUpgradeMenuToggle = true;
+        UIInputBlocker.SetGameplayBlocked(UIInputBlocker.LockTradeShop, true);
+        UIInputBlocker.SetUpgradeMenuBlocked(UIInputBlocker.LockTradeShop, true);
+        UIInputBlocker.SetTradeItemHotkeysBlocked(UIInputBlocker.LockTradeShop, true);
+        UIInputBlocker.SetClueMenuToggleBlocked(UIInputBlocker.LockTradeShop, true);
+        UIInputBlocker.SetInventoryToggleBlocked(UIInputBlocker.LockTradeShop, true);
+        UIInputBlocker.SetPauseToggleBlocked(UIInputBlocker.LockTradeShop, true);
 
         if (pauseGameWhileOpen)
+        {
+            previousTimeScale = Time.timeScale;
             Time.timeScale = 0f;
+        }
 
         RefreshAll();
         ClearMessage();
@@ -135,13 +143,10 @@ public class TradeShopUI : MonoBehaviour
 
         rootPanel.SetActive(false);
 
-        UIInputBlocker.BlockGameplayInput = false;
-
-        // Merchant reclaims this if the player is still standing in its trigger.
-        UIInputBlocker.BlockUpgradeMenuToggle = false;
+        UIInputBlocker.ReleaseOwner(UIInputBlocker.LockTradeShop);
 
         if (pauseGameWhileOpen)
-            Time.timeScale = 1f;
+            Time.timeScale = previousTimeScale;
 
         ClearMessage();
 
@@ -156,11 +161,10 @@ public class TradeShopUI : MonoBehaviour
         if (rootPanel != null)
             rootPanel.SetActive(false);
 
-        UIInputBlocker.BlockGameplayInput = false;
-        UIInputBlocker.BlockUpgradeMenuToggle = false;
+        UIInputBlocker.ReleaseOwner(UIInputBlocker.LockTradeShop);
 
         if (pauseGameWhileOpen)
-            Time.timeScale = 1f;
+            Time.timeScale = previousTimeScale;
 
         ClearMessage();
     }

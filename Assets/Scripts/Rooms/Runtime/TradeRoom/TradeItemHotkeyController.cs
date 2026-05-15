@@ -30,7 +30,7 @@ public class TradeItemHotkeyController : MonoBehaviour
 
     private void Update()
     {
-        if (UIInputBlocker.BlockGameplayInput)
+        if (UIInputBlocker.BlockGameplayInput || UIInputBlocker.BlockTradeItemHotkeys)
             return;
 
         if (inventory == null)

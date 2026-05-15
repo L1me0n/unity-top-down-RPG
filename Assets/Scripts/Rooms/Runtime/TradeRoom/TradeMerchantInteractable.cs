@@ -52,13 +52,11 @@ public class TradeMerchantInteractable : MonoBehaviour
             shopPanel.OnClosed -= HandleShopClosed;
         }
 
-        if (playerInside)
-        {
-            playerInside = false;
-            UIInputBlocker.BlockUpgradeMenuToggle = false;
-        }
-
+        playerInside = false;
         waitForInteractKeyRelease = false;
+
+        UIInputBlocker.ReleaseOwner(UIInputBlocker.LockTradeMerchant);
+
         SetPromptVisible(false);
     }
 
@@ -91,7 +89,7 @@ public class TradeMerchantInteractable : MonoBehaviour
             return;
 
         playerInside = true;
-        UIInputBlocker.BlockUpgradeMenuToggle = true;
+        UIInputBlocker.SetUpgradeMenuBlocked(UIInputBlocker.LockTradeMerchant, true);
 
         if (promptText != null)
             promptText.text = promptMessage;
@@ -111,8 +109,7 @@ public class TradeMerchantInteractable : MonoBehaviour
         playerInside = false;
         waitForInteractKeyRelease = false;
 
-        if (shopPanel == null || !shopPanel.IsOpen)
-            UIInputBlocker.BlockUpgradeMenuToggle = false;
+        UIInputBlocker.SetUpgradeMenuBlocked(UIInputBlocker.LockTradeMerchant, false);
 
         SetPromptVisible(false);
 
@@ -147,7 +144,7 @@ public class TradeMerchantInteractable : MonoBehaviour
 
         if (playerInside)
         {
-            UIInputBlocker.BlockUpgradeMenuToggle = true;
+            UIInputBlocker.SetUpgradeMenuBlocked(UIInputBlocker.LockTradeMerchant, true);
             SetPromptVisible(true);
         }
     }

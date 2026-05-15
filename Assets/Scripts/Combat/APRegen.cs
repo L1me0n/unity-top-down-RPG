@@ -17,6 +17,8 @@ public class APRegen : MonoBehaviour
     private float timer;
 
     public int APPerTick => apPerTick;
+    public float TickSeconds => tickSeconds;
+    public float APPerSecond => tickSeconds > 0f ? apPerTick / tickSeconds : 0f;
 
     private void Awake()
     {

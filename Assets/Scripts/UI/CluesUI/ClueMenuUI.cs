@@ -77,7 +77,7 @@ public class ClueMenuUI : MonoBehaviour
         if (isOpen)
             return;
 
-        if (UIInputBlocker.BlockGameplayInput)
+        if (UIInputBlocker.BlockGameplayInput || UIInputBlocker.BlockClueMenuToggle)
         {
             Log("Cannot open clue menu because gameplay input is already blocked.");
             return;
@@ -100,8 +100,11 @@ public class ClueMenuUI : MonoBehaviour
 
         if (blockGameplayWhileOpen)
         {
-            UIInputBlocker.BlockGameplayInput = true;
-            UIInputBlocker.BlockUpgradeMenuToggle = true;
+            UIInputBlocker.SetGameplayBlocked(UIInputBlocker.LockClueMenu, true);
+            UIInputBlocker.SetUpgradeMenuBlocked(UIInputBlocker.LockClueMenu, true);
+            UIInputBlocker.SetPauseToggleBlocked(UIInputBlocker.LockClueMenu, true);
+            UIInputBlocker.SetInventoryToggleBlocked(UIInputBlocker.LockClueMenu, true);
+            UIInputBlocker.SetTradeItemHotkeysBlocked(UIInputBlocker.LockClueMenu, true);
         }
 
         if (pauseGameWhileOpen)
@@ -125,8 +128,7 @@ public class ClueMenuUI : MonoBehaviour
 
         if (blockGameplayWhileOpen)
         {
-            UIInputBlocker.BlockGameplayInput = false;
-            UIInputBlocker.BlockUpgradeMenuToggle = false;
+            UIInputBlocker.ReleaseOwner(UIInputBlocker.LockClueMenu);
         }
 
         if (pauseGameWhileOpen)
@@ -144,8 +146,7 @@ public class ClueMenuUI : MonoBehaviour
 
         if (blockGameplayWhileOpen)
         {
-            UIInputBlocker.BlockGameplayInput = false;
-            UIInputBlocker.BlockUpgradeMenuToggle = false;
+            UIInputBlocker.ReleaseOwner(UIInputBlocker.LockClueMenu);
         }
 
         if (pauseGameWhileOpen)

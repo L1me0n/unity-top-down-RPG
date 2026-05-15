@@ -141,8 +141,12 @@ public class GluttonyVictoryMenuUI : MonoBehaviour
         if (panelRoot != null)
             panelRoot.SetActive(true);
 
-        UIInputBlocker.BlockGameplayInput = true;
-        UIInputBlocker.BlockUpgradeMenuToggle = true;
+        UIInputBlocker.SetGameplayBlocked(UIInputBlocker.LockGluttonyVictory, true);
+        UIInputBlocker.SetUpgradeMenuBlocked(UIInputBlocker.LockGluttonyVictory, true);
+        UIInputBlocker.SetPauseToggleBlocked(UIInputBlocker.LockGluttonyVictory, true);
+        UIInputBlocker.SetInventoryToggleBlocked(UIInputBlocker.LockGluttonyVictory, true);
+        UIInputBlocker.SetClueMenuToggleBlocked(UIInputBlocker.LockGluttonyVictory, true);
+        UIInputBlocker.SetTradeItemHotkeysBlocked(UIInputBlocker.LockGluttonyVictory, true);
 
         if (pauseGameWhileOpen)
         {
@@ -166,8 +170,7 @@ public class GluttonyVictoryMenuUI : MonoBehaviour
         if (panelRoot != null)
             panelRoot.SetActive(false);
 
-        UIInputBlocker.BlockGameplayInput = false;
-        UIInputBlocker.BlockUpgradeMenuToggle = false;
+        UIInputBlocker.ReleaseOwner(UIInputBlocker.LockGluttonyVictory);
 
         if (pauseGameWhileOpen)
             Time.timeScale = previousTimeScale;
@@ -185,8 +188,7 @@ public class GluttonyVictoryMenuUI : MonoBehaviour
         if (panelRoot != null)
             panelRoot.SetActive(false);
 
-        UIInputBlocker.BlockGameplayInput = false;
-        UIInputBlocker.BlockUpgradeMenuToggle = false;
+        UIInputBlocker.ReleaseOwner(UIInputBlocker.LockGluttonyVictory);
 
         if (pauseGameWhileOpen)
             Time.timeScale = previousTimeScale;

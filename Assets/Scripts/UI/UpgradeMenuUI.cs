@@ -28,6 +28,8 @@ public class UpgradeMenuUI : MonoBehaviour
     [Header("Input")]
     [SerializeField] private KeyCode toggleKey = KeyCode.E;
 
+    private float previousTimeScale = 1f;
+
     private void Awake()
     {
         if (levelSystem == null) levelSystem = FindFirstObjectByType<LevelSystem>();
@@ -77,8 +79,8 @@ public class UpgradeMenuUI : MonoBehaviour
         // make sure gameplay does not stay permanently blocked.
         if (rootPanel != null && rootPanel.activeSelf)
         {
-            UIInputBlocker.BlockGameplayInput = false;
-            Time.timeScale = 1f;
+            UIInputBlocker.ReleaseOwner(UIInputBlocker.LockUpgradeMenu);
+            Time.timeScale = previousTimeScale;
         }
     }
 
@@ -87,8 +89,13 @@ public class UpgradeMenuUI : MonoBehaviour
         if (!Input.GetKeyDown(toggleKey))
             return;
 
-        if (UIInputBlocker.BlockUpgradeMenuToggle)
-            return;
+        bool isOpen = rootPanel != null && rootPanel.activeSelf;
+
+        if (!isOpen)
+        {
+            if (UIInputBlocker.BlockUpgradeMenuToggle || UIInputBlocker.BlockGameplayInput)
+                return;
+        }
 
         Toggle();
     }
@@ -100,8 +107,22 @@ public class UpgradeMenuUI : MonoBehaviour
         bool newState = !rootPanel.activeSelf;
         rootPanel.SetActive(newState);
 
-        UIInputBlocker.BlockGameplayInput = newState;
-        Time.timeScale = newState ? 0f : 1f;
+        if (newState)
+        {
+            UIInputBlocker.SetGameplayBlocked(UIInputBlocker.LockUpgradeMenu, true);
+            UIInputBlocker.SetTradeItemHotkeysBlocked(UIInputBlocker.LockUpgradeMenu, true);
+            UIInputBlocker.SetPauseToggleBlocked(UIInputBlocker.LockUpgradeMenu, true);
+            UIInputBlocker.SetInventoryToggleBlocked(UIInputBlocker.LockUpgradeMenu, true);
+            UIInputBlocker.SetClueMenuToggleBlocked(UIInputBlocker.LockUpgradeMenu, true);
+
+            previousTimeScale = Time.timeScale;
+            Time.timeScale = 0f;
+        }
+        else
+        {
+            UIInputBlocker.ReleaseOwner(UIInputBlocker.LockUpgradeMenu);
+            Time.timeScale = previousTimeScale;
+        }
 
         RefreshAll();
     }
