@@ -19,7 +19,7 @@ public class InventoryMenuUI : MonoBehaviour
     [SerializeField] private InventoryBranchesPanelUI branchesPanel;
 
     [Header("Input")]
-    [SerializeField] private KeyCode toggleKey = KeyCode.I;
+    [SerializeField] private KeyCode toggleKey = KeyCode.L;
     [SerializeField] private KeyCode closeKey = KeyCode.Escape;
 
     [Header("Time")]
@@ -42,7 +42,7 @@ public class InventoryMenuUI : MonoBehaviour
             titleText.text = "Sinner's Ledger";
 
         if (closeHintText != null)
-            closeHintText.text = "Press I or Esc to close";
+            closeHintText.text = "Press L or Esc to close";
 
         if (closeButton != null)
             closeButton.onClick.AddListener(Close);
