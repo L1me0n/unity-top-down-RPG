@@ -13,12 +13,23 @@ public class PagedTipsPanelUI : MonoBehaviour
     [SerializeField] private TMP_Text titleText;
     [SerializeField] private TMP_Text bodyText;
     [SerializeField] private TMP_Text pageCounterText;
+    [SerializeField] private TMP_Text hintText;
 
     [Header("Buttons")]
     [SerializeField] private Button previousButton;
     [SerializeField] private Button nextButton;
     [SerializeField] private Button continueButton;
     [SerializeField] private Button closeButton;
+
+    [Header("Input")]
+    [SerializeField] private KeyCode nextKey = KeyCode.Space;
+    [SerializeField] private KeyCode alternateNextKey = KeyCode.Return;
+    [SerializeField] private KeyCode closeKey = KeyCode.Escape;
+
+    [Header("Blocking")]
+    [SerializeField] private string ownerKey = UIInputBlocker.LockTipsMenu;
+    [SerializeField] private bool blockGameplayWhileOpen = true;
+    [SerializeField] private bool pauseGameWhileOpen = true;
 
     [Header("Behavior")]
     [SerializeField] private bool hideOnAwake = true;
@@ -27,8 +38,10 @@ public class PagedTipsPanelUI : MonoBehaviour
     private readonly List<TipPageData> pages = new List<TipPageData>();
     private int currentPageIndex = 0;
     private Action onFinished;
+    private bool isOpen;
+    private float previousTimeScale = 1f;
 
-    public bool IsOpen => panelRoot != null && panelRoot.activeSelf;
+    public bool IsOpen => isOpen;
     public int CurrentPageIndex => currentPageIndex;
     public int PageCount => pages.Count;
 
@@ -48,6 +61,9 @@ public class PagedTipsPanelUI : MonoBehaviour
 
         if (closeButton != null)
             closeButton.onClick.AddListener(FinishAndClose);
+
+        if (hintText != null)
+            hintText.text = "Space / Enter: next   Esc: close";
     }
 
     private void OnDestroy()
@@ -63,6 +79,29 @@ public class PagedTipsPanelUI : MonoBehaviour
 
         if (closeButton != null)
             closeButton.onClick.RemoveListener(FinishAndClose);
+
+        if (isOpen)
+            ReleaseLocksAndTime();
+    }
+
+    private void Update()
+    {
+        if (!isOpen)
+            return;
+
+        if (Input.GetKeyDown(closeKey))
+        {
+            FinishAndClose();
+            return;
+        }
+
+        if (Input.GetKeyDown(nextKey) || Input.GetKeyDown(alternateNextKey))
+        {
+            if (currentPageIndex < pages.Count - 1)
+                GoNext();
+            else
+                FinishAndClose();
+        }
     }
 
     public void ShowPages(IEnumerable<TipPageData> newPages, Action finishedCallback = null)
@@ -92,13 +131,14 @@ public class PagedTipsPanelUI : MonoBehaviour
             return;
         }
 
+        isOpen = true;
+
         if (panelRoot != null)
             panelRoot.SetActive(true);
         else
             gameObject.SetActive(true);
 
-        UIInputBlocker.BlockGameplayInput = true;
-
+        ApplyLocksAndTime();
         RefreshView();
 
         if (log)
@@ -107,12 +147,14 @@ public class PagedTipsPanelUI : MonoBehaviour
 
     public void HideImmediate()
     {
+        isOpen = false;
+
         if (panelRoot != null)
             panelRoot.SetActive(false);
         else
             gameObject.SetActive(false);
 
-        UIInputBlocker.BlockGameplayInput = false;
+        ReleaseLocksAndTime();
     }
 
     private void GoPrevious()
@@ -184,5 +226,32 @@ public class PagedTipsPanelUI : MonoBehaviour
 
         if (closeButton != null)
             closeButton.gameObject.SetActive(true);
+    }
+
+    private void ApplyLocksAndTime()
+    {
+        if (blockGameplayWhileOpen)
+        {
+            UIInputBlocker.SetGameplayBlocked(ownerKey, true);
+            UIInputBlocker.SetUpgradeMenuBlocked(ownerKey, true);
+            UIInputBlocker.SetPauseToggleBlocked(ownerKey, true);
+            UIInputBlocker.SetInventoryToggleBlocked(ownerKey, true);
+            UIInputBlocker.SetClueMenuToggleBlocked(ownerKey, true);
+            UIInputBlocker.SetTradeItemHotkeysBlocked(ownerKey, true);
+        }
+
+        if (pauseGameWhileOpen)
+        {
+            previousTimeScale = Time.timeScale;
+            Time.timeScale = 0f;
+        }
+    }
+
+    private void ReleaseLocksAndTime()
+    {
+        UIInputBlocker.ReleaseOwner(ownerKey);
+
+        if (pauseGameWhileOpen)
+            Time.timeScale = previousTimeScale;
     }
 }

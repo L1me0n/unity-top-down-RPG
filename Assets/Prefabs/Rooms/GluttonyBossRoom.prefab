@@ -1573,6 +1573,7 @@ GameObject:
   - component: {fileID: 7205095247361074584}
   - component: {fileID: 8016123040208921056}
   - component: {fileID: 4795065578131462605}
+  - component: {fileID: 5033610482637958500}
   m_Layer: 0
   m_Name: GluttonyBossRoom
   m_TagString: Untagged
@@ -1679,6 +1680,26 @@ MonoBehaviour:
   summonVisual: {fileID: 0}
   health: {fileID: 3249875558897078048}
   debugLogs: 1
+--- !u!114 &5033610482637958500
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4052264067139323334}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c7afb946e36b3d94cb3a173de7c29cf2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GlobalTipRequestOnEnable
+  tipIds:
+  - boss_gluttony_room
+  - boss_mvp_ending
+  delaySeconds: 0.25
+  retryCount: 8
+  retryDelaySeconds: 0.25
+  requestOnlyOncePerObjectEnable: 1
+  log: 0
 --- !u!1 &4197071344696378217
 GameObject:
   m_ObjectHideFlags: 0

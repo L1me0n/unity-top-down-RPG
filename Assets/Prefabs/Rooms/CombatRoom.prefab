@@ -1233,6 +1233,7 @@ GameObject:
   - component: {fileID: 925430044321457944}
   - component: {fileID: 7205095247361074584}
   - component: {fileID: 6228971295653053784}
+  - component: {fileID: 2639731562628887266}
   m_Layer: 0
   m_Name: CombatRoom
   m_TagString: Untagged
@@ -1300,6 +1301,27 @@ MonoBehaviour:
   executeChancePerPoint: 0.005
   logExecuteRoll: 1
   logEncounterFlow: 1
+--- !u!114 &2639731562628887266
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4052264067139323334}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c7afb946e36b3d94cb3a173de7c29cf2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GlobalTipRequestOnEnable
+  tipIds:
+  - room_combat_first_enter
+  - combat_enemy_variety
+  - hostage_room_first_seen
+  delaySeconds: 0.25
+  retryCount: 8
+  retryDelaySeconds: 0.25
+  requestOnlyOncePerObjectEnable: 1
+  log: 0
 --- !u!1 &4197071344696378217
 GameObject:
   m_ObjectHideFlags: 0

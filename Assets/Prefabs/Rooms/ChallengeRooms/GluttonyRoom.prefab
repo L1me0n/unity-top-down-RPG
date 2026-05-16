@@ -1611,6 +1611,7 @@ GameObject:
   - component: {fileID: -6917670511581003751}
   - component: {fileID: 3597775143870823134}
   - component: {fileID: 7082684584250531766}
+  - component: {fileID: -3898502489060003078}
   m_Layer: 0
   m_Name: GluttonyRoom
   m_TagString: Untagged
@@ -1850,6 +1851,26 @@ MonoBehaviour:
   bossProgressionManager: {fileID: 0}
   requireSuccessfulOutcome: 1
   debugLogs: 1
+--- !u!114 &-3898502489060003078
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4052264067139323334}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c7afb946e36b3d94cb3a173de7c29cf2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GlobalTipRequestOnEnable
+  tipIds:
+  - boss_clue_menu
+  - boss_gluttony_clues
+  delaySeconds: 0.25
+  retryCount: 8
+  retryDelaySeconds: 0.25
+  requestOnlyOncePerObjectEnable: 1
+  log: 0
 --- !u!1 &4197071344696378217
 GameObject:
   m_ObjectHideFlags: 0

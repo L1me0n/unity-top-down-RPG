@@ -1,0 +1,292 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2bd16c723138d42428c3b24a7c4f950d, type: 3}
+  m_Name: GlobalTipDatabase
+  m_EditorClassIdentifier: Assembly-CSharp::GlobalTipDatabase
+  tips:
+  - tipId: general_welcome
+    category: 0
+    title: WELCOME TO HELL
+    body: "You are a ghost trapped in Hell.\n\nExplore connected rooms, survive combat,
+      complete dangerous challenges, collect Souls and XP, and search for clues that
+      reveal the location of Hell\u2019s rulers.\n\nYour goal is simple: grow stronger,
+      find the boss, and survive long enough to kill it."
+    showOnlyOnce: 1
+  - tipId: general_ledger
+    category: 0
+    title: SINNER'S LEDGER
+    body: "Press L to open the Sinner\u2019s Ledger.\n\nThe Ledger shows your current
+      stats, active challenge effects, owned shop items, and branch levels.\n\nOpen
+      it whenever something changes and you want to understand what Hell has done
+      to your build."
+    showOnlyOnce: 1
+  - tipId: general_movement_combat
+    category: 0
+    title: MOVEMENT AND ATTACK
+    body: 'Move with WASD.
+
+
+      Aim with the mouse. Your ghost attacks by firing
+      ectoplasm toward your aim direction.
+
+
+      Every shot costs AP. If your AP
+      runs out, you cannot keep firing, so do not waste shots into walls or empty
+      space. Let AP recover, reposition, and attack again when you have room to breathe.'
+    showOnlyOnce: 1
+  - tipId: general_hp_ap
+    category: 0
+    title: HP, AP, AND DMG
+    body: 'HP is your life. If it reaches 0, you die and return to your last activated
+      campfire.
+
+
+      AP is your action fuel. Shooting and defensive actions use
+      AP, so running out can leave you exposed.
+
+
+      DMG shows how hard your ectoplasm
+      shots hit. Level upgrades, challenge effects, and items can change these stats
+      during a run.'
+    showOnlyOnce: 1
+  - tipId: general_disappear
+    category: 0
+    title: DISAPPEAR
+    body: 'Disappear is your defensive escape.
+
+
+      When active, you can avoid
+      many dangerous attacks for a short time. Use it to slip through enemy pressure,
+      survive boss attacks, or buy a moment when the room becomes too crowded.
+
+
+      Disappear
+      costs AP, so it is not free safety. If you spend all your AP attacking, you
+      may not have enough left to defend yourself.'
+    showOnlyOnce: 1
+  - tipId: room_combat_first_enter
+    category: 1
+    title: COMBAT ROOMS
+    body: 'Combat rooms lock you in until every enemy is defeated.
+
+
+      Once the
+      room is cleared, the doors open and you receive your rewards through combat:
+      Souls for buying items and XP for leveling up.
+
+
+      If you die, you return
+      to your last campfire, but cleared and uncleared room states are remembered.'
+    showOnlyOnce: 1
+  - tipId: combat_enemy_variety
+    category: 1
+    title: ENEMY TYPES
+    body: "Enemies do not all fight the same way.\n\nSome chase you down. Some keep
+      distance and shoot. Some create explosions. Some defend themselves. Some summon
+      more bodies into the room.\n\nWatch each enemy\u2019s behavior before committing.
+      Hell punishes panic more than patience."
+    showOnlyOnce: 1
+  - tipId: room_campfire_first_enter
+    category: 3
+    title: CAMPFIRES
+    body: 'Campfires are safe rooms.
+
+
+      Entering a campfire activates it as
+      your current checkpoint and restores your HP and AP to their current maximum
+      values.
+
+
+      When you die, this is where you return.'
+    showOnlyOnce: 1
+  - tipId: campfire_checkpoint_death
+    category: 3
+    title: CHECKPOINT RETURN
+    body: 'Death does not end the run immediately.
+
+
+      When you die, you return
+      to your last activated campfire and lose some Souls. Use campfires to anchor
+      your progress before pushing deeper into dangerous rooms.
+
+
+      A Horsemen
+      Ring can prevent death once if you own one.'
+    showOnlyOnce: 1
+  - tipId: room_trade_first_enter
+    category: 6
+    title: UNDER THE CROSSROADS
+    body: 'Under the Crossroads is a safe merchant room.
+
+
+      Spend Souls here
+      to buy temporary tools for survival, burst damage, emergency control, or death
+      prevention.
+
+
+      These items can turn a doomed room into a winnable one,
+      but only if you remember to use them.'
+    showOnlyOnce: 1
+  - tipId: trade_shop_items
+    category: 6
+    title: SHOP ITEMS
+    body: "Bought items appear on the left side of the screen.\n\nUse hotkeys 1\u20134
+      to activate active items:\n1: Chronos Spell\n2: Bloodlust Potion\n3: Ectoplasm
+      Potion\n4: Horsemen Ring\n\nThe Horsemen Ring is passive. It activates automatically
+      when you would die."
+    showOnlyOnce: 1
+  - tipId: trade_active_item_timers
+    category: 6
+    title: ITEM TIMERS
+    body: 'Chronos, Bloodlust, and Ectoplasm are temporary effects.
+
+
+      When
+      one is active, a circular timer appears near the item HUD. The shrinking fill
+      shows how much time remains.
+
+
+      Using the same active item again refreshes
+      its effect timer.'
+    showOnlyOnce: 1
+  - tipId: general_level_points
+    category: 0
+    title: LEVELS AND BRANCHES
+    body: Defeating enemies gives XP.  When you gain enough XP, you level up and
+      receive a branch point. Branch points are spent on upgrades that shape your
+      build for the rest of the run.  Leveling does not automatically make every
+      choice for you. You decide what kind of sinner you become.
+    showOnlyOnce: 1
+  - tipId: general_upgrade_menu
+    category: 0
+    title: UPGRADES
+    body: "Press E during normal gameplay to open the upgrade menu.\n\nYou can spend
+      branch points on four branches: Demon, Monster, Fallen God, and Hellhound.\n\nEach
+      branch changes your run differently, so check your current build in the Sinner\u2019s
+      Ledger with L."
+    showOnlyOnce: 1
+  - tipId: general_branch_identity
+    category: 0
+    title: BRANCH IDENTITY
+    body: 'Demon improves offensive power and Disappear strength.
+
+      Monster
+      improves survivability through HP and AP.
+
+      Fallen God gives balanced
+      stat growth.
+
+      Hellhound gives a chance to execute enemies when entering
+      combat rooms.
+
+
+      Choose branches based on how you want to survive Hell.'
+    showOnlyOnce: 1
+  - tipId: hostage_room_first_seen
+    category: 4
+    title: TRAPPED GHOSTS
+    body: 'Some combat rooms contain trapped ghosts.
+
+
+      If you find them, clear
+      the room to break their prison. Rescued ghosts travel to your active campfire
+      and gather there over time.
+
+
+      Saving them does not just clear a room.
+      It slowly changes your sanctuary.'
+    showOnlyOnce: 1
+  - tipId: hostage_campfire_population
+    category: 4
+    title: CAMPFIRE SPIRITS
+    body: 'Rescued ghosts gather at your active campfire.
+
+
+      Each campfire has
+      limited space for spirits. If a campfire is full, new hostage rooms may stop
+      appearing until another campfire becomes your active checkpoint.
+
+
+      Your
+      checkpoint is not only where you return. It is where the saved gather.'
+    showOnlyOnce: 1
+  - tipId: boss_clue_menu
+    category: 7
+    title: CLUES
+    body: 'Press C to open the Clue Menu.
+
+
+      Boss clues reveal hidden coordinates
+      piece by piece. When enough clues are found, the boss room location becomes
+      clear.
+
+
+      Use the Clue Menu whenever you forget where the hunt is leading.'
+    showOnlyOnce: 1
+  - tipId: boss_gluttony_clues
+    category: 7
+    title: GLUTTONY CLUES
+    body: 'Completing unique Gluttony Challenge rooms reveals the Gluttony Boss location.
+
+
+      Only
+      unique Gluttony rooms count. Repeating the same room will not reveal the same
+      clue again.
+
+
+      Find enough clues, and Hell will reveal where Gluttony
+      is hiding.'
+    showOnlyOnce: 1
+  - tipId: boss_gluttony_room
+    category: 7
+    title: GLUTTONY BOSS
+    body: 'Gluttony is not vulnerable all the time.
+
+
+      He cycles through summoning
+      Hellhounds, releasing an Eating Wave, and falling asleep. Attack him while
+      he sleeps.
+
+
+      The Eating Wave reduces your Max HP during the attempt unless
+      you avoid it with Disappear. The Hellhounds are the main damage pressure, so
+      decide when to clear them and when to shoot the boss.'
+    showOnlyOnce: 1
+  - tipId: boss_mvp_ending
+    category: 7
+    title: HUNGER CLUE
+    body: 'Defeating Gluttony reveals the first clue toward Hunger, one of the Horsemen.
+
+
+      This
+      MVP ends with Gluttony, but the larger hunt continues beyond him: Sins, Horsemen,
+      and finally Lucifer.
+
+
+      For now, survive Gluttony. The next nightmare
+      can wait.'
+    showOnlyOnce: 1
+  - tipId: general_attack_disappear_controls
+    category: 0
+    title: CONTROLS
+    body: 'Use Left Mouse Click to shoot ectoplasm.
+
+
+      Press Q to switch combat
+      mode.
+
+
+      Use Right Mouse Click to Disappear when you are in Defense mode.
+      Disappear makes you avoid danger for a short time, but it costs AP.
+
+'
+    showOnlyOnce: 1
