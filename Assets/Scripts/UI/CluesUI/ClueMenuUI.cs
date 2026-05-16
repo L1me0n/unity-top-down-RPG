@@ -175,6 +175,14 @@ public class ClueMenuUI : MonoBehaviour
         bodyText.text = bossProgressionManager.GetFullClueDisplayText();
     }
 
+    public void OpenFromExternalMenu()
+    {
+        if (isOpen)
+            return;
+
+        Open();
+    }
+
     private void Log(string message)
     {
         if (debugLogs)

@@ -21,14 +21,6 @@ MonoBehaviour:
       reveal the location of Hell\u2019s rulers.\n\nYour goal is simple: grow stronger,
       find the boss, and survive long enough to kill it."
     showOnlyOnce: 1
-  - tipId: general_ledger
-    category: 0
-    title: SINNER'S LEDGER
-    body: "Press L to open the Sinner\u2019s Ledger.\n\nThe Ledger shows your current
-      stats, active challenge effects, owned shop items, and branch levels.\n\nOpen
-      it whenever something changes and you want to understand what Hell has done
-      to your build."
-    showOnlyOnce: 1
   - tipId: general_movement_combat
     category: 0
     title: MOVEMENT AND ATTACK
@@ -42,21 +34,6 @@ MonoBehaviour:
       Every shot costs AP. If your AP
       runs out, you cannot keep firing, so do not waste shots into walls or empty
       space. Let AP recover, reposition, and attack again when you have room to breathe.'
-    showOnlyOnce: 1
-  - tipId: general_hp_ap
-    category: 0
-    title: HP, AP, AND DMG
-    body: 'HP is your life. If it reaches 0, you die and return to your last activated
-      campfire.
-
-
-      AP is your action fuel. Shooting and defensive actions use
-      AP, so running out can leave you exposed.
-
-
-      DMG shows how hard your ectoplasm
-      shots hit. Level upgrades, challenge effects, and items can change these stats
-      during a run.'
     showOnlyOnce: 1
   - tipId: general_disappear
     category: 0
@@ -73,6 +50,77 @@ MonoBehaviour:
       costs AP, so it is not free safety. If you spend all your AP attacking, you
       may not have enough left to defend yourself.'
     showOnlyOnce: 1
+  - tipId: general_hp_ap
+    category: 0
+    title: HP, AP, AND DMG
+    body: 'HP is your life. If it reaches 0, you die and return to your last activated
+      campfire.
+
+
+      AP is your action fuel. Shooting and defensive actions use
+      AP, so running out can leave you exposed.
+
+
+      DMG shows how hard your ectoplasm
+      shots hit. Level upgrades, challenge effects, and items can change these stats
+      during a run.'
+    showOnlyOnce: 1
+  - tipId: general_attack_disappear_controls
+    category: 0
+    title: CONTROLS
+    body: 'Use Left Mouse Click to shoot ectoplasm.
+
+
+      Press Q to switch combat
+      mode.
+
+
+      Use Right Mouse Click to Disappear when you are in Defense mode.
+      Disappear makes you avoid danger for a short time, but it costs AP.
+
+'
+    showOnlyOnce: 1
+  - tipId: general_level_points
+    category: 0
+    title: LEVELS AND BRANCHES
+    body: Defeating enemies gives XP.  When you gain enough XP, you level up and
+      receive a branch point. Branch points are spent on upgrades that shape your
+      build for the rest of the run.  Leveling does not automatically make every
+      choice for you. You decide what kind of sinner you become.
+    showOnlyOnce: 1
+  - tipId: general_upgrade_menu
+    category: 0
+    title: UPGRADES
+    body: "Press E during normal gameplay to open the upgrade menu.\n\nYou can spend
+      branch points on four branches: Demon, Monster, Fallen God, and Hellhound.\n\nEach
+      branch changes your run differently, so check your current build in the Sinner\u2019s
+      Ledger with L."
+    showOnlyOnce: 1
+  - tipId: general_branch_identity
+    category: 0
+    title: BRANCH IDENTITY
+    body: 'Demon improves offensive power and Disappear strength.
+
+      Monster
+      improves survivability through HP and AP.
+
+      Fallen God gives balanced
+      stat growth.
+
+      Hellhound gives a chance to execute enemies when entering
+      combat rooms.
+
+
+      Choose branches based on how you want to survive Hell.'
+    showOnlyOnce: 1
+  - tipId: general_ledger
+    category: 0
+    title: SINNER'S LEDGER
+    body: "Press L to open the Sinner\u2019s Ledger.\n\nThe Ledger shows your current
+      stats, active challenge effects, owned shop items, and branch levels.\n\nOpen
+      it whenever something changes and you want to understand what Hell has done
+      to your build."
+    showOnlyOnce: 1
   - tipId: room_combat_first_enter
     category: 1
     title: COMBAT ROOMS
@@ -86,6 +134,20 @@ MonoBehaviour:
 
       If you die, you return
       to your last campfire, but cleared and uncleared room states are remembered.'
+    showOnlyOnce: 1
+  - tipId: hostage_room_first_seen
+    category: 4
+    title: TRAPPED GHOSTS
+    body: 'Some combat rooms contain trapped ghosts.
+
+
+      If you find them, clear
+      the room to break their prison. Rescued ghosts travel to your active campfire
+      and gather there over time.
+
+
+      Saving them does not just clear a room.
+      It slowly changes your sanctuary.'
     showOnlyOnce: 1
   - tipId: combat_enemy_variety
     category: 1
@@ -122,6 +184,73 @@ MonoBehaviour:
       A Horsemen
       Ring can prevent death once if you own one.'
     showOnlyOnce: 1
+  - tipId: hostage_campfire_population
+    category: 4
+    title: CAMPFIRE SPIRITS
+    body: 'Rescued ghosts gather at your active campfire.
+
+
+      Each campfire has
+      limited space for spirits. If a campfire is full, new hostage rooms may stop
+      appearing until another campfire becomes your active checkpoint.
+
+
+      Your
+      checkpoint is not only where you return. It is where the saved gather.'
+    showOnlyOnce: 1
+  - tipId: challenge_rooms
+    category: 5
+    title: CHALLENGE ROOMS
+    body: 'Challenge rooms are risky bargains.
+
+
+      Instead of normal combat,
+      they offer a special trial. If you succeed, you gain a temporary effect. If
+      you fail, you may suffer a temporary penalty.'
+    showOnlyOnce: 1
+  - tipId: challenge_effects
+    category: 5
+    title: TEMPORARY EFFECTS
+    body: 'Challenge effects stay with you until you enter another Challenge room.
+
+
+      That
+      means each new challenge can replace your old bargain with a new one.'
+    showOnlyOnce: 1
+  - tipId: challenge_betting
+    category: 5
+    title: BETTING
+    body: 'In Betting, you wager AP on hellhound racers.
+
+
+      Choose carefully.
+      A good bet can strengthen your run. A bad bet can cripple your action economy.'
+    showOnlyOnce: 1
+  - tipId: challenge_gluttony
+    category: 5
+    title: GLUTTONY
+    body: 'In Gluttony, greed is the trap.
+
+
+      You will be tempted to push for
+      more than is safe. Too much hunger can turn reward into punishment.'
+    showOnlyOnce: 1
+  - tipId: challenge_sloth
+    category: 5
+    title: SLOTH
+    body: 'In Sloth, timing matters more than aggression.
+
+
+      Do not rush. Wait,
+      read, and act at the right moment.'
+    showOnlyOnce: 1
+  - tipId: challenge_lie
+    category: 5
+    title: LIE
+    body: "Lie is the cruelest challenge.\n\nIts rules may shift, deceive, or chain
+      multiple punishments and rewards together. Trust nothing blindly. \n\nChoose
+      to complete Lucifer's trials or attempt to deceive King of Hell himself."
+    showOnlyOnce: 1
   - tipId: room_trade_first_enter
     category: 6
     title: UNDER THE CROSSROADS
@@ -139,10 +268,9 @@ MonoBehaviour:
   - tipId: trade_shop_items
     category: 6
     title: SHOP ITEMS
-    body: "Bought items appear on the left side of the screen.\n\nUse hotkeys 1\u20134
+    body: "Bought items appear on the left side of the screen.\n\nUse hotkeys 1\u20133
       to activate active items:\n1: Chronos Spell\n2: Bloodlust Potion\n3: Ectoplasm
-      Potion\n4: Horsemen Ring\n\nThe Horsemen Ring is passive. It activates automatically
-      when you would die."
+      Potion\n\nThe Horsemen Ring activates automatically when you are close to death."
     showOnlyOnce: 1
   - tipId: trade_active_item_timers
     category: 6
@@ -157,67 +285,6 @@ MonoBehaviour:
 
       Using the same active item again refreshes
       its effect timer.'
-    showOnlyOnce: 1
-  - tipId: general_level_points
-    category: 0
-    title: LEVELS AND BRANCHES
-    body: Defeating enemies gives XP.  When you gain enough XP, you level up and
-      receive a branch point. Branch points are spent on upgrades that shape your
-      build for the rest of the run.  Leveling does not automatically make every
-      choice for you. You decide what kind of sinner you become.
-    showOnlyOnce: 1
-  - tipId: general_upgrade_menu
-    category: 0
-    title: UPGRADES
-    body: "Press E during normal gameplay to open the upgrade menu.\n\nYou can spend
-      branch points on four branches: Demon, Monster, Fallen God, and Hellhound.\n\nEach
-      branch changes your run differently, so check your current build in the Sinner\u2019s
-      Ledger with L."
-    showOnlyOnce: 1
-  - tipId: general_branch_identity
-    category: 0
-    title: BRANCH IDENTITY
-    body: 'Demon improves offensive power and Disappear strength.
-
-      Monster
-      improves survivability through HP and AP.
-
-      Fallen God gives balanced
-      stat growth.
-
-      Hellhound gives a chance to execute enemies when entering
-      combat rooms.
-
-
-      Choose branches based on how you want to survive Hell.'
-    showOnlyOnce: 1
-  - tipId: hostage_room_first_seen
-    category: 4
-    title: TRAPPED GHOSTS
-    body: 'Some combat rooms contain trapped ghosts.
-
-
-      If you find them, clear
-      the room to break their prison. Rescued ghosts travel to your active campfire
-      and gather there over time.
-
-
-      Saving them does not just clear a room.
-      It slowly changes your sanctuary.'
-    showOnlyOnce: 1
-  - tipId: hostage_campfire_population
-    category: 4
-    title: CAMPFIRE SPIRITS
-    body: 'Rescued ghosts gather at your active campfire.
-
-
-      Each campfire has
-      limited space for spirits. If a campfire is full, new hostage rooms may stop
-      appearing until another campfire becomes your active checkpoint.
-
-
-      Your
-      checkpoint is not only where you return. It is where the saved gather.'
     showOnlyOnce: 1
   - tipId: boss_clue_menu
     category: 7
@@ -258,8 +325,7 @@ MonoBehaviour:
 
 
       The Eating Wave reduces your Max HP during the attempt unless
-      you avoid it with Disappear. The Hellhounds are the main damage pressure, so
-      decide when to clear them and when to shoot the boss.'
+      you avoid it with Disappear.'
     showOnlyOnce: 1
   - tipId: boss_mvp_ending
     category: 7
@@ -274,19 +340,4 @@ MonoBehaviour:
 
       For now, survive Gluttony. The next nightmare
       can wait.'
-    showOnlyOnce: 1
-  - tipId: general_attack_disappear_controls
-    category: 0
-    title: CONTROLS
-    body: 'Use Left Mouse Click to shoot ectoplasm.
-
-
-      Press Q to switch combat
-      mode.
-
-
-      Use Right Mouse Click to Disappear when you are in Defense mode.
-      Disappear makes you avoid danger for a short time, but it costs AP.
-
-'
     showOnlyOnce: 1

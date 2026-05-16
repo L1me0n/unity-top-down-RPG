@@ -18,7 +18,11 @@ public class RunSaveManager : MonoBehaviour
     [SerializeField] private bool autoLoadOnStart = true;
     [SerializeField] private bool autoSaveOnChanges = true;
 
+    private bool manualSaveSuppressed;
+
     private string SavePath => Path.Combine(Application.persistentDataPath, "run_save.json");
+
+    public string SaveFilePath => SavePath;
 
     private void Awake()
     {
@@ -105,8 +109,147 @@ public class RunSaveManager : MonoBehaviour
             bossProgressionManager.OnBossProgressionChanged -= Save;
     }
 
+    public bool HasSaveFile()
+    {
+        if (File.Exists(SavePath))
+            return true;
+
+        string folder = Application.persistentDataPath;
+
+        if (!Directory.Exists(folder))
+            return false;
+
+        string[] possibleSaveFiles = Directory.GetFiles(folder, "*run_save*.json");
+        return possibleSaveFiles.Length > 0;
+    }
+
+    private string GetFirstExistingSavePath()
+    {
+        if (File.Exists(SavePath))
+            return SavePath;
+
+        string folder = Application.persistentDataPath;
+
+        if (!Directory.Exists(folder))
+            return "";
+
+        string[] possibleSaveFiles = Directory.GetFiles(folder, "*run_save*.json");
+
+        if (possibleSaveFiles.Length > 0)
+            return possibleSaveFiles[0];
+
+        return "";
+    }
+
+    public bool TryGetSavePreview(out RunSavePreviewData preview)
+    {
+        preview = new RunSavePreviewData();
+
+        string savePath = GetFirstExistingSavePath();
+
+        if (string.IsNullOrWhiteSpace(savePath))
+        {
+            preview.hasSave = false;
+            return false;
+        }
+
+        string json = File.ReadAllText(savePath);
+        RunSaveData data = JsonUtility.FromJson<RunSaveData>(json);
+
+        if (data == null)
+        {
+            preview.hasSave = false;
+            return false;
+        }
+
+        preview.hasSave = true;
+
+        preview.roomX = data.playerRoomX;
+        preview.roomY = data.playerRoomY;
+
+        preview.level = data.level;
+        preview.unspentPoints = data.unspentPoints;
+
+        preview.souls = data.souls;
+        preview.xp = data.xp;
+
+        if (data.bossProgression != null)
+        {
+            data.bossProgression.ClampAndRepair();
+
+            preview.gluttonyClues = data.bossProgression.gluttonyClueCount;
+            preview.gluttonyBossUnlocked = data.bossProgression.gluttonyBossUnlocked;
+            preview.gluttonyBossDefeated = data.bossProgression.gluttonyBossDefeated;
+            preview.hungerClueUnlocked = data.bossProgression.hungerHorsemanClueUnlocked;
+            preview.mvpEndingReached = data.bossProgression.mvpEndingReached;
+        }
+
+        return true;
+    }
+
+    public bool TryLoad()
+    {
+        if (!File.Exists(SavePath))
+            return false;
+
+        Load();
+        return true;
+    }
+
+    public bool TryDeleteSave()
+    {
+        manualSaveSuppressed = true;
+
+        bool deletedAny = false;
+
+        // Main current save file.
+        if (File.Exists(SavePath))
+        {
+            File.Delete(SavePath);
+            deletedAny = true;
+            Debug.Log($"[RunSaveManager] Deleted save -> {SavePath}");
+        }
+
+        // Safety cleanup for possible old/duplicate run save files.
+        // This only targets files that look like Chief of Sin run-save files.
+        string folder = Application.persistentDataPath;
+
+        if (Directory.Exists(folder))
+        {
+            string[] possibleSaveFiles = Directory.GetFiles(folder, "*run_save*.json");
+
+            for (int i = 0; i < possibleSaveFiles.Length; i++)
+            {
+                string path = possibleSaveFiles[i];
+
+                if (File.Exists(path))
+                {
+                    File.Delete(path);
+                    deletedAny = true;
+                    Debug.Log($"[RunSaveManager] Deleted extra save file -> {path}");
+                }
+            }
+        }
+
+        if (!deletedAny)
+            Debug.Log("[RunSaveManager] Delete requested, but no save files were found.");
+
+        return deletedAny;
+    }
+
+    public void AllowManualSavingAgain()
+    {
+        manualSaveSuppressed = false;
+    }
+
     public void Save()
     {
+        if (manualSaveSuppressed)
+        {
+            Debug.Log("[RunSaveManager] Save ignored because saving is suppressed after deleting the save file.");
+            return;
+        }
+
         if (currency == null || levelSystem == null || branches == null || roomManager == null) return;
 
         var data = new RunSaveData
@@ -299,8 +442,7 @@ public class RunSaveManager : MonoBehaviour
 
     public void DeleteSave()
     {
-        if (File.Exists(SavePath))
-            File.Delete(SavePath);
+        TryDeleteSave();
     }
 
     private void OnRoomEntered(RoomInstance _) => Save();

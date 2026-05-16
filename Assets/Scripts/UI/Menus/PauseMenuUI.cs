@@ -21,6 +21,9 @@ public class PauseMenuUI : MonoBehaviour
 
     [Header("References")]
     [SerializeField] private RunSaveManager runSaveManager;
+    [SerializeField] private SavesMenuUI savesMenuUI;
+    [SerializeField] private TipsCodexUI tipsCodexUI;
+    [SerializeField] private ClueMenuUI clueMenuUI;
 
     [Header("Input")]
     [SerializeField] private KeyCode toggleKey = KeyCode.Escape;
@@ -45,6 +48,15 @@ public class PauseMenuUI : MonoBehaviour
         if (runSaveManager == null)
             runSaveManager = FindFirstObjectByType<RunSaveManager>();
 
+        if (savesMenuUI == null)
+            savesMenuUI = FindFirstObjectByType<SavesMenuUI>();
+
+        if (tipsCodexUI == null)
+            tipsCodexUI = FindFirstObjectByType<TipsCodexUI>();
+
+        if (clueMenuUI == null)
+            clueMenuUI = FindFirstObjectByType<ClueMenuUI>();
+
         if (rootPanel != null)
             rootPanel.SetActive(false);
 
@@ -60,13 +72,13 @@ public class PauseMenuUI : MonoBehaviour
             saveGameButton.onClick.AddListener(SaveGame);
 
         if (savesButton != null)
-            savesButton.onClick.AddListener(OpenSavesPlaceholder);
+            savesButton.onClick.AddListener(OpenSavesMenu);
 
         if (optionsButton != null)
-            optionsButton.onClick.AddListener(OpenOptionsPlaceholder);
+            optionsButton.onClick.AddListener(OpenTipsMenu);
 
         if (mainMenuButton != null)
-            mainMenuButton.onClick.AddListener(ReturnToMainMenuPlaceholder);
+            mainMenuButton.onClick.AddListener(OpenCluesMenu);
 
         if (exitGameButton != null)
             exitGameButton.onClick.AddListener(ExitGame);
@@ -81,13 +93,13 @@ public class PauseMenuUI : MonoBehaviour
             saveGameButton.onClick.RemoveListener(SaveGame);
 
         if (savesButton != null)
-            savesButton.onClick.RemoveListener(OpenSavesPlaceholder);
+            savesButton.onClick.RemoveListener(OpenSavesMenu);
 
         if (optionsButton != null)
-            optionsButton.onClick.RemoveListener(OpenOptionsPlaceholder);
+            optionsButton.onClick.RemoveListener(OpenTipsMenu);
 
         if (mainMenuButton != null)
-            mainMenuButton.onClick.RemoveListener(ReturnToMainMenuPlaceholder);
+            mainMenuButton.onClick.RemoveListener(OpenCluesMenu);
 
         if (exitGameButton != null)
             exitGameButton.onClick.RemoveListener(ExitGame);
@@ -182,28 +194,63 @@ public class PauseMenuUI : MonoBehaviour
             return;
         }
 
+        runSaveManager.AllowManualSavingAgain();
         runSaveManager.Save();
         ShowFeedback("Game saved.");
 
         Log("Saved game from pause menu.");
     }
 
-    private void OpenSavesPlaceholder()
+    private void OpenSavesMenu()
     {
-        ShowFeedback("Saves menu will be added in F5.");
-        Log("Saves placeholder clicked.");
+        if (savesMenuUI == null)
+            savesMenuUI = FindFirstObjectByType<SavesMenuUI>();
+
+        if (savesMenuUI == null)
+        {
+            ShowFeedback("Saves menu not assigned.");
+            Debug.LogWarning("[PauseMenuUI] Saves button clicked, but SavesMenuUI was not found.", this);
+            return;
+        }
+
+        savesMenuUI.OpenFromPause(this);
+        Log("Opened Saves menu.");
     }
 
-    private void OpenOptionsPlaceholder()
+    private void OpenTipsMenu()
     {
-        ShowFeedback("Options menu will be added in F8.");
-        Log("Options placeholder clicked.");
+        if (tipsCodexUI == null)
+            tipsCodexUI = FindFirstObjectByType<TipsCodexUI>();
+
+        if (tipsCodexUI == null)
+        {
+            ShowFeedback("Tips menu not assigned.");
+            Debug.LogWarning("[PauseMenuUI] Tips button clicked, but TipsCodexUI was not found.", this);
+            return;
+        }
+
+        CloseForExternalMenuAction();
+        tipsCodexUI.OpenTips();
+
+        Log("Opened Tips menu.");
     }
 
-    private void ReturnToMainMenuPlaceholder()
+    private void OpenCluesMenu()
     {
-        ShowFeedback("Main Menu return will be wired in F6.");
-        Log("Main Menu placeholder clicked.");
+        if (clueMenuUI == null)
+            clueMenuUI = FindFirstObjectByType<ClueMenuUI>();
+
+        if (clueMenuUI == null)
+        {
+            ShowFeedback("Clue menu not assigned.");
+            Debug.LogWarning("[PauseMenuUI] Clues button clicked, but ClueMenuUI was not found.", this);
+            return;
+        }
+
+        CloseForExternalMenuAction();
+        clueMenuUI.OpenFromExternalMenu();
+
+        Log("Opened Clue menu.");
     }
 
     public void ExitGame()
@@ -228,6 +275,44 @@ public class PauseMenuUI : MonoBehaviour
         ReleaseLocksAndTime();
 
         Log("Force closed.");
+    }
+
+    public void HidePanelForSubmenu()
+    {
+        if (!isOpen)
+            return;
+
+        if (rootPanel != null)
+            rootPanel.SetActive(false);
+
+        ClearFeedback();
+    }
+
+    public void ShowPanelAfterSubmenu()
+    {
+        if (!isOpen)
+            return;
+
+        if (rootPanel != null)
+            rootPanel.SetActive(true);
+
+        ClearFeedback();
+    }
+
+    public void CloseForExternalMenuAction()
+    {
+        if (!isOpen)
+            return;
+
+        isOpen = false;
+
+        if (rootPanel != null)
+            rootPanel.SetActive(false);
+
+        ClearFeedback();
+        ReleaseLocksAndTime();
+
+        Log("Closed for external menu action.");
     }
 
     private void ApplyLocksAndTime()
