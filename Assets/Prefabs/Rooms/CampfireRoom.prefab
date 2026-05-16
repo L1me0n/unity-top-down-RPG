@@ -1681,7 +1681,7 @@ MonoBehaviour:
   - room_campfire_first_enter
   - campfire_checkpoint_death
   - hostage_campfire_population
-  delaySeconds: 0.25
+  delaySeconds: 1
   retryCount: 8
   retryDelaySeconds: 0.25
   requestOnlyOncePerObjectEnable: 1
